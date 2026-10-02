@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dynamic Energy Shadow Card fixture</title>
+  <style>
+    :root {
+      --primary-color: #315b4c;
+      --primary-text-color: #17201c;
+      --secondary-text-color: #65716b;
+      --card-background-color: #fff;
+      --divider-color: #d8dfdb;
+      --ha-card-border-radius: 12px;
+      --ha-font-family-body: Arial, sans-serif;
+      --ha-font-family-code: "Courier New", monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; background: #eef1ef; color: #17201c; font-family: Arial, sans-serif; }
+    main { width: min(1180px, 100%); margin: 0 auto; }
+    .fixture-meta { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 12px; color: #65716b; font-size: 12px; }
+    ha-card { display: block; background: var(--card-background-color); border-radius: var(--ha-card-border-radius); box-shadow: 0 2px 8px rgb(15 28 22 / 8%); }
+    #editor-contract { margin-top: 18px; padding: 14px; background: #fff; border: 1px solid #d8dfdb; border-radius: 10px; }
+    #editor-contract h2 { margin: 0 0 10px; font-size: 15px; }
+    #editor-fields { display: flex; flex-wrap: wrap; gap: 6px; }
+    #editor-fields span { padding: 5px 7px; border: 1px solid #d8dfdb; border-radius: 4px; font-size: 11px; }
+    @media (max-width: 500px) { body { padding: 10px; } .fixture-meta { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="fixture-meta"><strong>HACS Lovelace browser fixture</strong><span id="fixture-mode">live-plan</span></div>
+    <dynamic-energy-shadow-card id="card"></dynamic-energy-shadow-card>
+    <section id="editor-contract"><h2>Visual editor schema</h2><div id="editor-fields"></div></section>
+  </main>
+  <script type="module">
+    import { DynamicEnergyShadowCard } from "/dist/dynamic-energy-dashboard.js";
+
+    const card = document.getElementById("card");
+    const baseConfig = {
+      title: "Live shadow-sturing",
+      grid_power_entity: "sensor.grid_power",
+      pv_power_entity: "sensor.pv_power",
+      battery_power_entity: "sensor.battery_power",
+      battery_soc_entity: "sensor.battery_soc",
+      house_power_entity: "sensor.house_power",
+      ev_power_entity: "sensor.ev_power",
+      heat_pump_power_entity: "sensor.heat_pump_power",
+      import_price_entity: "sensor.import_price",
+      export_price_entity: "sensor.export_price",
+      plan_entity: "sensor.shadow_plan",
+      plan_attribute: "schedule",
+      peak_limit_kw: 7,
+      stale_after_minutes: 10,
+      plan_stale_after_hours: 30,
+      deviation_warning_kw: 0.5,
+      grid_import_positive: true,
+      battery_charge_positive: true,
+    };
+
+    const makeState = (value, unit, updated, attributes = {}) => ({
+      state: String(value),
+      last_updated: updated,
+      last_changed: updated,
+      attributes: { unit_of_measurement: unit, ...attributes },
+    });
+
+    function liveStates(stale = false) {
+      const now = new Date();
+      const updated = new Date(now.getTime() - (stale ? 45 : 1) * 60000).toISOString();
+      const start = new Date(Math.floor(now.getTime() / 900000) * 900000);
+      return {
+        "sensor.grid_power": makeState(4200, "W", updated, { friendly_name: "Netvermogen" }),
+        "sensor.pv_power": makeState(1800, "W", updated, { friendly_name: "PV-vermogen" }),
+        "sensor.battery_power": makeState(500, "W", updated, { friendly_name: "Batterijvermogen" }),
+        "sensor.battery_soc": makeState(58, "%", updated, { friendly_name: "Batterij-SOC" }),
+        "sensor.house_power": makeState(5500, "W", updated, { friendly_name: "Huisvermogen" }),
+        "sensor.ev_power": makeState(2200, "W", updated, { friendly_name: "EV-laden" }),
+        "sensor.heat_pump_power": makeState(900, "W", updated, { friendly_name: "Warmtepomp" }),
+        "sensor.import_price": makeState(0.184, "EUR/kWh", updated, { friendly_name: "Afnameprijs" }),
+        "sensor.export_price": makeState(0.041, "EUR/kWh", updated, { friendly_name: "Injectieprijs" }),
+        "sensor.shadow_plan": makeState("planned", null, updated, {
+          mode: "READ_ONLY_SHADOW",
+          schedule: [{
+            start_utc: start.toISOString(),
+            duration_hours: 0.25,
+            action: "CHARGE_FROM_GRID",
+            reason: "LOW_PRICE; gezamenlijke netruimte blijft beschikbaar",
+            planned_grid_import_kw: 3.5,
+            planned_grid_export_kw: 0,
+            charge_kwh: 0.25,
+            discharge_kwh: 0,
+          }],
+        }),
+      };
+    }
+
+    window.setFixtureMode = (mode) => {
+      document.getElementById("fixture-mode").textContent = mode;
+      if (mode === "setup") {
+        card.setConfig({ title: "Nog te configureren" });
+        card.hass = { states: {} };
+        return;
+      }
+      card.setConfig(baseConfig);
+      card.hass = { states: liveStates(mode === "stale") };
+    };
+
+    const form = DynamicEnergyShadowCard.getConfigForm();
+    document.getElementById("editor-fields").innerHTML = form.schema
+      .map((field) => `<span>${form.computeLabel(field)}</span>`)
+      .join("");
+    window.fixtureEditorFieldCount = form.schema.length;
+    window.setFixtureMode("live-plan");
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Owner-provided evidence may contain personal data, serial numbers,
+# network addresses, account identifiers, or configuration details.
+docs/information/
+
+# Local entity maps contain installation-specific entity IDs.
+config/private/
+
+# Raw external responses may contain entity IDs or source metadata.
+data/raw/
+
+# Local credentials and private network endpoints.
+.env
+.env.*
+!.env.example
+
+# Generated local dashboard data and browser evidence can expose household
+# patterns even when installation identifiers are removed.
+web-dashboard/data/dashboard-data.json
+browser-evidence/
+
+# Python bytecode is generated during tests and local analysis.
+__pycache__/
+*.py[cod]
+
+# Worktree-specific project notification routing.
+PROJECT.local.md

@@ -1,0 +1,10 @@
+{
+  "name": "dynamic-energy-shadow-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:hacs": "node --test tests/js/dynamic-energy-dashboard.test.mjs",
+    "check:hacs": "node --check dist/dynamic-energy-dashboard.js"
+  }
+}
