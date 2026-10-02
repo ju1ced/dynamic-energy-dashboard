@@ -4,6 +4,8 @@ Read-only Lovelace monitor for live Home Assistant energy values and a proposed
 Day-Ahead battery shadow plan. The card never calls Home Assistant actions,
 changes helper state or writes to SMA, Smappee, a battery or an EV charger.
 
+![Dynamic Energy Shadow Dashboard preview](images/dynamic-energy-shadow-card.png)
+
 ## Features
 
 - live grid, PV, battery and SOC values;

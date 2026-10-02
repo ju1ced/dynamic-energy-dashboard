@@ -49,6 +49,13 @@ class HacsLovelacePackageTests(unittest.TestCase):
         self.assertIn("Add custom repository", readme)
         self.assertIn("visual editor", readme.lower())
         self.assertIn("read-only", readme.lower())
+        self.assertIn("images/dynamic-energy-shadow-card.png", readme)
+        self.assertTrue((ROOT / "images" / "dynamic-energy-shadow-card.png").is_file())
+
+    def test_repository_includes_a_license(self):
+        license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
+
+        self.assertIn("MIT License", license_text)
 
     def test_repository_includes_the_official_hacs_validation_action(self):
         workflow = (
@@ -59,6 +66,10 @@ class HacsLovelacePackageTests(unittest.TestCase):
             "hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa", workflow
         )
         self.assertNotIn("hacs/action@main", workflow)
+        self.assertIn(
+            "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            workflow,
+        )
         self.assertIn("pull_request:", workflow)
         self.assertIn("workflow_dispatch:", workflow)
 
