@@ -42,6 +42,16 @@ class HacsLovelacePackageTests(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertNotIn(token, source)
 
+    def test_card_renders_prospective_price_timeline_from_plan_entity(self):
+        source = (ROOT / "dist" / "dynamic-energy-dashboard.js").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("renderPriceTimeline(", source)
+        self.assertIn("snapshot.prices.intervals", source)
+        self.assertIn("snapshot.prices.referenceEurPerKwh", source)
+        self.assertIn("Komende kwartierprijzen", source)
+
     def test_readme_documents_hacs_and_gui_setup(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
@@ -49,8 +59,19 @@ class HacsLovelacePackageTests(unittest.TestCase):
         self.assertIn("Add custom repository", readme)
         self.assertIn("visual editor", readme.lower())
         self.assertIn("read-only", readme.lower())
+        self.assertIn("EPEX Spot Data", readme)
+        self.assertIn("Ecopower Dynamic Prices", readme)
+        self.assertIn("integration_price_attribute: data", readme)
         self.assertIn("images/dynamic-energy-shadow-card.png", readme)
         self.assertTrue((ROOT / "images" / "dynamic-energy-shadow-card.png").is_file())
+
+    def test_readme_documents_only_supported_frontend_price_inputs(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertNotIn("repository already retrieves", readme)
+        self.assertNotIn("shadow-plan-rest-sensor", readme)
+        self.assertNotIn("built-in REST integration", readme)
+        self.assertIn("two supported frontend price inputs", readme.lower())
 
     def test_repository_includes_a_license(self):
         license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")

@@ -2,6 +2,9 @@ const CARD_TAG = "dynamic-energy-shadow-card";
 const DEFAULT_CONFIG = Object.freeze({
   title: "Shadow-sturing",
   plan_attribute: "schedule",
+  price_attribute: "prices",
+  integration_price_attribute: "data",
+  price_reference_eur_per_kwh: 0.277,
   peak_limit_kw: 7,
   stale_after_minutes: 10,
   plan_stale_after_hours: 30,
@@ -40,15 +43,107 @@ const HTMLElementBase = globalThis.HTMLElement || class {};
 
 export function finiteNumber(value) {
   if (value === null || value === undefined || value === "") return null;
-  const parsed = Number(String(value).replace(",", "."));
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value !== "string") return null;
+  const parsed = Number(value.replace(",", "."));
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function externalDateMs(value) {
+  if (typeof value !== "string" || value.trim() === "") return NaN;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : NaN;
+}
+
+function isPlainObject(value) {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
+  try {
+    const prototype = Object.getPrototypeOf(value);
+    return prototype === Object.prototype || prototype === null;
+  } catch {
+    return false;
+  }
+}
+
+function safeValue(object, key) {
+  try {
+    return object[key];
+  } catch {
+    return undefined;
+  }
+}
+
+function safeAttributes(stateObject) {
+  const attributes = safeValue(stateObject, "attributes");
+  return attributes !== null && typeof attributes === "object" ? attributes : {};
+}
+
+function firstExternalValue(object, keys) {
+  for (const key of keys) {
+    const value = safeValue(object, key);
+    if (value !== undefined && value !== null && value !== "") return value;
+  }
+  return undefined;
+}
+
+function nonOverlappingRows(rows) {
+  const sorted = [...rows].sort((left, right) => left.startMs - right.startMs);
+  for (let index = 1; index < sorted.length; index += 1) {
+    if (sorted[index].startMs < sorted[index - 1].endMs) return [];
+  }
+  return sorted;
+}
+
+function uniqueRowsByStart(rows) {
+  const counts = new Map();
+  rows.forEach((row) => counts.set(row.startMs, (counts.get(row.startMs) || 0) + 1));
+  return rows.filter((row) => counts.get(row.startMs) === 1);
+}
+
+function normaliseScheduleRows(planState, attributeName) {
+  const schedule = safeValue(safeAttributes(planState), attributeName);
+  if (!Array.isArray(schedule)) return [];
+  const rows = [];
+  for (const row of schedule) {
+    if (!isPlainObject(row)) return [];
+    const startMs = externalDateMs(firstExternalValue(row, ["start_utc", "start", "start_local"]));
+    const explicitEnd = firstExternalValue(row, ["end_utc", "end"]);
+    const explicitEndMs = externalDateMs(explicitEnd);
+    const rawDuration = safeValue(row, "duration_hours");
+    const durationHours = finiteNumber(rawDuration);
+    if (
+      !Number.isFinite(startMs)
+      || (explicitEnd !== undefined && !Number.isFinite(explicitEndMs))
+      || (rawDuration !== undefined && (durationHours === null || durationHours <= 0))
+    ) return [];
+    const endMs = Number.isFinite(explicitEndMs)
+      ? explicitEndMs
+      : durationHours === null ? NaN : startMs + durationHours * 3600000;
+    if (!Number.isFinite(endMs) || endMs <= startMs) return [];
+    rows.push({
+      startMs,
+      endMs,
+      start_utc: new Date(startMs).toISOString(),
+      end_utc: new Date(endMs).toISOString(),
+      duration_hours: (endMs - startMs) / 3600000,
+      action: safeValue(row, "action"),
+      reason: safeValue(row, "reason"),
+      planned_grid_import_kw: safeValue(row, "planned_grid_import_kw"),
+      planned_grid_export_kw: safeValue(row, "planned_grid_export_kw"),
+      charge_kwh: safeValue(row, "charge_kwh"),
+      discharge_kwh: safeValue(row, "discharge_kwh"),
+    });
+  }
+  return nonOverlappingRows(rows);
 }
 
 export function toKilowatts(stateObject) {
   if (!stateObject) return null;
-  const value = finiteNumber(stateObject.state);
+  const value = finiteNumber(safeValue(stateObject, "state"));
   if (value === null) return null;
-  const unit = String(stateObject.attributes?.unit_of_measurement || "").trim();
+  const rawUnit = safeValue(safeAttributes(stateObject), "unit_of_measurement");
+  if (rawUnit !== undefined && rawUnit !== null && typeof rawUnit !== "string") return null;
+  const unit = (rawUnit || "").trim();
   if (["W", "watt", "watts"].includes(unit)) return value / 1000;
   if (["MW", "megawatt", "megawatts"].includes(unit)) return value * 1000;
   return value;
@@ -56,9 +151,11 @@ export function toKilowatts(stateObject) {
 
 export function toEuroPerKwh(stateObject) {
   if (!stateObject) return null;
-  const value = finiteNumber(stateObject.state);
+  const value = finiteNumber(safeValue(stateObject, "state"));
   if (value === null) return null;
-  const unit = String(stateObject.attributes?.unit_of_measurement || "")
+  const rawUnit = safeValue(safeAttributes(stateObject), "unit_of_measurement");
+  if (rawUnit !== undefined && rawUnit !== null && typeof rawUnit !== "string") return null;
+  const unit = (rawUnit || "")
     .trim()
     .toLowerCase();
   if (["ct/kwh", "c/kwh", "cent/kwh"].includes(unit)) return value / 100;
@@ -70,24 +167,35 @@ export function readEntity(hass, entityId, now = new Date(), staleMinutes = 10) 
   if (!entityId) {
     return { entityId: null, stateObject: null, value: null, quality: "NOT_CONFIGURED" };
   }
-  const stateObject = hass?.states?.[entityId];
+  const stateObject = safeValue(safeValue(hass, "states") || {}, entityId);
   if (!stateObject) {
     return { entityId, stateObject: null, value: null, quality: "MISSING" };
   }
-  const rawState = String(stateObject.state ?? "").toLowerCase();
+  if (typeof stateObject !== "object") {
+    return { entityId, stateObject: null, value: null, quality: "INVALID" };
+  }
+  const rawStateValue = safeValue(stateObject, "state");
+  if (typeof rawStateValue !== "string" && typeof rawStateValue !== "number") {
+    return { entityId, stateObject, value: null, quality: "INVALID" };
+  }
+  const rawState = String(rawStateValue).toLowerCase();
   if (["unknown", "unavailable", "none", "null", ""].includes(rawState)) {
     return { entityId, stateObject, value: null, quality: "UNAVAILABLE" };
   }
-  const updatedAt = new Date(stateObject.last_updated || stateObject.last_changed || 0);
-  const ageMinutes = (now.getTime() - updatedAt.getTime()) / 60000;
-  const quality = Number.isFinite(ageMinutes) && ageMinutes > staleMinutes ? "STALE" : "GOOD";
+  const timestamp = firstExternalValue(stateObject, ["last_updated", "last_changed"]);
+  const updatedMs = externalDateMs(timestamp);
+  const nowMs = now instanceof Date ? now.getTime() : NaN;
+  const ageMinutes = (nowMs - updatedMs) / 60000;
+  const validTimestamp = Number.isFinite(updatedMs) && Number.isFinite(ageMinutes);
+  const quality = !validTimestamp ? "INVALID" : ageMinutes > staleMinutes ? "STALE" : "GOOD";
+  const friendlyName = safeValue(safeAttributes(stateObject), "friendly_name");
   return {
     entityId,
     stateObject,
-    value: finiteNumber(stateObject.state),
+    value: finiteNumber(rawStateValue),
     quality,
-    ageMinutes: Number.isFinite(ageMinutes) ? Math.max(0, ageMinutes) : null,
-    name: stateObject.attributes?.friendly_name || entityId,
+    ageMinutes: validTimestamp ? Math.max(0, ageMinutes) : null,
+    name: typeof friendlyName === "string" ? friendlyName : entityId,
   };
 }
 
@@ -119,17 +227,112 @@ function readPrice(hass, entityId, now, staleMinutes) {
 
 export function getCurrentPlanInterval(planState, attributeName = "schedule", now = new Date()) {
   if (!planState) return null;
-  const schedule = planState.attributes?.[attributeName];
-  if (!Array.isArray(schedule)) return null;
   const nowMs = now.getTime();
-  return schedule.find((row) => {
-    const startMs = Date.parse(row.start_utc || row.start || row.start_local || "");
-    if (!Number.isFinite(startMs)) return false;
-    const endMs = row.end_utc
-      ? Date.parse(row.end_utc)
-      : startMs + finiteNumber(row.duration_hours || 0.25) * 3600000;
-    return Number.isFinite(endMs) && startMs <= nowMs && nowMs < endMs;
-  }) || null;
+  const selected = normaliseScheduleRows(planState, attributeName)
+    .find((row) => row.startMs <= nowMs && nowMs < row.endMs);
+  if (!selected) return null;
+  const { startMs, endMs, ...interval } = selected;
+  return interval;
+}
+
+export function getUpcomingPriceIntervals(planState, attributeName = "prices", now = new Date()) {
+  if (!planState) return [];
+  const rows = safeValue(safeAttributes(planState), attributeName);
+  if (!Array.isArray(rows)) return [];
+  const nowMs = now.getTime();
+  const parsedRows = [];
+  for (const row of rows) {
+    if (!isPlainObject(row)) return [];
+    const startMs = externalDateMs(firstExternalValue(row, ["start_utc", "start"]));
+    const explicitEnd = firstExternalValue(row, ["end_utc", "end"]);
+    const explicitEndMs = externalDateMs(explicitEnd);
+    const rawDuration = safeValue(row, "duration_hours");
+    const durationHours = finiteNumber(rawDuration);
+    const rawImport = safeValue(row, "import_eur_per_kwh");
+    const importEurPerKwh = finiteNumber(rawImport);
+    const rawMarket = safeValue(row, "market_eur_per_mwh");
+    const marketEurPerMwh = finiteNumber(rawMarket);
+    const rawExport = safeValue(row, "export_eur_per_kwh");
+    const exportEurPerKwh = finiteNumber(rawExport);
+    if (
+      !Number.isFinite(startMs)
+      || (explicitEnd !== undefined && !Number.isFinite(explicitEndMs))
+      || durationHours === null
+      || durationHours <= 0
+      || importEurPerKwh === null
+      || (rawMarket !== undefined && rawMarket !== null && rawMarket !== "" && marketEurPerMwh === null)
+      || (rawExport !== undefined && rawExport !== null && rawExport !== "" && exportEurPerKwh === null)
+    ) return [];
+    const endMs = Number.isFinite(explicitEndMs)
+      ? explicitEndMs
+      : startMs + durationHours * 3600000;
+    if (!Number.isFinite(endMs) || endMs <= startMs) return [];
+    parsedRows.push({
+      startMs,
+      endMs,
+      startUtc: new Date(startMs).toISOString(),
+      endUtc: new Date(endMs).toISOString(),
+      durationHours: (endMs - startMs) / 3600000,
+      marketEurPerMwh,
+      importEurPerKwh,
+      exportEurPerKwh,
+    });
+  }
+  return nonOverlappingRows(parsedRows)
+    .filter((row) => row.endMs > nowMs)
+    .map(({ startMs, endMs, ...row }) => row);
+}
+
+export function getEntityPriceIntervals(
+  importState,
+  exportState = null,
+  attributeName = "data",
+  now = new Date(),
+) {
+  const importRows = safeValue(safeAttributes(importState), attributeName);
+  if (!Array.isArray(importRows)) return [];
+  const candidateExportRows = safeValue(safeAttributes(exportState), attributeName);
+  const exportRows = Array.isArray(candidateExportRows) ? candidateExportRows : [];
+
+  const parseIntegrationRows = (rows) => {
+    const parsed = [];
+    for (const row of rows) {
+      if (!isPlainObject(row)) return [];
+      const startMs = externalDateMs(firstExternalValue(row, ["start_time", "start_utc", "start"]));
+      const explicitEndValue = firstExternalValue(row, ["end_time", "end_utc", "end"]);
+      const explicitEndMs = externalDateMs(explicitEndValue);
+      const rawDuration = safeValue(row, "duration_hours");
+      const durationHours = finiteNumber(rawDuration);
+      if (
+        (explicitEndValue !== undefined && !Number.isFinite(explicitEndMs))
+        || (rawDuration !== undefined && (durationHours === null || durationHours <= 0))
+      ) return [];
+      const endMs = Number.isFinite(explicitEndMs)
+        ? explicitEndMs
+        : durationHours === null ? NaN : startMs + durationHours * 3600000;
+      const price = finiteNumber(safeValue(row, "price_per_kwh"));
+      if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs || price === null) return [];
+      parsed.push({ startMs, endMs, price });
+    }
+    return nonOverlappingRows(parsed);
+  };
+
+  const parsedExportRows = parseIntegrationRows(exportRows);
+  const exportByInterval = new Map(
+    parsedExportRows.map((row) => [`${row.startMs}:${row.endMs}`, row.price]),
+  );
+  const nowMs = now.getTime();
+  const parsedImportRows = parseIntegrationRows(importRows);
+  return parsedImportRows
+    .filter((row) => row.endMs > nowMs)
+    .map((row) => ({
+      startUtc: new Date(row.startMs).toISOString(),
+      endUtc: new Date(row.endMs).toISOString(),
+      durationHours: (row.endMs - row.startMs) / 3600000,
+      marketEurPerMwh: null,
+      importEurPerKwh: row.price,
+      exportEurPerKwh: exportByInterval.get(`${row.startMs}:${row.endMs}`) ?? null,
+    }));
 }
 
 function qualityRank(quality) {
@@ -141,6 +344,59 @@ function collectQuality(readings) {
     .filter(([, reading]) => reading && reading.quality !== "GOOD")
     .sort((left, right) => qualityRank(right[1].quality) - qualityRank(left[1].quality))
     .map(([key, reading]) => ({ key, entityId: reading.entityId, quality: reading.quality }));
+}
+
+function intervalCoverageMs(intervals, nowMs) {
+  return intervals.reduce((total, row) => {
+    const startMs = Date.parse(row.startUtc);
+    const endMs = Date.parse(row.endUtc);
+    return total + Math.max(0, endMs - Math.max(nowMs, startMs));
+  }, 0);
+}
+
+function emptyAggregates() {
+  return { daily: [], weekly: [], monthly: [] };
+}
+
+function validAggregatePeriod(kind, period) {
+  if (kind === "daily") {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(period)) return false;
+    const parsed = new Date(`${period}T00:00:00Z`);
+    return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === period;
+  }
+  if (kind === "weekly") return /^\d{4}-W(?:0[1-9]|[1-4]\d|5[0-3])$/.test(period);
+  if (kind === "monthly") return /^\d{4}-(?:0[1-9]|1[0-2])$/.test(period);
+  return false;
+}
+
+function normaliseAggregateRows(rows, kind) {
+  if (!Array.isArray(rows)) return [];
+  const parsed = rows.flatMap((row) => {
+    if (!isPlainObject(row)) return [];
+    const periodValue = safeValue(row, "period");
+    const period = typeof periodValue === "string" ? periodValue.trim() : "";
+    const average = finiteNumber(safeValue(row, "average_eur_per_kwh"));
+    if (!validAggregatePeriod(kind, period) || average === null) return [];
+    return [{
+      period,
+      average_eur_per_kwh: average,
+      partial_period: safeValue(row, "partial_period") === true,
+    }];
+  });
+  const counts = new Map();
+  parsed.forEach((row) => counts.set(row.period, (counts.get(row.period) || 0) + 1));
+  return parsed
+    .filter((row) => counts.get(row.period) === 1)
+    .sort((left, right) => left.period.localeCompare(right.period));
+}
+
+function normaliseAggregates(aggregates) {
+  if (!isPlainObject(aggregates)) return emptyAggregates();
+  return {
+    daily: normaliseAggregateRows(safeValue(aggregates, "daily"), "daily"),
+    weekly: normaliseAggregateRows(safeValue(aggregates, "weekly"), "weekly"),
+    monthly: normaliseAggregateRows(safeValue(aggregates, "monthly"), "monthly"),
+  };
 }
 
 export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
@@ -181,11 +437,58 @@ export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
 
   const planHours = finiteNumber(config.plan_stale_after_hours) ?? DEFAULT_CONFIG.plan_stale_after_hours;
   const planReading = readEntity(hass, config.plan_entity, now, planHours * 60);
-  const planInterval = getCurrentPlanInterval(
-    planReading.stateObject,
-    config.plan_attribute || DEFAULT_CONFIG.plan_attribute,
-    now,
+  const planIsFresh = planReading.quality === "GOOD";
+  const planAttribute = config.plan_attribute || DEFAULT_CONFIG.plan_attribute;
+  const planInterval = planIsFresh
+    ? getCurrentPlanInterval(planReading.stateObject, planAttribute, now)
+    : null;
+  const planSchedule = planIsFresh
+    ? normaliseScheduleRows(planReading.stateObject, planAttribute).map(({ startMs, endMs, ...row }) => row)
+    : [];
+  const planPriceIntervals = planIsFresh
+    ? getUpcomingPriceIntervals(
+      planReading.stateObject,
+      config.price_attribute || "prices",
+      now,
+    )
+    : [];
+  const entityPriceIntervals = importPrice.quality === "GOOD"
+    ? getEntityPriceIntervals(
+      importPrice.stateObject,
+      exportPrice.quality === "GOOD" ? exportPrice.stateObject : null,
+      config.integration_price_attribute || DEFAULT_CONFIG.integration_price_attribute,
+      now,
+    )
+    : [];
+  const nowMs = now.getTime();
+  const shadowCoverage = intervalCoverageMs(planPriceIntervals, nowMs);
+  const integrationCoverage = intervalCoverageMs(entityPriceIntervals, nowMs);
+  const hasIntegrationSource = importPrice.quality === "GOOD"
+    && (entityPriceIntervals.length > 0 || importPrice.value !== null);
+  const selectedPriceSource = hasIntegrationSource && integrationCoverage > shadowCoverage
+    ? "integration"
+    : planPriceIntervals.length > 0 ? "shadow" : hasIntegrationSource ? "integration" : null;
+  const priceIntervals = selectedPriceSource === "shadow" ? planPriceIntervals
+    : selectedPriceSource === "integration" ? entityPriceIntervals : [];
+  const currentTimelinePrice = priceIntervals.find(
+    (row) => Date.parse(row.startUtc) <= nowMs && nowMs < Date.parse(row.endUtc),
   );
+  const effectiveImportPrice = currentTimelinePrice?.importEurPerKwh
+    ?? (selectedPriceSource === "integration" && importPrice.quality === "GOOD" ? importPrice.value : null);
+  const effectiveExportPrice = currentTimelinePrice?.exportEurPerKwh
+    ?? (selectedPriceSource === "integration" && exportPrice.quality === "GOOD" ? exportPrice.value : null);
+  const shadowAttributes = planReading.stateObject?.attributes;
+  const selectedAggregates = selectedPriceSource === "shadow"
+    ? normaliseAggregates(safeValue(shadowAttributes || {}, "price_aggregates"))
+    : emptyAggregates();
+  const selectedSourceLabel = selectedPriceSource === "shadow"
+    ? (safeValue(shadowAttributes || {}, "price_source") || "Shadow plan entity")
+    : selectedPriceSource === "integration" ? "Home Assistant price entities" : null;
+  const selectedTariffVersion = selectedPriceSource === "shadow"
+    ? (safeValue(shadowAttributes || {}, "price_tariff_version") || null)
+    : null;
+  const priceReference = finiteNumber(config.price_reference_eur_per_kwh)
+    ?? DEFAULT_CONFIG.price_reference_eur_per_kwh;
   const plannedGridImportKw = finiteNumber(planInterval?.planned_grid_import_kw);
   const gridDeviationKw = gridImportKw !== null && plannedGridImportKw !== null
     ? gridImportKw - plannedGridImportKw
@@ -212,7 +515,7 @@ export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
     status = "STALE_DATA";
   } else if (!config.plan_entity) {
     status = "DATA_GATED";
-  } else if (["MISSING", "UNAVAILABLE", "STALE"].includes(planReading.quality)) {
+  } else if (["INVALID", "MISSING", "UNAVAILABLE", "STALE"].includes(planReading.quality)) {
     status = planReading.quality === "STALE" ? "STALE_DATA" : "UNAVAILABLE_DATA";
   } else if (!planInterval) {
     status = "NO_ACTION";
@@ -244,8 +547,8 @@ export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
       houseSource: configuredHouse.value === null ? "DERIVED" : "MEASURED",
       evKw: ev.value,
       heatPumpKw: heatPump.value,
-      importPriceEurPerKwh: importPrice.value,
-      exportPriceEurPerKwh: exportPrice.value,
+      importPriceEurPerKwh: effectiveImportPrice,
+      exportPriceEurPerKwh: effectiveExportPrice,
     },
     peak: {
       limitKw: peakLimitKw,
@@ -258,8 +561,16 @@ export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
       mode: planReading.stateObject?.attributes?.mode || planReading.stateObject?.state || null,
       quality: planReading.quality,
       interval: planInterval,
+      schedule: planSchedule,
       plannedGridImportKw,
       gridDeviationKw,
+    },
+    prices: {
+      intervals: priceIntervals,
+      referenceEurPerKwh: priceReference,
+      source: selectedSourceLabel,
+      tariffVersion: selectedTariffVersion,
+      aggregates: selectedAggregates,
     },
     quality: {
       requiredMissing,
@@ -270,7 +581,10 @@ export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
 }
 
 function escapeHtml(value) {
-  return String(value ?? "")
+  const safe = ["string", "number", "boolean", "bigint"].includes(typeof value)
+    ? String(value)
+    : "";
+  return safe
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -279,27 +593,115 @@ function escapeHtml(value) {
 }
 
 function formatKw(value) {
-  return value === null ? "—" : `${new Intl.NumberFormat("nl-BE", { maximumFractionDigits: 2 }).format(value)} kW`;
+  const safe = finiteNumber(value);
+  return safe === null ? "—" : `${new Intl.NumberFormat("nl-BE", { maximumFractionDigits: 2 }).format(safe)} kW`;
 }
 
 function formatPercent(value) {
-  return value === null ? "—" : `${new Intl.NumberFormat("nl-BE", { maximumFractionDigits: 1 }).format(value)}%`;
+  const safe = finiteNumber(value);
+  return safe === null ? "—" : `${new Intl.NumberFormat("nl-BE", { maximumFractionDigits: 1 }).format(safe)}%`;
 }
 
 function formatPrice(value) {
-  return value === null
+  const safe = finiteNumber(value);
+  return safe === null
     ? "—"
-    : new Intl.NumberFormat("nl-BE", { style: "currency", currency: "EUR", minimumFractionDigits: 3 }).format(value);
+    : new Intl.NumberFormat("nl-BE", { style: "currency", currency: "EUR", minimumFractionDigits: 3 }).format(safe);
+}
+
+function compactPrice(value) {
+  const safe = finiteNumber(value);
+  return safe === null ? "—" : `€${safe.toFixed(3).replace(".", ",")}`;
 }
 
 function actionLabel(action) {
-  return ACTION_LABELS[action] || action || "Geen actueel plan";
+  if (typeof action !== "string" || action === "") return "Geen actueel plan";
+  return ACTION_LABELS[action] || action;
 }
 
 function actionTone(action) {
   if (["CHARGE_FROM_GRID", "STORE_PV_SURPLUS"].includes(action)) return "charge";
   if (action === "DISCHARGE_TO_LOAD") return "discharge";
   return "hold";
+}
+
+export function renderPriceTimeline(
+  intervals,
+  schedule = [],
+  referenceEurPerKwh = null,
+  sourceLabel = null,
+  tariffVersion = null,
+) {
+  const referenceValue = finiteNumber(referenceEurPerKwh);
+  const reference = referenceValue === null
+    ? "referentie onbekend"
+    : `referentie ${compactPrice(referenceValue)}/kWh`;
+  const safeSourceLabel = typeof sourceLabel === "string" && sourceLabel
+    ? sourceLabel
+    : "Prijsbron onbekend";
+  const safeTariffVersion = typeof tariffVersion === "string" ? tariffVersion : null;
+  const metadata = [safeSourceLabel, safeTariffVersion, reference]
+    .filter(Boolean)
+    .map((value) => escapeHtml(value))
+    .join(" · ");
+  const displayIntervals = (Array.isArray(intervals) ? intervals : []).flatMap((row) => {
+    if (!isPlainObject(row)) return [];
+    const startMs = externalDateMs(safeValue(row, "startUtc"));
+    const endMs = externalDateMs(safeValue(row, "endUtc"));
+    const importEurPerKwh = finiteNumber(safeValue(row, "importEurPerKwh"));
+    const marketEurPerMwh = finiteNumber(safeValue(row, "marketEurPerMwh"));
+    const exportEurPerKwh = finiteNumber(safeValue(row, "exportEurPerKwh"));
+    if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs || importEurPerKwh === null) return [];
+    return [{ startMs, importEurPerKwh, marketEurPerMwh, exportEurPerKwh }];
+  });
+  if (!displayIntervals.length) {
+    return `<section class="price-timeline"><div class="section-title"><h3>Komende kwartierprijzen</h3><small>${metadata}</small></div><p class="price-empty">Nog geen toekomstige Day-Ahead-prijzen beschikbaar.</p></section>`;
+  }
+  const actionRows = (Array.isArray(schedule) ? schedule : []).flatMap((row) => {
+    if (!isPlainObject(row)) return [];
+    const startMs = externalDateMs(firstExternalValue(row, ["start_utc", "start"]));
+    const action = safeValue(row, "action");
+    if (!Number.isFinite(startMs) || typeof action !== "string") return [];
+    return [{ startMs, action }];
+  });
+  const actions = new Map(uniqueRowsByStart(actionRows).map((row) => [row.startMs, row.action]));
+  const formatter = new Intl.DateTimeFormat("nl-BE", {
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Brussels",
+    timeZoneName: "shortOffset",
+  });
+  const rows = displayIntervals.map((row) => {
+    const action = actions.get(row.startMs);
+    const difference = referenceValue === null
+      ? null
+      : row.importEurPerKwh - referenceValue;
+    const tone = difference === null ? "neutral" : difference <= 0 ? "cheap" : "expensive";
+    return `<div class="price-quarter ${tone}"><time>${escapeHtml(formatter.format(new Date(row.startMs)))}</time><strong>${escapeHtml(compactPrice(row.importEurPerKwh))}</strong><small>markt ${escapeHtml(row.marketEurPerMwh === null ? "—" : `€${row.marketEurPerMwh.toFixed(2)}/MWh`)}</small><small>injectie ${escapeHtml(compactPrice(row.exportEurPerKwh))}</small>${action ? `<span>${escapeHtml(actionLabel(action))}</span>` : ""}</div>`;
+  }).join("");
+  return `<section class="price-timeline"><div class="section-title"><h3>Komende kwartierprijzen</h3><small>${metadata}</small></div><div class="price-scroll"><div class="price-quarters">${rows}</div></div></section>`;
+}
+
+export function renderPriceAggregates(aggregates, referenceEurPerKwh = null) {
+  const definitions = [
+    ["daily", "Dag"],
+    ["weekly", "Week"],
+    ["monthly", "Maand"],
+  ];
+  const normalised = normaliseAggregates(aggregates);
+  const reference = finiteNumber(referenceEurPerKwh);
+  const cards = definitions.map(([key, label]) => {
+    const row = normalised[key].at(-1);
+    if (!row) {
+      return `<div class="price-summary"><span>${label}</span><strong>—</strong><small>geen aggregaat</small></div>`;
+    }
+    const average = row.average_eur_per_kwh;
+    const difference = reference === null ? null : average - reference;
+    const suffix = row.partial_period ? "partieel" : "volledig";
+    return `<div class="price-summary"><span>${label} · ${escapeHtml(row.period)}</span><strong>${escapeHtml(compactPrice(average))}</strong><small>${escapeHtml(compactPrice(difference))} vs referentie · ${suffix}</small></div>`;
+  }).join("");
+  return `<section class="price-aggregates">${cards}</section>`;
 }
 
 function qualityLabel(quality) {
@@ -354,6 +756,9 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
         { name: "export_price_entity", selector: { entity: {} } },
         { name: "plan_entity", selector: { entity: {} } },
         { name: "plan_attribute", selector: { text: {} } },
+        { name: "price_attribute", selector: { text: {} } },
+        { name: "integration_price_attribute", selector: { text: {} } },
+        { name: "price_reference_eur_per_kwh", selector: { number: { min: -2, max: 5, step: 0.001, mode: "box", unit_of_measurement: "EUR/kWh" } } },
         { name: "peak_limit_kw", selector: { number: { min: 0.1, max: 30, step: 0.1, mode: "box", unit_of_measurement: "kW" } } },
         { name: "stale_after_minutes", selector: { number: { min: 1, max: 180, step: 1, mode: "box", unit_of_measurement: "min" } } },
         { name: "plan_stale_after_hours", selector: { number: { min: 1, max: 72, step: 1, mode: "box", unit_of_measurement: "h" } } },
@@ -374,6 +779,9 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
         export_price_entity: "Actuele injectieprijs (optioneel)",
         plan_entity: "Shadow-planentity (optioneel)",
         plan_attribute: "Attribuut met kwartierplanning",
+        price_attribute: "Attribuut met toekomstige prijzen",
+        integration_price_attribute: "Attribuut van EPEX/Ecopower-prijsentities",
+        price_reference_eur_per_kwh: "Indicatieve vergelijkingsprijs",
         peak_limit_kw: "Gezamenlijke netpiekgrens",
         stale_after_minutes: "Live data verouderd na",
         plan_stale_after_hours: "Plan verouderd na",
@@ -463,6 +871,21 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
         .metric span, .flow-item span { display: block; color: var(--des-muted); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
         .metric strong { display: block; margin-top: 7px; font-family: var(--ha-font-family-code, ui-monospace, monospace); font-size: 20px; font-variant-numeric: tabular-nums; }
         .metric small { display: block; margin-top: 4px; color: var(--des-muted); font-size: 11px; }
+        .price-timeline { min-width: 0; padding: 18px 20px; border-bottom: 1px solid var(--des-border); }
+        .price-scroll { max-width: 100%; overflow-x: auto; padding-bottom: 5px; scrollbar-width: thin; }
+        .price-quarters { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(118px, 1fr); gap: 7px; min-width: max-content; }
+        .price-quarter { display: grid; gap: 5px; padding: 10px; border: 1px solid var(--des-border); border-top: 4px solid var(--des-muted); border-radius: 8px; background: var(--des-surface); }
+        .price-quarter.cheap { border-top-color: var(--des-good); }
+        .price-quarter.expensive { border-top-color: var(--des-bad); }
+        .price-quarter time, .price-quarter small { color: var(--des-muted); font-size: 10px; }
+        .price-quarter strong { font-family: var(--ha-font-family-code, ui-monospace, monospace); font-size: 16px; }
+        .price-quarter span { color: var(--des-accent); font-size: 10px; font-weight: 700; }
+        .price-empty { margin: 0; color: var(--des-muted); font-size: 12px; }
+        .price-aggregates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--des-border); }
+        .price-summary { min-width: 0; padding: 12px 20px; border-right: 1px solid var(--des-border); }
+        .price-summary:last-child { border-right: 0; }
+        .price-summary span, .price-summary small { display: block; color: var(--des-muted); font-size: 10px; }
+        .price-summary strong { display: block; margin: 5px 0; font-family: var(--ha-font-family-code, ui-monospace, monospace); font-size: 16px; }
         .body { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); gap: 0; }
         .main { min-width: 0; padding: 18px 20px 20px; }
         .side { min-width: 0; padding: 18px; background: var(--des-work); border-left: 1px solid var(--des-border); }
@@ -501,6 +924,9 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
           .flow-item:nth-child(2) { border-right: 0; }
           .flow-item:nth-child(-n+2) { border-bottom: 1px solid var(--des-border); }
           .plan-top, .footer { flex-direction: column; }
+          .price-aggregates { grid-template-columns: 1fr; }
+          .price-summary { border-right: 0; border-bottom: 1px solid var(--des-border); }
+          .price-summary:last-child { border-bottom: 0; }
         }
         @media (max-width: 430px) {
           .header { flex-direction: column; }
@@ -522,6 +948,14 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
             ${metric("Vrije netruimte", formatKw(snapshot.peak.headroomKw), `grens ${formatKw(snapshot.peak.limitKw)}`)}
             ${metric("Actuele prijs", formatPrice(snapshot.live.importPriceEurPerKwh), "afname per kWh")}
           </section>
+          ${renderPriceTimeline(
+            snapshot.prices.intervals,
+            snapshot.plan.schedule,
+            snapshot.prices.referenceEurPerKwh,
+            snapshot.prices.source,
+            snapshot.prices.tariffVersion,
+          )}
+          ${renderPriceAggregates(snapshot.prices.aggregates, snapshot.prices.referenceEurPerKwh)}
           <div class="body">
             <main class="main">
               <div class="section-title"><h3>Energiestroom</h3><small>live Home Assistant-states</small></div>
