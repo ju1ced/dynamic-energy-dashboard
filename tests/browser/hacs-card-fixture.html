@@ -46,10 +46,10 @@
       house_power_entity: "sensor.house_power",
       ev_power_entity: "sensor.ev_power",
       heat_pump_power_entity: "sensor.heat_pump_power",
-      import_price_entity: "sensor.import_price",
       export_price_entity: "sensor.export_price",
       plan_entity: "sensor.shadow_plan",
       plan_attribute: "schedule",
+      price_attribute: "prices",
       peak_limit_kw: 7,
       stale_after_minutes: 10,
       plan_stale_after_hours: 30,
@@ -69,6 +69,13 @@
       const now = new Date();
       const updated = new Date(now.getTime() - (stale ? 45 : 1) * 60000).toISOString();
       const start = new Date(Math.floor(now.getTime() / 900000) * 900000);
+      const prices = Array.from({ length: 32 }, (_, index) => ({
+        start_utc: new Date(start.getTime() + index * 900000).toISOString(),
+        duration_hours: 0.25,
+        market_eur_per_mwh: 30 + Math.sin(index / 4) * 75 + index * 2,
+        import_eur_per_kwh: 0.08 + Math.sin(index / 4) * 0.08 + index * 0.003,
+        export_eur_per_kwh: 0.03 + Math.sin(index / 4) * 0.04,
+      }));
       return {
         "sensor.grid_power": makeState(4200, "W", updated, { friendly_name: "Netvermogen" }),
         "sensor.pv_power": makeState(1800, "W", updated, { friendly_name: "PV-vermogen" }),
@@ -77,10 +84,18 @@
         "sensor.house_power": makeState(5500, "W", updated, { friendly_name: "Huisvermogen" }),
         "sensor.ev_power": makeState(2200, "W", updated, { friendly_name: "EV-laden" }),
         "sensor.heat_pump_power": makeState(900, "W", updated, { friendly_name: "Warmtepomp" }),
-        "sensor.import_price": makeState(0.184, "EUR/kWh", updated, { friendly_name: "Afnameprijs" }),
         "sensor.export_price": makeState(0.041, "EUR/kWh", updated, { friendly_name: "Injectieprijs" }),
         "sensor.shadow_plan": makeState("planned", null, updated, {
           mode: "READ_ONLY_SHADOW",
+          price_source: "ENTSO-E Transparency Platform Web API",
+          price_tariff_version: "ECOPOWER_DBS_2026-08-01",
+          price_reference_eur_per_kwh: 0.277,
+          prices,
+          price_aggregates: {
+            daily: [{ period: "2026-10-08", average_eur_per_kwh: 0.18, difference_vs_reference_eur_per_kwh: -0.097, partial_period: false }],
+            weekly: [{ period: "2026-W41", average_eur_per_kwh: 0.21, difference_vs_reference_eur_per_kwh: -0.067, partial_period: true }],
+            monthly: [{ period: "2026-10", average_eur_per_kwh: 0.24, difference_vs_reference_eur_per_kwh: -0.037, partial_period: true }],
+          },
           schedule: [{
             start_utc: start.toISOString(),
             duration_hours: 0.25,
