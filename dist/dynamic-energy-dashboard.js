@@ -296,6 +296,7 @@ export function getEntityPriceIntervals(
 
   const parseIntegrationRows = (rows) => {
     const parsed = [];
+    const byStart = new Map();
     for (const row of rows) {
       if (!isPlainObject(row)) return [];
       const startMs = externalDateMs(firstExternalValue(row, ["start_time", "start_utc", "start"]));
@@ -312,7 +313,14 @@ export function getEntityPriceIntervals(
         : durationHours === null ? NaN : startMs + durationHours * 3600000;
       const price = finiteNumber(safeValue(row, "price_per_kwh"));
       if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs || price === null) return [];
-      parsed.push({ startMs, endMs, price });
+      const existing = byStart.get(startMs);
+      if (existing) {
+        if (existing.endMs !== endMs || existing.price !== price) return [];
+        continue;
+      }
+      const parsedRow = { startMs, endMs, price };
+      byStart.set(startMs, parsedRow);
+      parsed.push(parsedRow);
     }
     return nonOverlappingRows(parsed);
   };

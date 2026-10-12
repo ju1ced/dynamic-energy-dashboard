@@ -176,6 +176,28 @@ test("Ecopower Dynamic data attributes provide future import and injection price
   assert.equal(prices[1].exportEurPerKwh, 0.02);
 });
 
+test("EPEX and Ecopower identical duplicate rows are collapsed", () => {
+  const now = new Date("2026-10-12T08:00:00+02:00");
+  const importRow = {
+    start_time: "2026-10-12T08:00:00+02:00",
+    end_time: "2026-10-12T08:15:00+02:00",
+    price_per_kwh: 0.23641,
+  };
+  const exportRow = { ...importRow, price_per_kwh: 0.1167 };
+  const importState = state(0.23641, "EUR/kWh", "2026-10-12T07:59:00+02:00", {
+    data: [importRow, { ...importRow }],
+  });
+  const exportState = state(0.1167, "EUR/kWh", "2026-10-12T07:59:00+02:00", {
+    data: [exportRow, { ...exportRow }],
+  });
+
+  const prices = getEntityPriceIntervals(importState, exportState, "data", now);
+
+  assert.equal(prices.length, 1);
+  assert.equal(prices[0].importEurPerKwh, 0.23641);
+  assert.equal(prices[0].exportEurPerKwh, 0.1167);
+});
+
 test("price entities supply the timeline when the shadow entity has no price attribute", () => {
   const now = new Date("2026-10-07T10:05:00Z");
   const updated = "2026-10-07T10:04:30Z";

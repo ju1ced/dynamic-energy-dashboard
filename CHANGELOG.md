@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 — 2026-10-12
+
+- Collapse identical duplicate intervals emitted by current EPEX Spot Data and
+  Ecopower Dynamic Prices entities.
+- Continue to reject duplicate starts when their end time or price conflicts.
+
 ## 0.2.0 — 2026-10-07
 
 - Show upcoming quarter-hour ENTSO-E and Ecopower prices in the Lovelace card.

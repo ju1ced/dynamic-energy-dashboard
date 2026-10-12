@@ -60,7 +60,8 @@ The two supported frontend price inputs are:
 The card can also build the future timeline directly from Home Assistant price
 entities whose `data` attribute contains `start_time`, `end_time` and
 `price_per_kwh` rows. This contract is provided by the HACS integrations
-`EPEX Spot Data` and `Ecopower Dynamic Prices`.
+`EPEX Spot Data` and `Ecopower Dynamic Prices`. Identical duplicate intervals
+from these integrations are collapsed; conflicting duplicates remain rejected.
 
 Recommended setup when those integrations are already available:
 
