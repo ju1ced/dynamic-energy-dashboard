@@ -82,6 +82,24 @@ class HacsLovelacePackageTests(unittest.TestCase):
         self.assertIn("images/dynamic-energy-shadow-card.png", readme)
         self.assertTrue((ROOT / "images" / "dynamic-energy-shadow-card.png").is_file())
 
+    def test_readme_documents_device_setup_guidance_and_primary_sources(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn("SMA batterijconfiguratie", readme)
+        self.assertIn("Smappee EV-configuratie", readme)
+        self.assertIn("one active controller per actuator", readme)
+        self.assertIn("https://manuals.sma.de/HM-20-ennexOS/en-US/12563269899.html", readme)
+        self.assertIn("https://support.smappee.com/hc/en-gb/articles/4900468508692", readme)
+        self.assertIn("performs no sma- or smappee-setting change", readme.lower())
+
+    def test_package_version_matches_the_alpha_2_release(self):
+        package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(package["version"], "0.3.0-alpha.2")
+        self.assertTrue(
+            (ROOT / "docs" / "releases" / "v0.3.0-alpha.2-checklist.md").is_file()
+        )
+
     def test_readme_documents_only_supported_frontend_price_inputs(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
 

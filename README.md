@@ -27,7 +27,7 @@ any SMA, Smappee, battery or EV-charger action.
 - responsive light/dark Home Assistant styling;
 - no runtime dependencies.
 
-Alpha `0.3.0-alpha.1` also adds:
+Alpha `0.3.0-alpha.2` also adds:
 
 - a separate visual editor for battery/EV dry-run settings;
 - explicit confirmation before Home Assistant configuration changes;
@@ -38,7 +38,13 @@ Alpha `0.3.0-alpha.1` also adds:
 - fail-closed conflict handling when an automation is foreign, modified or
   mapped to multiple entities;
 - only `OFF` and `ARMED_BLOCKED`, with `execution_allowed: false` embedded in
-  every managed automation.
+  every managed automation;
+- a data-dense control overview with current, cheapest and highest upcoming
+  prices, current shadow action and live battery/grid/EV context;
+- explicit controller ownership and a separate setup guide for SMA battery and
+  Smappee EV configuration;
+- visible warnings when the shared dashboard limit and the Smappee capacity
+  threshold differ.
 
 ## Install with HACS
 
@@ -56,7 +62,7 @@ artifact. No publication is performed automatically by this repository.
 The alpha control card requires Home Assistant `2024.10.0` or newer because its
 generated automations use the current plural automation syntax.
 
-For the alpha control card, explicitly select the `0.3.0-alpha.1` prerelease in
+For the alpha control card, explicitly select the `0.3.0-alpha.2` prerelease in
 HACS. Do not replace a stable read-only installation with the alpha unless the
 Home Assistant configuration-write boundary below is understood.
 
@@ -126,6 +132,23 @@ battery_reserve_soc_percent: 10
 ev_enabled: true
 ev_target_soc_percent: 80
 ev_departure_time: "07:00:00"
+battery_soc_entity: sensor.battery_soc
+grid_power_entity: sensor.grid_power
+grid_import_positive: true
+ev_power_entity: sensor.ev_power
+data_stale_after_minutes: 10
+plan_stale_after_hours: 30
+sma_controller: Sunny Home Manager 2.0
+sma_optimization_goal: Economisch
+sma_tariff_type: Dynamisch · Day-Ahead · BE · EPEX Spot
+sma_forecast_charging: OFF
+sma_grid_charge_soc_percent: 0
+sma_feed_in_eur_per_kwh: 0.02
+smappee_mode: smart
+smappee_grid_connection: Driefasig – Delta · 2 × 40 A
+smappee_capacity_threshold_kw: 5.5
+smappee_max_current_ampere: 32
+smappee_offline_fallback_ampere: 8
 ```
 
 The card has three confirmed actions:
@@ -152,6 +175,67 @@ This alpha does perform bounded Home Assistant configuration writes when the
 user explicitly confirms a button action. Those writes create/update or toggle
 only the two managed automation IDs above. Installing the alpha alone performs
 no write, and the read-only shadow card remains observation-only.
+
+### SMA batterijconfiguratie
+
+The control panel presents the intended installation profile; it does not apply
+these values. Keep **one active controller per actuator**. With SMA as battery
+owner, Home Assistant remains an observer and blocked dry-run surface.
+
+Recommended staged profile for a Sunny Home Manager 2.0 installation:
+
+1. Set the optimization objective to `Economisch`.
+2. Select a dynamic Day-Ahead tariff for region `BE` with the supported EPEX
+   Spot source and confirm that quarter-hour prices are visible.
+3. Keep the dynamic grid-charging SOC setting at `0%` where required by the
+   SMA forecast-charging workflow.
+4. Treat a fixed feed-in value such as `€0.02/kWh` only as a conservative SMA
+   planning proxy; calculate the real supplier formula outside SMA.
+5. Leave forecast-based charging `OFF` until its schedule has been compared
+   with the shadow plan over representative days in a controlled pilot.
+6. Keep peak shaving off unless it receives a separate shared-limit and
+   controller-ownership validation.
+7. Do not enable competing Home Assistant or Modbus battery setpoints while SMA
+   is the active controller.
+
+Primary SMA references:
+
+- [Planning forecast-based battery charging](https://manuals.sma.de/HM-20-ennexOS/en-US/12563269899.html)
+- [Configuring electricity tariffs](https://manuals.sma.de/HM-20-ennexOS/nl-NL/11412423819.html)
+- [Sunny Home Manager product information](https://www.sma.de/en/products/energy-management/sunny-home-manager)
+
+### Smappee EV-configuratie
+
+Keep Smappee as the local EV and overload-protection owner. The dashboard can
+explain price windows, but it must not become a second charger scheduler.
+
+Recommended staged profile:
+
+1. Use `Smart` mode when local overload protection and capacity control are the
+   priority. Select `Solar` only deliberately for PV-surplus charging.
+2. Verify that the configured grid topology and current rating exactly match
+   the physical installation; these are safety inputs, not price preferences.
+3. Keep the charger current at or below the validated installation and device
+   maximum.
+4. Keep the Smappee capacity threshold as the EV-specific limit. If it is lower
+   than the dashboard's shared grid limit, the stricter Smappee value wins.
+5. Keep offline charging disabled until the fallback current and physical
+   installation have been validated. If offline operation is later enabled,
+   treat it as degraded operation because automatic overload protection is not
+   guaranteed there.
+6. Use only one session scheduler: Kia, Smappee or a future approved external
+   controller, never several at the same time.
+7. Treat Smappee dynamic-tariff displays as planning context unless all supplier
+   surcharges and charges have been reconciled separately.
+
+Primary Smappee references:
+
+- [Charging modes and schedules](https://support.smappee.com/hc/en-gb/articles/4900468508692)
+- [Smart Charging](https://support.smappee.com/hc/en-gb/articles/4406735969940)
+- [EV Wall Home](https://support.smappee.com/hc/en-gb/articles/4402413229844-EV-Wall-Home)
+
+The card performs no SMA- or Smappee-setting change. Device configuration must
+still be applied and verified in the vendor interface by the owner or installer.
 
 ## Plan entity contract
 
@@ -230,4 +314,4 @@ npm run check:hacs
 The HACS artifact is `dist/dynamic-energy-dashboard.js`.
 
 Release validation for the alpha is documented in
-`docs/releases/v0.3.0-alpha.1-checklist.md`.
+`docs/releases/v0.3.0-alpha.2-checklist.md`.
