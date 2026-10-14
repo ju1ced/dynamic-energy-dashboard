@@ -39,6 +39,402 @@ const REQUIRED_ENTITY_FIELDS = Object.freeze([
   "battery_soc_entity",
 ]);
 
+const CONTROL_CARD_TAG = "dynamic-energy-control-config-card";
+const CONTROL_MARKER = "managed_by=dynamic-energy-control-config-card";
+const CONTROL_SNAPSHOT_PREFIX = `${CONTROL_MARKER}; execution_allowed=false; controller_state=ARMED_BLOCKED; config_snapshot=`;
+const BLOCKED_STOP = "Dynamic Energy safety lock: live actuator execution is not authorized";
+const ALL_MANAGED_AUTOMATION_IDS = Object.freeze([
+  "dynamic_energy_battery_v1",
+  "dynamic_energy_ev_v1",
+]);
+const DEFAULT_CONTROL_CONFIG = Object.freeze({
+  title: "Dynamic Energy configuratie",
+  name_prefix: "Dynamic Energy",
+  plan_entity: "sensor.dynamic_energy_shadow_plan",
+  interval_minutes: 15,
+  peak_limit_kw: 7,
+  battery_enabled: true,
+  battery_reserve_soc_percent: 10,
+  ev_enabled: true,
+  ev_target_soc_percent: 80,
+  ev_departure_time: "07:00:00",
+  control_mode: "ARMED_BLOCKED",
+  execution_allowed: false,
+});
+
+function requiredFinite(value, field, minimum, maximum) {
+  const parsed = finiteNumber(value);
+  if (parsed === null || parsed < minimum || parsed > maximum) {
+    throw new Error(`${field} must be between ${minimum} and ${maximum}`);
+  }
+  return parsed;
+}
+
+function requiredText(value, field) {
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new Error(`${field} is required`);
+  }
+  return value.trim();
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (isPlainObject(value)) {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function blockedAutomationSnapshot(config) {
+  const unsigned = Object.fromEntries(
+    Object.entries(config).filter(([key]) => !["description", "id"].includes(key)),
+  );
+  return encodeURIComponent(canonicalJson(unsigned));
+}
+
+function sealBlockedAutomation(config) {
+  return {
+    ...config,
+    description: `${CONTROL_SNAPSHOT_PREFIX}${blockedAutomationSnapshot(config)}`,
+  };
+}
+
+export function buildBlockedAutomationConfigs(spec) {
+  if (!isPlainObject(spec)) throw new Error("control specification must be an object");
+  const prefix = requiredText(spec.name_prefix, "name_prefix");
+  const planEntity = requiredText(spec.plan_entity, "plan_entity");
+  const intervalMinutes = requiredFinite(spec.interval_minutes, "interval_minutes", 5, 60);
+  if (![5, 10, 15, 30, 60].includes(intervalMinutes)) {
+    throw new Error("interval_minutes is not supported");
+  }
+  const peakLimitKw = requiredFinite(spec.peak_limit_kw, "peak_limit_kw", 0.1, 30);
+  const common = {
+    mode: "single",
+    max_exceeded: "silent",
+    triggers: [{ trigger: "time_pattern", minutes: `/${intervalMinutes}` }],
+    conditions: [],
+    actions: [{ stop: BLOCKED_STOP, error: false }],
+  };
+  const automations = [];
+  if (spec.battery_enabled === true) {
+    automations.push(sealBlockedAutomation({
+      id: "dynamic_energy_battery_v1",
+      alias: `${prefix} · Batterij dry-run`,
+      ...common,
+      variables: {
+        execution_allowed: false,
+        control_mode: "ARMED_BLOCKED",
+        actuator_owner: "SMA",
+        plan_entity: planEntity,
+        peak_limit_kw: peakLimitKw,
+        battery_reserve_soc_percent: requiredFinite(
+          spec.battery_reserve_soc_percent,
+          "battery_reserve_soc_percent",
+          0,
+          100,
+        ),
+      },
+    }));
+  }
+  if (spec.ev_enabled === true) {
+    automations.push(sealBlockedAutomation({
+      id: "dynamic_energy_ev_v1",
+      alias: `${prefix} · EV dry-run`,
+      ...common,
+      variables: {
+        execution_allowed: false,
+        control_mode: "ARMED_BLOCKED",
+        actuator_owner: "SMAPPEE",
+        plan_entity: planEntity,
+        peak_limit_kw: peakLimitKw,
+        ev_target_soc_percent: requiredFinite(
+          spec.ev_target_soc_percent,
+          "ev_target_soc_percent",
+          0,
+          100,
+        ),
+        ev_departure_time: requiredText(spec.ev_departure_time, "ev_departure_time"),
+      },
+    }));
+  }
+  if (!automations.length) throw new Error("at least one dry-run automation must be enabled");
+  return automations;
+}
+
+function validationErrors(result) {
+  if (!isPlainObject(result)) return ["invalid validation response"];
+  const errors = [];
+  for (const key of ["trigger", "condition", "action"]) {
+    const section = result[key];
+    if (Array.isArray(section)) {
+      errors.push(...section.filter((value) => value !== undefined && value !== null && value !== ""));
+      continue;
+    }
+    if (!isPlainObject(section)) {
+      errors.push(`${key}: invalid validation response`);
+      continue;
+    }
+    if (section.valid === true && (section.error === null || section.error === undefined || section.error === "")) {
+      continue;
+    }
+    errors.push(section.error || `${key}: invalid configuration`);
+  }
+  return errors;
+}
+
+function isNotFoundError(error) {
+  return error?.status === 404
+    || error?.status_code === 404
+    || error?.code === 404
+    || error?.body?.status === 404;
+}
+
+async function loadExistingAutomationConfig(hass, automationId) {
+  try {
+    return await hass.callApi(
+      "GET",
+      `config/automation/config/${encodeURIComponent(automationId)}`,
+    );
+  } catch (error) {
+    if (isNotFoundError(error)) return null;
+    throw error;
+  }
+}
+
+export async function saveBlockedAutomations(hass, spec) {
+  if (!hass || typeof hass.callWS !== "function" || typeof hass.callApi !== "function") {
+    throw new Error("Home Assistant automation API is unavailable");
+  }
+  const automations = buildBlockedAutomationConfigs(spec);
+  for (const automation of automations) {
+    const existing = await loadExistingAutomationConfig(hass, automation.id);
+    if (existing !== null && !isVerifiedBlockedAutomation(existing, automation.id)) {
+      throw new Error(`${automation.id} existing automation is not managed by this card`);
+    }
+  }
+  const validations = [];
+  for (const automation of automations) {
+    validations.push({
+      automation,
+      result: await hass.callWS({
+        type: "validate_config",
+        trigger: automation.triggers,
+        condition: automation.conditions,
+        action: automation.actions,
+      }),
+    });
+  }
+  for (const { automation, result } of validations) {
+    const errors = validationErrors(result);
+    if (errors.length) {
+      throw new Error(`Home Assistant rejected ${automation.id}: ${JSON.stringify(errors)}`);
+    }
+  }
+  const saved = [];
+  for (const automation of automations) {
+    const { id, ...body } = automation;
+    await hass.callApi("POST", `config/automation/config/${encodeURIComponent(id)}`, body);
+    saved.push({ id, alias: automation.alias });
+  }
+  return saved;
+}
+
+function isVerifiedBlockedAutomation(config, expectedId = null) {
+  try {
+    return isPlainObject(config)
+      && (!Object.hasOwn(config, "id") || config.id === expectedId)
+      && config.description === `${CONTROL_SNAPSHOT_PREFIX}${blockedAutomationSnapshot(config)}`
+      && isPlainObject(config.variables)
+      && config.variables.execution_allowed === false
+      && config.variables.control_mode === "ARMED_BLOCKED"
+      && Array.isArray(config.actions)
+      && config.actions.length === 1
+      && isPlainObject(config.actions[0])
+      && config.actions[0].stop === BLOCKED_STOP
+      && config.actions[0].error === false
+      && !Object.hasOwn(config.actions[0], "action")
+      && !Object.hasOwn(config.actions[0], "service")
+      && !Object.hasOwn(config.actions[0], "target")
+      && !Object.hasOwn(config.actions[0], "device_id");
+  } catch {
+    return false;
+  }
+}
+
+function managedEntityIds(hass, automationId) {
+  return Object.entries(safeValue(hass, "states") || {})
+    .filter(([entityId, stateObject]) => entityId.startsWith("automation.")
+      && safeValue(safeAttributes(stateObject), "id") === automationId)
+    .map(([entityId]) => entityId);
+}
+
+function managedEntityId(hass, automationId) {
+  const matches = managedEntityIds(hass, automationId);
+  return matches.length === 1 ? matches[0] : null;
+}
+
+export function getBlockedAutomationState(
+  hass,
+  spec,
+  verifiedIds = new Set(),
+  existingIds = new Set(),
+) {
+  const ids = buildBlockedAutomationConfigs(spec).map((automation) => automation.id);
+  if (ALL_MANAGED_AUTOMATION_IDS.some((id) => managedEntityIds(hass, id).length > 1)) {
+    return { mode: "CONFLICT", automations: [] };
+  }
+  const rows = ids.map((id) => {
+    const entityId = managedEntityId(hass, id);
+    const stateObject = entityId ? safeValue(safeValue(hass, "states") || {}, entityId) : null;
+    return {
+      id,
+      entity_id: entityId,
+      state: safeValue(stateObject, "state") || null,
+      verified: verifiedIds.has(id),
+    };
+  });
+  const retiredIds = ALL_MANAGED_AUTOMATION_IDS.filter(
+    (id) => !ids.includes(id) && (existingIds.has(id) || managedEntityId(hass, id)),
+  );
+  const retiredConflict = retiredIds.some((id) => {
+    const entityId = managedEntityId(hass, id);
+    const state = entityId
+      ? safeValue(safeValue(safeValue(hass, "states") || {}, entityId), "state")
+      : null;
+    return !verifiedIds.has(id) || state !== "off";
+  });
+  if (retiredConflict) return { mode: "CONFLICT", automations: rows };
+  if (rows.every((row) => row.entity_id === null)) {
+    const desiredConfigurationExists = ids.some((id) => existingIds.has(id));
+    return {
+      mode: desiredConfigurationExists ? "CONFLICT" : "SETUP_REQUIRED",
+      automations: rows,
+    };
+  }
+  if (rows.some((row) => row.entity_id === null)) return { mode: "CONFLICT", automations: rows };
+  if (rows.some((row) => row.verified !== true)) return { mode: "CONFLICT", automations: rows };
+  if (rows.every((row) => row.state === "off")) return { mode: "OFF", automations: rows };
+  if (rows.every((row) => row.state === "on")) return { mode: "ARMED_BLOCKED", automations: rows };
+  return { mode: "CONFLICT", automations: rows };
+}
+
+export async function loadBlockedAutomationState(hass, spec) {
+  if (!hass || typeof hass.callApi !== "function") {
+    return { mode: "CONFLICT", automations: [] };
+  }
+  const verifiedIds = new Set();
+  const existingIds = new Set();
+  for (const id of ALL_MANAGED_AUTOMATION_IDS) {
+    const config = await loadExistingAutomationConfig(hass, id);
+    if (config === null) continue;
+    existingIds.add(id);
+    if (isVerifiedBlockedAutomation(config, id)) verifiedIds.add(id);
+  }
+  return getBlockedAutomationState(hass, spec, verifiedIds, existingIds);
+}
+
+export async function setBlockedAutomationsArmed(hass, automationIds, armed) {
+  if (!hass || typeof hass.callApi !== "function" || typeof hass.callService !== "function") {
+    throw new Error("Home Assistant control API is unavailable");
+  }
+  if (!Array.isArray(automationIds) || automationIds.length === 0) {
+    throw new Error("managed automation ids are required");
+  }
+  const uniqueIds = [...new Set(automationIds)];
+  const entityIds = [];
+  for (const automationId of uniqueIds) {
+    if (!/^dynamic_energy_(battery|ev)_v1$/.test(automationId)) {
+      throw new Error(`${automationId} is outside the managed namespace`);
+    }
+    const matches = managedEntityIds(hass, automationId);
+    if (matches.length > 1) {
+      throw new Error(`${automationId} has multiple Home Assistant entities`);
+    }
+    const [entityId] = matches;
+    if (!entityId) throw new Error(`${automationId} has no unique Home Assistant entity`);
+    const config = await hass.callApi(
+      "GET",
+      `config/automation/config/${encodeURIComponent(automationId)}`,
+    );
+    if (!isVerifiedBlockedAutomation(config, automationId)) {
+      throw new Error(`${automationId} is not a verified blocked automation`);
+    }
+    entityIds.push(entityId);
+  }
+  await hass.callService(
+    "automation",
+    armed ? "turn_on" : "turn_off",
+    {},
+    { entity_id: entityIds },
+  );
+  return {
+    mode: armed ? "ARMED_BLOCKED" : "OFF",
+    entity_ids: entityIds,
+  };
+}
+
+export async function performBlockedControlAction(hass, config, action, confirmAction) {
+  if (!["create", "arm", "off"].includes(action)) throw new Error("unsupported control action");
+  if (typeof confirmAction !== "function") throw new Error("explicit confirmation callback is required");
+  const prompts = {
+    create: "Home Assistant-automatisaties aanmaken of bijwerken? Ze blijven hard geblokkeerd voor actuatorwrites.",
+    arm: "De beheerde automatisaties inschakelen in ARMED_BLOCKED-modus? Fysieke uitvoering blijft geblokkeerd.",
+    off: "De beheerde Dynamic Energy-automatisaties uitschakelen?",
+  };
+  const confirmed = await Promise.resolve(confirmAction(prompts[action]));
+  if (confirmed !== true) return { status: "CANCELLED" };
+  const desiredIds = buildBlockedAutomationConfigs(config).map((automation) => automation.id);
+  for (const id of ALL_MANAGED_AUTOMATION_IDS) {
+    if (managedEntityIds(hass, id).length > 1) {
+      throw new Error(`${id} has multiple Home Assistant entities`);
+    }
+  }
+  const existingConfigs = new Map();
+  for (const id of ALL_MANAGED_AUTOMATION_IDS) {
+    const existing = await loadExistingAutomationConfig(hass, id);
+    if (existing !== null) existingConfigs.set(id, existing);
+  }
+  const retiredIds = ALL_MANAGED_AUTOMATION_IDS
+    .filter((id) => !desiredIds.includes(id)
+      && (existingConfigs.has(id) || managedEntityId(hass, id)));
+  if (["create", "arm"].includes(action)) {
+    for (const id of retiredIds) {
+      const existing = existingConfigs.get(id) || null;
+      if (existing === null || !isVerifiedBlockedAutomation(existing, id)) {
+        throw new Error(`${id} is not a verified blocked automation`);
+      }
+      const entityId = managedEntityId(hass, id);
+      if (!entityId) throw new Error(`${id} has no unique Home Assistant entity`);
+      const state = safeValue(safeValue(safeValue(hass, "states") || {}, entityId), "state");
+      if (action === "arm" && state !== "off") {
+        throw new Error(`${id} retired automation must be off before arming`);
+      }
+    }
+  }
+  if (action === "off") {
+    for (const [id, existing] of existingConfigs) {
+      if (!isVerifiedBlockedAutomation(existing, id)) {
+        throw new Error(`${id} is not a verified blocked automation`);
+      }
+      if (!managedEntityId(hass, id)) {
+        throw new Error(`${id} has no unique Home Assistant entity`);
+      }
+    }
+  }
+  if (action === "create") {
+    const saved = await saveBlockedAutomations(hass, config);
+    if (retiredIds.length) await setBlockedAutomationsArmed(hass, retiredIds, false);
+    return { status: "SAVED", automations: saved, retired_ids_disabled: retiredIds };
+  }
+  const ids = action === "arm"
+    ? desiredIds
+    : ALL_MANAGED_AUTOMATION_IDS.filter(
+        (id) => existingConfigs.has(id) || managedEntityId(hass, id),
+      );
+  const state = await setBlockedAutomationsArmed(hass, ids, action === "arm");
+  return { status: "UPDATED", ...state };
+}
+
 const HTMLElementBase = globalThis.HTMLElement || class {};
 
 export function finiteNumber(value) {
@@ -996,8 +1392,240 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
   }
 }
 
+export function renderBlockedControlConfig(config, state, message = "") {
+  const labels = {
+    SETUP_REQUIRED: "Nog niet aangemaakt",
+    OFF: "Uitgeschakeld",
+    ARMED_BLOCKED: "Gewapend · fysiek geblokkeerd",
+    CONFLICT: "Configuratieconflict",
+  };
+  const mode = state?.mode || "SETUP_REQUIRED";
+  const safetyVerified = mode === "OFF" || mode === "ARMED_BLOCKED";
+  const safetyTitle = safetyVerified ? "Safety lock geverifieerd" : "Safety status niet geverifieerd";
+  const rows = Array.isArray(state?.automations) ? state.automations : [];
+  const automationRows = rows.map((row) => `
+    <div class="automation-row">
+      <div><strong>${escapeHtml(row.id)}</strong><small>${escapeHtml(row.entity_id || "nog geen entity")}</small></div>
+      <span class="automation-state">${escapeHtml(row.state || "missing")}</span>
+    </div>`).join("");
+  return `
+    <ha-card>
+      <div class="control-shell">
+        <header class="control-header">
+          <div><span class="eyebrow">Configure · beperkte Home Assistant-writes</span><h2>${escapeHtml(config.title || DEFAULT_CONTROL_CONFIG.title)}</h2></div>
+          <span class="control-status ${escapeHtml(mode.toLowerCase())}">${escapeHtml(labels[mode] || mode)}</span>
+        </header>
+        <section class="safety-lock">
+          <strong>${safetyTitle}</strong>
+          <code>execution_allowed = false</code>
+          <p>De kaart kan uitsluitend eigen geblokkeerde automatisaties aanmaken en in- of uitschakelen. De acties stoppen vóór ieder SMA-, Smappee-, batterij- of laadpaalcommando.</p>
+        </section>
+        <section class="control-grid">
+          <div><span>Planentity</span><strong>${escapeHtml(config.plan_entity)}</strong></div>
+          <div><span>Evaluatie</span><strong>${escapeHtml(config.interval_minutes)} min</strong></div>
+          <div><span>Netlimiet</span><strong>${escapeHtml(config.peak_limit_kw)} kW</strong></div>
+          <div><span>EV-doel</span><strong>${escapeHtml(config.ev_target_soc_percent)}% · ${escapeHtml(config.ev_departure_time)}</strong></div>
+        </section>
+        <section class="automation-list">${automationRows || '<p class="empty">Nog geen beheerde automatisaties gevonden.</p>'}</section>
+        ${message ? `<p class="control-message" role="status">${escapeHtml(message)}</p>` : ""}
+        <footer class="control-actions">
+          <button type="button" data-action="create">Automatisaties aanmaken/bijwerken</button>
+          <button type="button" data-action="arm">Actief · gewapend geblokkeerd</button>
+          <button type="button" data-action="off" class="secondary">Uitschakelen</button>
+        </footer>
+      </div>
+    </ha-card>`;
+}
+
+export class DynamicEnergyControlConfigCard extends HTMLElementBase {
+  constructor() {
+    super();
+    this._config = { ...DEFAULT_CONTROL_CONFIG };
+    this._hass = null;
+    this._message = "";
+    this._busy = false;
+    this._verifiedState = null;
+    this._stateRequest = 0;
+    this._root = this.attachShadow ? this.attachShadow({ mode: "open" }) : null;
+  }
+
+  static getConfigForm() {
+    return {
+      schema: [
+        { name: "title", selector: { text: {} } },
+        { name: "name_prefix", selector: { text: {} } },
+        { name: "plan_entity", required: true, selector: { entity: {} } },
+        { name: "interval_minutes", selector: { select: { options: [5, 10, 15, 30, 60] } } },
+        { name: "peak_limit_kw", selector: { number: { min: 0.1, max: 30, step: 0.1, unit_of_measurement: "kW" } } },
+        { name: "battery_enabled", selector: { boolean: {} } },
+        { name: "battery_reserve_soc_percent", selector: { number: { min: 0, max: 100, step: 1, unit_of_measurement: "%" } } },
+        { name: "ev_enabled", selector: { boolean: {} } },
+        { name: "ev_target_soc_percent", selector: { number: { min: 0, max: 100, step: 1, unit_of_measurement: "%" } } },
+        { name: "ev_departure_time", selector: { time: {} } },
+      ],
+      computeLabel: (schema) => ({
+        title: "Titel",
+        name_prefix: "Naamvoorvoegsel automatisaties",
+        plan_entity: "Shadow-planentity",
+        interval_minutes: "Evaluatie-interval",
+        peak_limit_kw: "Gedeelde netimportlimiet",
+        battery_enabled: "Batterijautomatisatie bouwen",
+        battery_reserve_soc_percent: "Minimale batterijreserve",
+        ev_enabled: "EV-automatisatie bouwen",
+        ev_target_soc_percent: "Doel-SOC EV",
+        ev_departure_time: "Geplande vertrektijd",
+      })[schema.name] || schema.name,
+    };
+  }
+
+  static getStubConfig() {
+    return { ...DEFAULT_CONTROL_CONFIG };
+  }
+
+  static getCardSize() {
+    return 6;
+  }
+
+  setConfig(config) {
+    if (!isPlainObject(config)) throw new Error("Ongeldige control-kaartconfiguratie");
+    this._config = { ...DEFAULT_CONTROL_CONFIG, ...config };
+    this._verifiedState = null;
+    this._render();
+    void this._refreshState();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    this._verifiedState = null;
+    this._render();
+    void this._refreshState();
+  }
+
+  getCardSize() {
+    return 6;
+  }
+
+  async _refreshState() {
+    const request = ++this._stateRequest;
+    if (!this._hass) return;
+    try {
+      const state = await loadBlockedAutomationState(this._hass, this._config);
+      if (request !== this._stateRequest) return;
+      this._verifiedState = state;
+    } catch (error) {
+      if (request !== this._stateRequest) return;
+      this._verifiedState = { mode: "CONFLICT", automations: [] };
+      this._message = `Configuratieverificatie mislukt: ${error instanceof Error ? error.message : "onbekende fout"}`;
+    }
+    this._render();
+  }
+
+  async _handleAction(action) {
+    if (this._busy) return;
+    this._busy = true;
+    this._message = "Bezig met gecontroleerde Home Assistant-configuratiewijziging…";
+    this._render();
+    try {
+      const confirmAction = typeof globalThis.confirm === "function"
+        ? (prompt) => globalThis.confirm(prompt)
+        : () => false;
+      const result = await performBlockedControlAction(
+        this._hass,
+        this._config,
+        action,
+        confirmAction,
+      );
+      this._message = {
+        CANCELLED: "Geen wijziging uitgevoerd.",
+        SAVED: "Geblokkeerde automatisaties zijn aangemaakt of bijgewerkt.",
+        UPDATED: result.mode === "ARMED_BLOCKED"
+          ? "Automatisaties zijn gewapend; fysieke uitvoering blijft geblokkeerd."
+          : "Beheerde automatisaties zijn uitgeschakeld.",
+      }[result.status] || "Wijziging verwerkt.";
+    } catch (error) {
+      this._message = `Niet uitgevoerd: ${error instanceof Error ? error.message : "onbekende fout"}`;
+    } finally {
+      this._busy = false;
+      await this._refreshState();
+    }
+  }
+
+  _render() {
+    if (!this._root) return;
+    let state;
+    try {
+      state = this._verifiedState || getBlockedAutomationState(this._hass, this._config);
+    } catch (error) {
+      state = { mode: "CONFLICT", automations: [] };
+      this._message = `Configuratiefout: ${error instanceof Error ? error.message : "onbekende fout"}`;
+    }
+    this._root.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          --dec-accent: var(--primary-color, #315b4c);
+          --dec-accent-soft: color-mix(in srgb, var(--dec-accent) 12%, var(--card-background-color, #fff));
+          --dec-ink: var(--primary-text-color, #1b211f);
+          --dec-muted: var(--secondary-text-color, #66706c);
+          --dec-border: var(--divider-color, #d9dfdc);
+          --dec-surface: var(--card-background-color, #fff);
+          --dec-good: #2d7654;
+          --dec-warn: #a86512;
+          --dec-bad: #a53c3c;
+          color: var(--dec-ink);
+          font-family: var(--paper-font-body1_-_font-family, var(--ha-font-family-body, system-ui, sans-serif));
+        }
+        ha-card { overflow: hidden; border: 1px solid var(--dec-border); }
+        .control-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 22px 17px; background: var(--dec-accent-soft); border-bottom: 1px solid var(--dec-border); }
+        .eyebrow { display: block; margin-bottom: 4px; color: var(--dec-muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+        h2 { margin: 0; font-size: 21px; line-height: 1.2; font-weight: 650; }
+        .control-status { flex: 0 0 auto; padding: 6px 9px; border: 1px solid currentColor; border-radius: 999px; color: var(--dec-warn); font-size: 11px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+        .control-status.armed_blocked { color: var(--dec-good); }
+        .control-status.conflict { color: var(--dec-bad); }
+        .safety-lock { display: grid; grid-template-columns: auto auto; align-items: center; gap: 5px 12px; padding: 16px 20px; border-bottom: 1px solid var(--dec-border); }
+        .safety-lock strong { color: var(--dec-good); font-size: 14px; }
+        .safety-lock code { justify-self: end; color: var(--dec-good); font-size: 12px; }
+        .safety-lock p { grid-column: 1 / -1; margin: 0; color: var(--dec-muted); font-size: 12px; line-height: 1.5; }
+        .control-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--dec-border); }
+        .control-grid div { min-width: 0; padding: 14px 16px; border-right: 1px solid var(--dec-border); }
+        .control-grid div:last-child { border-right: 0; }
+        .control-grid span, .automation-row small { display: block; color: var(--dec-muted); font-size: 10px; }
+        .control-grid strong { display: block; margin-top: 5px; overflow: hidden; font-family: var(--ha-font-family-code, ui-monospace, monospace); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+        .automation-list { display: grid; gap: 1px; padding: 18px 20px; background: var(--dec-border); }
+        .automation-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; background: var(--dec-surface); }
+        .automation-row strong { font-family: var(--ha-font-family-code, ui-monospace, monospace); font-size: 12px; }
+        .automation-state { color: var(--dec-muted); font-family: var(--ha-font-family-code, ui-monospace, monospace); font-size: 11px; text-transform: uppercase; }
+        .empty { margin: 0; padding: 12px; background: var(--dec-surface); color: var(--dec-muted); font-size: 12px; }
+        .control-message { margin: 0; padding: 12px 20px; border-top: 1px solid var(--dec-border); color: var(--dec-muted); font-size: 12px; }
+        .control-actions { display: flex; flex-wrap: wrap; gap: 9px; padding: 16px 20px; border-top: 1px solid var(--dec-border); }
+        button { min-height: 44px; padding: 0 14px; border: 1px solid var(--dec-accent); border-radius: 7px; background: var(--dec-accent); color: var(--text-primary-color, #fff); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+        button.secondary { background: transparent; color: var(--dec-ink); border-color: var(--dec-border); }
+        button:focus-visible { outline: 3px solid color-mix(in srgb, var(--dec-accent) 35%, transparent); outline-offset: 2px; }
+        button:disabled { cursor: wait; opacity: .55; }
+        @media (max-width: 700px) {
+          .control-header { flex-direction: column; padding: 17px 16px 14px; }
+          .control-status { align-self: flex-start; }
+          .control-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .control-grid div:nth-child(2) { border-right: 0; }
+          .control-grid div:nth-child(-n+2) { border-bottom: 1px solid var(--dec-border); }
+          .control-actions { flex-direction: column; }
+          button { width: 100%; }
+        }
+      </style>
+      ${renderBlockedControlConfig(this._config, state, this._message)}`;
+    this._root.querySelectorAll("button[data-action]").forEach((button) => {
+      button.disabled = this._busy;
+      button.addEventListener("click", () => this._handleAction(button.dataset.action));
+    });
+  }
+}
+
 if (globalThis.customElements && !globalThis.customElements.get(CARD_TAG)) {
   globalThis.customElements.define("dynamic-energy-shadow-card", DynamicEnergyShadowCard);
+}
+
+if (globalThis.customElements && !globalThis.customElements.get(CONTROL_CARD_TAG)) {
+  globalThis.customElements.define("dynamic-energy-control-config-card", DynamicEnergyControlConfigCard);
 }
 
 if (globalThis.window) {
@@ -1007,6 +1635,15 @@ if (globalThis.window) {
       type: "dynamic-energy-shadow-card",
       name: "Dynamic Energy Shadow Dashboard",
       description: "Read-only live energie- en shadow-planmonitor met visuele configuratie.",
+      preview: true,
+      documentationURL: "https://github.com/ju1ced/dynamic-energy-dashboard",
+    });
+  }
+  if (!globalThis.window.customCards.some((card) => card.type === CONTROL_CARD_TAG)) {
+    globalThis.window.customCards.push({
+      type: "dynamic-energy-control-config-card",
+      name: "Dynamic Energy Control Config",
+      description: "Beheert uitsluitend namespaced ARMED_BLOCKED-automatisaties; geen actuatorwrites.",
       preview: true,
       documentationURL: "https://github.com/ju1ced/dynamic-energy-dashboard",
     });

@@ -1,8 +1,16 @@
 # Dynamic Energy Shadow Dashboard
 
-Read-only Lovelace monitor for live Home Assistant energy values and a proposed
-Day-Ahead battery shadow plan. The card never calls Home Assistant actions,
-changes helper state or writes to SMA, Smappee, a battery or an EV charger.
+Home Assistant Lovelace package with two deliberately separate cards:
+
+- `dynamic-energy-shadow-card`: the stable read-only monitor for live energy
+  values and a proposed Day-Ahead battery shadow plan;
+- `dynamic-energy-control-config-card`: an alpha configuration surface limited
+  to namespaced, hard-blocked Home Assistant automations.
+
+The monitoring card never calls Home Assistant actions. The alpha control card
+can create or switch only its own automations between `OFF` and
+`ARMED_BLOCKED`. It cannot select `LIVE`, and generated automations stop before
+any SMA, Smappee, battery or EV-charger action.
 
 ![Dynamic Energy Shadow Dashboard preview](images/dynamic-energy-shadow-card.png)
 
@@ -19,6 +27,19 @@ changes helper state or writes to SMA, Smappee, a battery or an EV charger.
 - responsive light/dark Home Assistant styling;
 - no runtime dependencies.
 
+Alpha `0.3.0-alpha.1` also adds:
+
+- a separate visual editor for battery/EV dry-run settings;
+- explicit confirmation before Home Assistant configuration changes;
+- ownership checks for the `dynamic_energy_battery_v1` and
+  `dynamic_energy_ev_v1` automation IDs;
+- a deterministic canonical configuration snapshot that detects changes made
+  after the card generated an automation;
+- fail-closed conflict handling when an automation is foreign, modified or
+  mapped to multiple entities;
+- only `OFF` and `ARMED_BLOCKED`, with `execution_allowed: false` embedded in
+  every managed automation.
+
 ## Install with HACS
 
 A committed GitHub revision or release is required before HACS can install the
@@ -31,6 +52,13 @@ artifact. No publication is performed automatically by this repository.
 5. Select repository type `Dashboard`.
 6. Install `Dynamic Energy Shadow Dashboard`.
 7. Refresh the browser when HACS requests it.
+
+The alpha control card requires Home Assistant `2024.10.0` or newer because its
+generated automations use the current plural automation syntax.
+
+For the alpha control card, explicitly select the `0.3.0-alpha.1` prerelease in
+HACS. Do not replace a stable read-only installation with the alpha unless the
+Home Assistant configuration-write boundary below is understood.
 
 ## Configure through the GUI
 
@@ -81,6 +109,49 @@ read-only inputs and do not create battery, inverter or charger controls.
 
 The GUI supports sign conventions because integrations differ: grid import can
 be positive or negative, and battery charging can be positive or negative.
+
+## Alpha control configuration card
+
+Add this card separately from the read-only monitor:
+
+```yaml
+type: custom:dynamic-energy-control-config-card
+title: Dynamic Energy configuratie
+name_prefix: Dynamic Energy
+plan_entity: sensor.dynamic_energy_shadow_plan
+interval_minutes: 15
+peak_limit_kw: 7
+battery_enabled: true
+battery_reserve_soc_percent: 10
+ev_enabled: true
+ev_target_soc_percent: 80
+ev_departure_time: "07:00:00"
+```
+
+The card has three confirmed actions:
+
+1. create or update only its namespaced blocked automations;
+2. enable verified automations as `ARMED_BLOCKED`;
+3. disable existing verified managed automations as `OFF`.
+
+Before every write, the card verifies ownership. Creation and updates also ask
+Home Assistant to validate the trigger, condition and stop action. Enable and
+disable actions instead re-read and verify the exact sealed configuration. The
+generated action is only a safety stop. It contains no inverter, battery,
+charger, MQTT or other actuator service call. Existing automations without the
+management marker, with a changed stop action or with ambiguous entity mappings
+are rejected.
+
+The embedded snapshot is an exact consistency seal, not cryptographic
+authentication. Normal Home Assistant or manual edits invalidate the seal; an
+external tool that deliberately replaces both the automation and its canonical
+snapshot is outside this ownership check. A changed automation must normally be
+recreated through the card before it can be enabled again.
+
+This alpha does perform bounded Home Assistant configuration writes when the
+user explicitly confirms a button action. Those writes create/update or toggle
+only the two managed automation IDs above. Installing the alpha alone performs
+no write, and the read-only shadow card remains observation-only.
 
 ## Plan entity contract
 
@@ -157,3 +228,6 @@ npm run check:hacs
 ```
 
 The HACS artifact is `dist/dynamic-energy-dashboard.js`.
+
+Release validation for the alpha is documented in
+`docs/releases/v0.3.0-alpha.1-checklist.md`.

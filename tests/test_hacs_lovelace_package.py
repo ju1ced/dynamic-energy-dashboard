@@ -12,6 +12,7 @@ class HacsLovelacePackageTests(unittest.TestCase):
         self.assertEqual(manifest["name"], "Dynamic Energy Shadow Dashboard")
         self.assertEqual(manifest["content_in_root"], False)
         self.assertEqual(manifest["filename"], "dynamic-energy-dashboard.js")
+        self.assertEqual(manifest["homeassistant"], "2024.10.0")
         self.assertTrue((ROOT / "dist" / manifest["filename"]).is_file())
 
     def test_card_registers_picker_metadata_and_visual_form(self):
@@ -28,6 +29,9 @@ class HacsLovelacePackageTests(unittest.TestCase):
         source = (ROOT / "dist" / "dynamic-energy-dashboard.js").read_text(
             encoding="utf-8"
         )
+        observer = source.split(
+            "export class DynamicEnergyShadowCard", 1
+        )[1].split("export function renderBlockedControlConfig", 1)[0]
 
         forbidden = (
             "callService(",
@@ -40,7 +44,20 @@ class HacsLovelacePackageTests(unittest.TestCase):
         )
         for token in forbidden:
             with self.subTest(token=token):
-                self.assertNotIn(token, source)
+                self.assertNotIn(token, observer)
+
+    def test_separate_control_card_is_registered_and_hard_blocks_actuator_actions(self):
+        source = (ROOT / "dist" / "dynamic-energy-dashboard.js").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn(
+            'customElements.define("dynamic-energy-control-config-card"', source
+        )
+        self.assertIn('type: "dynamic-energy-control-config-card"', source)
+        self.assertIn("execution_allowed = false", source)
+        self.assertIn("live actuator execution is not authorized", source)
+        self.assertIn('actions: [{ stop: BLOCKED_STOP, error: false }]', source)
 
     def test_card_renders_prospective_price_timeline_from_plan_entity(self):
         source = (ROOT / "dist" / "dynamic-energy-dashboard.js").read_text(
