@@ -58,6 +58,23 @@ const DEFAULT_CONTROL_CONFIG = Object.freeze({
   ev_enabled: true,
   ev_target_soc_percent: 80,
   ev_departure_time: "07:00:00",
+  battery_soc_entity: "",
+  grid_power_entity: "",
+  grid_import_positive: true,
+  ev_power_entity: "",
+  data_stale_after_minutes: 10,
+  plan_stale_after_hours: 30,
+  sma_controller: "Sunny Home Manager 2.0",
+  sma_optimization_goal: "Economisch",
+  sma_tariff_type: "Dynamisch · Day-Ahead · BE · EPEX Spot",
+  sma_forecast_charging: "OFF",
+  sma_grid_charge_soc_percent: 0,
+  sma_feed_in_eur_per_kwh: 0.02,
+  smappee_mode: "smart",
+  smappee_grid_connection: "Driefasig – Delta · 2 × 40 A",
+  smappee_capacity_threshold_kw: 5.5,
+  smappee_max_current_ampere: 32,
+  smappee_offline_fallback_ampere: 8,
   control_mode: "ARMED_BLOCKED",
   execution_allowed: false,
 });
@@ -583,7 +600,9 @@ export function readEntity(hass, entityId, now = new Date(), staleMinutes = 10) 
   const nowMs = now instanceof Date ? now.getTime() : NaN;
   const ageMinutes = (nowMs - updatedMs) / 60000;
   const validTimestamp = Number.isFinite(updatedMs) && Number.isFinite(ageMinutes);
-  const quality = !validTimestamp ? "INVALID" : ageMinutes > staleMinutes ? "STALE" : "GOOD";
+  const quality = !validTimestamp || ageMinutes < -1
+    ? "INVALID"
+    : ageMinutes > staleMinutes ? "STALE" : "GOOD";
   const friendlyName = safeValue(safeAttributes(stateObject), "friendly_name");
   return {
     entityId,
@@ -595,8 +614,21 @@ export function readEntity(hass, entityId, now = new Date(), staleMinutes = 10) 
   };
 }
 
-function readPower(hass, entityId, now, staleMinutes, positive = true) {
+function hasSupportedPowerUnit(stateObject) {
+  const rawUnit = safeValue(safeAttributes(stateObject), "unit_of_measurement");
+  if (typeof rawUnit !== "string") return false;
+  return [
+    "W", "watt", "watts",
+    "kW", "kilowatt", "kilowatts",
+    "MW", "megawatt", "megawatts",
+  ].includes(rawUnit.trim());
+}
+
+function readPower(hass, entityId, now, staleMinutes, positive = true, strictUnits = false) {
   const reading = readEntity(hass, entityId, now, staleMinutes);
+  if (strictUnits && reading.stateObject && !hasSupportedPowerUnit(reading.stateObject)) {
+    return { ...reading, quality: "INVALID", value: null };
+  }
   const normalised = toKilowatts(reading.stateObject);
   const quality = normalised === null && ["GOOD", "STALE"].includes(reading.quality)
     ? "INVALID"
@@ -606,10 +638,11 @@ function readPower(hass, entityId, now, staleMinutes, positive = true) {
 
 function readPercentage(hass, entityId, now, staleMinutes) {
   const reading = readEntity(hass, entityId, now, staleMinutes);
-  const quality = reading.value === null && ["GOOD", "STALE"].includes(reading.quality)
+  const outOfRange = reading.value !== null && (reading.value < 0 || reading.value > 100);
+  const quality = (reading.value === null || outOfRange) && ["GOOD", "STALE"].includes(reading.quality)
     ? "INVALID"
     : reading.quality;
-  return { ...reading, quality, value: reading.value === null ? null : Math.min(100, Math.max(0, reading.value)) };
+  return { ...reading, quality, value: reading.value === null || outOfRange ? null : reading.value };
 }
 
 function readPrice(hass, entityId, now, staleMinutes) {
@@ -980,6 +1013,130 @@ export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
       requiredMissing,
       live: liveQuality,
       optional: optionalQuality,
+    },
+  };
+}
+
+export function buildControlPanelSnapshot(hass, suppliedConfig = {}, now = new Date()) {
+  const config = { ...DEFAULT_CONTROL_CONFIG, ...suppliedConfig };
+  const staleMinutes = requiredFinite(
+    config.data_stale_after_minutes,
+    "data_stale_after_minutes",
+    1,
+    180,
+  );
+  const planStaleHours = requiredFinite(
+    config.plan_stale_after_hours,
+    "plan_stale_after_hours",
+    1,
+    72,
+  );
+  const planReading = readEntity(hass, config.plan_entity, now, planStaleHours * 60);
+  const planIsFresh = planReading.quality === "GOOD";
+  const prices = planIsFresh
+    ? getUpcomingPriceIntervals(planReading.stateObject, "prices", now)
+    : [];
+  const nowMs = now.getTime();
+  const current = prices.find(
+    (row) => Date.parse(row.startUtc) <= nowMs && nowMs < Date.parse(row.endUtc),
+  ) || null;
+  const pricedRows = prices.filter((row) => finiteNumber(row.importEurPerKwh) !== null);
+  const futurePricedRows = pricedRows.filter((row) => Date.parse(row.startUtc) > nowMs);
+  const cheapest = futurePricedRows.reduce(
+    (best, row) => best === null || row.importEurPerKwh < best.importEurPerKwh ? row : best,
+    null,
+  );
+  const highest = futurePricedRows.reduce(
+    (best, row) => best === null || row.importEurPerKwh > best.importEurPerKwh ? row : best,
+    null,
+  );
+  const planInterval = planIsFresh
+    ? getCurrentPlanInterval(planReading.stateObject, "schedule", now)
+    : null;
+  const batterySoc = readPercentage(hass, config.battery_soc_entity, now, staleMinutes);
+  const grid = readPower(
+    hass,
+    config.grid_power_entity,
+    now,
+    staleMinutes,
+    config.grid_import_positive !== false,
+    true,
+  );
+  const ev = readPower(hass, config.ev_power_entity, now, staleMinutes, true, true);
+  const peakLimitKw = finiteNumber(config.peak_limit_kw);
+  const smappeeLimitKw = finiteNumber(config.smappee_capacity_threshold_kw);
+  const warnings = [];
+  if (
+    peakLimitKw !== null
+    && smappeeLimitKw !== null
+    && Math.abs(peakLimitKw - smappeeLimitKw) >= 0.01
+  ) {
+    warnings.push(
+      `Smappee begrenst EV-laden op ${smappeeLimitKw} kW; de gedeelde dashboardgrens is ${peakLimitKw} kW. De strengste limiet blijft leidend.`,
+    );
+  }
+  if (String(config.sma_forecast_charging).toUpperCase() !== "ACTIVE") {
+    warnings.push("SMA forecast-based charging staat nog niet als actief gevalideerd.");
+  }
+  const offlineAmpere = finiteNumber(config.smappee_offline_fallback_ampere);
+  if (offlineAmpere !== null && offlineAmpere > 0) {
+    warnings.push(
+      `Smappee offline laden gebruikt ${offlineAmpere} A zonder gegarandeerde automatische overbelastingsregeling.`,
+    );
+  }
+  const liveReadings = [
+    ["batterij-SOC", batterySoc],
+    ["netvermogen", grid],
+    ["EV-laadvermogen", ev],
+  ];
+  const degradedLiveReadings = liveReadings.filter(
+    ([, reading]) => !["GOOD", "NOT_CONFIGURED"].includes(reading.quality),
+  );
+  for (const [label, reading] of degradedLiveReadings) {
+    warnings.push(`Live ${label} is ${qualityLabel(reading.quality)}.`);
+  }
+  const priceQuality = planReading.quality !== "GOOD"
+    ? planReading.quality
+    : current && prices.length ? "GOOD" : "UNAVAILABLE";
+  const readinessMode = priceQuality !== "GOOD"
+    ? "DATA_BLOCKED"
+    : degradedLiveReadings.length ? "SHADOW_READY_LIVE_DEGRADED" : "SHADOW_READY";
+  const attrs = safeAttributes(planReading.stateObject);
+  return {
+    generatedAt: now.toISOString(),
+    live: {
+      batterySocPercent: batterySoc.value,
+      batterySocQuality: batterySoc.quality,
+      gridKw: grid.value,
+      gridQuality: grid.quality,
+      evKw: ev.value,
+      evQuality: ev.quality,
+    },
+    price: {
+      quality: priceQuality,
+      currentEurPerKwh: priceQuality === "GOOD" ? current.importEurPerKwh : null,
+      cheapestEurPerKwh: priceQuality === "GOOD" ? cheapest?.importEurPerKwh ?? null : null,
+      cheapestStartUtc: priceQuality === "GOOD" ? cheapest?.startUtc ?? null : null,
+      highestEurPerKwh: priceQuality === "GOOD" ? highest?.importEurPerKwh ?? null : null,
+      highestStartUtc: priceQuality === "GOOD" ? highest?.startUtc ?? null : null,
+      intervalCount: priceQuality === "GOOD" ? prices.length : 0,
+      source: typeof attrs.price_source === "string" ? attrs.price_source : null,
+      tariffVersion: typeof attrs.price_tariff_version === "string"
+        ? attrs.price_tariff_version
+        : null,
+    },
+    plan: {
+      quality: planReading.quality,
+      mode: planIsFresh ? attrs.mode || planReading.stateObject?.state || null : null,
+      action: planInterval?.action || "NO_ACTION",
+      reason: planInterval?.reason || null,
+      plannedGridImportKw: finiteNumber(planInterval?.planned_grid_import_kw),
+    },
+    readiness: {
+      mode: readinessMode,
+      executionAllowed: false,
+      controllerOwners: { battery: "SMA", ev: "SMAPPEE" },
+      warnings,
     },
   };
 }
@@ -1392,7 +1549,22 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
   }
 }
 
-export function renderBlockedControlConfig(config, state, message = "") {
+function formatControlTime(value) {
+  const timestamp = externalDateMs(value);
+  if (!Number.isFinite(timestamp)) return "—";
+  return new Intl.DateTimeFormat("nl-BE", {
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Brussels",
+  }).format(new Date(timestamp));
+}
+
+function setupRow(label, value, detail = "") {
+  return `<div class="setup-row"><span>${escapeHtml(label)}</span><em>Dashboardprofiel</em><strong>${escapeHtml(value)}</strong>${detail ? `<small>Advies · ${escapeHtml(detail)}</small>` : ""}</div>`;
+}
+
+export function renderBlockedControlConfig(config, state, message = "", dashboard = null) {
   const labels = {
     SETUP_REQUIRED: "Nog niet aangemaakt",
     OFF: "Uitgeschakeld",
@@ -1402,12 +1574,36 @@ export function renderBlockedControlConfig(config, state, message = "") {
   const mode = state?.mode || "SETUP_REQUIRED";
   const safetyVerified = mode === "OFF" || mode === "ARMED_BLOCKED";
   const safetyTitle = safetyVerified ? "Safety lock geverifieerd" : "Safety status niet geverifieerd";
+  const safetyClass = safetyVerified ? "verified" : mode === "CONFLICT" ? "conflict" : "unverified";
   const rows = Array.isArray(state?.automations) ? state.automations : [];
   const automationRows = rows.map((row) => `
     <div class="automation-row">
       <div><strong>${escapeHtml(row.id)}</strong><small>${escapeHtml(row.entity_id || "nog geen entity")}</small></div>
       <span class="automation-state">${escapeHtml(row.state || "missing")}</span>
     </div>`).join("");
+  const panel = dashboard || {
+    live: {},
+    price: { quality: "NOT_CONFIGURED" },
+    plan: { action: "NO_ACTION", quality: "NOT_CONFIGURED" },
+    readiness: { mode: "DATA_BLOCKED", warnings: [], executionAllowed: false },
+  };
+  const warnings = Array.isArray(panel.readiness?.warnings) ? panel.readiness.warnings : [];
+  const warningRows = warnings.length
+    ? warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")
+    : "<li>Geen extra configuratiewaarschuwingen.</li>";
+  const priceDetail = [panel.price?.source, panel.price?.tariffVersion]
+    .filter((value) => typeof value === "string" && value)
+    .join(" · ") || "Prijsbron nog niet beschikbaar";
+  const forecastState = String(config.sma_forecast_charging || "OFF").toUpperCase();
+  const forecastGuidance = forecastState === "ACTIVE"
+    ? "Actief verklaard; gedrag nog steeds vergelijken met het shadow-plan."
+    : "Forecast-based charging pas activeren na gecontroleerde pilot.";
+  const currentAction = actionLabel(panel.plan?.action || "NO_ACTION");
+  const readinessLabels = {
+    SHADOW_READY: "Prijsdata gereed",
+    SHADOW_READY_LIVE_DEGRADED: "Prijsdata gereed · live data beperkt",
+    DATA_BLOCKED: "Data geblokkeerd",
+  };
   return `
     <ha-card>
       <div class="control-shell">
@@ -1415,16 +1611,66 @@ export function renderBlockedControlConfig(config, state, message = "") {
           <div><span class="eyebrow">Configure · beperkte Home Assistant-writes</span><h2>${escapeHtml(config.title || DEFAULT_CONTROL_CONFIG.title)}</h2></div>
           <span class="control-status ${escapeHtml(mode.toLowerCase())}">${escapeHtml(labels[mode] || mode)}</span>
         </header>
-        <section class="safety-lock">
+        <section class="safety-lock ${escapeHtml(safetyClass)}">
           <strong>${safetyTitle}</strong>
           <code>execution_allowed = false</code>
-          <p>De kaart kan uitsluitend eigen geblokkeerde automatisaties aanmaken en in- of uitschakelen. De acties stoppen vóór ieder SMA-, Smappee-, batterij- of laadpaalcommando.</p>
+          <p>Geen apparatuurcommando's worden uitgevoerd. De kaart kan uitsluitend eigen geblokkeerde automatisaties aanmaken en in- of uitschakelen; iedere actie stopt vóór een SMA-, Smappee-, batterij- of laadpaalcommando.</p>
+        </section>
+        <section class="control-overview">
+          <div class="section-heading"><div><span class="eyebrow">Actuele besliscontext</span><h3>Prijsstrategie</h3></div><span class="readiness ${escapeHtml(panel.readiness?.mode?.toLowerCase() || "data_blocked")}">${escapeHtml(readinessLabels[panel.readiness?.mode] || "Data geblokkeerd")}</span></div>
+          <div class="strategy-grid">
+            ${metric("Actuele afnameprijs", `${compactPrice(panel.price?.currentEurPerKwh)}/kWh`, qualityLabel(panel.price?.quality))}
+            ${metric("Volgende goedkoopste", `${compactPrice(panel.price?.cheapestEurPerKwh)}/kWh`, formatControlTime(panel.price?.cheapestStartUtc))}
+            ${metric("Duurste komend kwartier", `${compactPrice(panel.price?.highestEurPerKwh)}/kWh`, formatControlTime(panel.price?.highestStartUtc))}
+            ${metric("Shadow-actie · niet uitgevoerd", currentAction, panel.plan?.reason || panel.plan?.quality || "geen reden")}
+          </div>
+          <div class="source-line"><span>${escapeHtml(priceDetail)}</span><span>${escapeHtml(panel.price?.intervalCount || 0)} komende kwartieren</span></div>
+        </section>
+        <section class="live-context">
+          ${metric("Batterij-SOC", formatPercent(panel.live?.batterySocPercent), qualityLabel(panel.live?.batterySocQuality || "NOT_CONFIGURED"))}
+          ${metric("Netimport", formatKw(panel.live?.gridKw), `dashboardgrens ${formatKw(config.peak_limit_kw)}`)}
+          ${metric("EV-laden", formatKw(panel.live?.evKw), qualityLabel(panel.live?.evQuality || "NOT_CONFIGURED"))}
+          ${metric("Gepland net", formatKw(panel.plan?.plannedGridImportKw), currentAction)}
         </section>
         <section class="control-grid">
           <div><span>Planentity</span><strong>${escapeHtml(config.plan_entity)}</strong></div>
           <div><span>Evaluatie</span><strong>${escapeHtml(config.interval_minutes)} min</strong></div>
           <div><span>Netlimiet</span><strong>${escapeHtml(config.peak_limit_kw)} kW</strong></div>
           <div><span>EV-doel</span><strong>${escapeHtml(config.ev_target_soc_percent)}% · ${escapeHtml(config.ev_departure_time)}</strong></div>
+        </section>
+        <section class="device-guidance">
+          <p class="profile-disclaimer">De kaart leest vendorinstellingen niet automatisch uit. Vergelijk dit dashboardprofiel met de actuele waarden in SMA en Smappee voordat je iets wijzigt.</p>
+          <article class="device-card sma">
+            <div class="device-title"><div><span class="device-kicker">Batterijcontroller</span><h3>SMA batterij · aanbevolen configuratie</h3></div><span>SMA blijft eigenaar</span></div>
+            <div class="setup-list">
+              ${setupRow("Controller", config.sma_controller, "Geen concurrerende Home Assistant- of Modbusregeling")}
+              ${setupRow("Optimalisatiedoel", config.sma_optimization_goal, "Gebruik economische optimalisatie")}
+              ${setupRow("Tarief", config.sma_tariff_type, "Controleer dat kwartierprijzen zichtbaar en actueel zijn")}
+              ${setupRow("Laad-SOC dynamisch", `${escapeHtml(config.sma_grid_charge_soc_percent)}%`, "SMA-documentatie vereist 0% voor dynamisch netladen")}
+              ${setupRow("Injectievergoeding", `${compactPrice(config.sma_feed_in_eur_per_kwh)}/kWh`, "Conservatieve SMA-proxy; niet contractnauwkeurig")}
+              ${setupRow("Forecast charging", forecastState, forecastGuidance)}
+              ${setupRow("Peak shaving", "UIT", "Niet combineren zonder afzonderlijke limiet- en ownershiptest")}
+            </div>
+          </article>
+          <article class="device-card smappee">
+            <div class="device-title"><div><span class="device-kicker">EV-controller</span><h3>Smappee EV · aanbevolen configuratie</h3></div><span>Smappee blijft eigenaar</span></div>
+            <div class="setup-list">
+              ${setupRow("Laadmodus", String(config.smappee_mode || "smart").replace(/^./, (letter) => letter.toUpperCase()), "Smart bewaakt de lokale netbelasting")}
+              ${setupRow("Netaansluiting", config.smappee_grid_connection, "Moet exact overeenkomen met de fysieke aansluiting")}
+              ${setupRow("Capaciteitsdrempel", formatKw(config.smappee_capacity_threshold_kw), "Deze lokale limiet gaat vóór de hogere dashboardgrens")}
+              ${setupRow("Maximale laadstroom", `${escapeHtml(config.smappee_max_current_ampere)} A`, "Niet verhogen zonder installateursvalidatie")}
+              ${setupRow("Offline laden", "UIT aanbevolen", `Huidige sitefallback ${escapeHtml(config.smappee_offline_fallback_ampere)} A; alleen inschakelen na fysieke validatie`)}
+              ${setupRow("Planning", "Één scheduler", "Geen gelijktijdig Kia-, Smappee- en Home Assistant-laadschema")}
+              ${setupRow("Solar-modus", "Alleen bewust kiezen", "Gebruik Solar voor PV-overschot; Smart voor net- en capaciteitsbewaking")}
+            </div>
+          </article>
+        </section>
+        <section class="ownership-policy">
+          <strong>Regelarchitectuur: één actieve controller per actuator</strong>
+          <p>SMA bestuurt batterij/PV, Smappee bestuurt EV-laden en Home Assistant toont, vergelijkt en beheert alleen hard-geblokkeerde dry-runautomatisaties.</p>
+          <ul>${warningRows}</ul>
+          <code>execution_allowed = false</code>
+          <p class="no-write">Geen instelling wordt vanuit deze kaart naar SMA of Smappee geschreven.</p>
         </section>
         <section class="automation-list">${automationRows || '<p class="empty">Nog geen beheerde automatisaties gevonden.</p>'}</section>
         ${message ? `<p class="control-message" role="status">${escapeHtml(message)}</p>` : ""}
@@ -1462,6 +1708,23 @@ export class DynamicEnergyControlConfigCard extends HTMLElementBase {
         { name: "ev_enabled", selector: { boolean: {} } },
         { name: "ev_target_soc_percent", selector: { number: { min: 0, max: 100, step: 1, unit_of_measurement: "%" } } },
         { name: "ev_departure_time", selector: { time: {} } },
+        { name: "battery_soc_entity", selector: { entity: {} } },
+        { name: "grid_power_entity", selector: { entity: {} } },
+        { name: "grid_import_positive", selector: { boolean: {} } },
+        { name: "ev_power_entity", selector: { entity: {} } },
+        { name: "data_stale_after_minutes", selector: { number: { min: 1, max: 180, step: 1, unit_of_measurement: "min" } } },
+        { name: "plan_stale_after_hours", selector: { number: { min: 1, max: 72, step: 1, unit_of_measurement: "h" } } },
+        { name: "sma_controller", selector: { text: {} } },
+        { name: "sma_optimization_goal", selector: { text: {} } },
+        { name: "sma_tariff_type", selector: { text: {} } },
+        { name: "sma_forecast_charging", selector: { select: { options: ["PILOT_PENDING", "ACTIVE", "OFF"] } } },
+        { name: "sma_grid_charge_soc_percent", selector: { number: { min: 0, max: 100, step: 1, unit_of_measurement: "%" } } },
+        { name: "sma_feed_in_eur_per_kwh", selector: { number: { min: -2, max: 5, step: 0.001, unit_of_measurement: "EUR/kWh" } } },
+        { name: "smappee_mode", selector: { select: { options: ["standard", "smart", "solar"] } } },
+        { name: "smappee_grid_connection", selector: { text: {} } },
+        { name: "smappee_capacity_threshold_kw", selector: { number: { min: 0.1, max: 30, step: 0.1, unit_of_measurement: "kW" } } },
+        { name: "smappee_max_current_ampere", selector: { number: { min: 6, max: 32, step: 1, unit_of_measurement: "A" } } },
+        { name: "smappee_offline_fallback_ampere", selector: { number: { min: 0, max: 32, step: 1, unit_of_measurement: "A" } } },
       ],
       computeLabel: (schema) => ({
         title: "Titel",
@@ -1474,6 +1737,23 @@ export class DynamicEnergyControlConfigCard extends HTMLElementBase {
         ev_enabled: "EV-automatisatie bouwen",
         ev_target_soc_percent: "Doel-SOC EV",
         ev_departure_time: "Geplande vertrektijd",
+        battery_soc_entity: "Live batterij-SOC (optioneel)",
+        grid_power_entity: "Live netvermogen (optioneel)",
+        grid_import_positive: "Positief netvermogen betekent afname",
+        ev_power_entity: "Live EV-laadvermogen (optioneel)",
+        data_stale_after_minutes: "Control-data verouderd na",
+        plan_stale_after_hours: "Plan en prijzen verouderd na",
+        sma_controller: "SMA-controller",
+        sma_optimization_goal: "SMA-optimalisatiedoel",
+        sma_tariff_type: "SMA-dynamisch tarief",
+        sma_forecast_charging: "SMA forecast-based charging",
+        sma_grid_charge_soc_percent: "SMA laad-SOC voor dynamisch netladen",
+        sma_feed_in_eur_per_kwh: "SMA injectieproxy",
+        smappee_mode: "Smappee laadmodus",
+        smappee_grid_connection: "Smappee netaansluiting",
+        smappee_capacity_threshold_kw: "Smappee capaciteitsdrempel",
+        smappee_max_current_ampere: "Smappee maximale laadstroom",
+        smappee_offline_fallback_ampere: "Smappee offline fallbackstroom",
       })[schema.name] || schema.name,
     };
   }
@@ -1583,14 +1863,49 @@ export class DynamicEnergyControlConfigCard extends HTMLElementBase {
         .control-status.armed_blocked { color: var(--dec-good); }
         .control-status.conflict { color: var(--dec-bad); }
         .safety-lock { display: grid; grid-template-columns: auto auto; align-items: center; gap: 5px 12px; padding: 16px 20px; border-bottom: 1px solid var(--dec-border); }
-        .safety-lock strong { color: var(--dec-good); font-size: 14px; }
-        .safety-lock code { justify-self: end; color: var(--dec-good); font-size: 12px; }
+        .safety-lock strong { font-size: 14px; }
+        .safety-lock code { justify-self: end; font-size: 12px; }
+        .safety-lock.verified strong, .safety-lock.verified code { color: var(--dec-good); }
+        .safety-lock.unverified strong, .safety-lock.unverified code { color: var(--dec-warn); }
+        .safety-lock.conflict strong, .safety-lock.conflict code { color: var(--dec-bad); }
         .safety-lock p { grid-column: 1 / -1; margin: 0; color: var(--dec-muted); font-size: 12px; line-height: 1.5; }
+        .control-overview { padding: 20px; border-bottom: 1px solid var(--dec-border); }
+        .section-heading, .device-title, .source-line { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+        h3 { margin: 0; font-size: 16px; line-height: 1.25; }
+        .readiness, .device-title > span { flex: 0 0 auto; padding: 5px 8px; border: 1px solid currentColor; border-radius: 999px; color: var(--dec-warn); font-size: 10px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+        .readiness.shadow_ready, .readiness.shadow_ready_live_degraded { color: var(--dec-good); }
+        .strategy-grid, .live-context { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 14px; border: 1px solid var(--dec-border); border-radius: 9px; overflow: hidden; }
+        .strategy-grid .metric, .live-context .metric { min-width: 0; padding: 13px 14px; border-right: 1px solid var(--dec-border); }
+        .strategy-grid .metric:last-child, .live-context .metric:last-child { border-right: 0; }
+        .strategy-grid .metric span, .live-context .metric span { display: block; color: var(--dec-muted); font-size: 10px; }
+        .strategy-grid .metric strong, .live-context .metric strong { display: block; margin-top: 5px; font-size: 16px; overflow-wrap: anywhere; }
+        .strategy-grid .metric small, .live-context .metric small { display: block; margin-top: 4px; color: var(--dec-muted); font-size: 10px; overflow-wrap: anywhere; }
+        .source-line { margin-top: 10px; color: var(--dec-muted); font-size: 10px; }
+        .live-context { margin: 0; border-width: 0 0 1px; border-radius: 0; }
         .control-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--dec-border); }
         .control-grid div { min-width: 0; padding: 14px 16px; border-right: 1px solid var(--dec-border); }
         .control-grid div:last-child { border-right: 0; }
         .control-grid span, .automation-row small { display: block; color: var(--dec-muted); font-size: 10px; }
         .control-grid strong { display: block; margin-top: 5px; overflow: hidden; font-family: var(--ha-font-family-code, ui-monospace, monospace); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+        .device-guidance { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 20px; border-bottom: 1px solid var(--dec-border); background: color-mix(in srgb, var(--dec-surface) 94%, var(--dec-accent)); }
+        .profile-disclaimer { grid-column: 1 / -1; margin: 0; padding: 11px 13px; border-left: 3px solid var(--dec-warn); background: color-mix(in srgb, var(--dec-warn) 8%, var(--dec-surface)); color: var(--dec-muted); font-size: 11px; line-height: 1.5; }
+        .device-card { min-width: 0; border: 1px solid var(--dec-border); border-radius: 10px; background: var(--dec-surface); overflow: hidden; }
+        .device-title { padding: 15px 16px; background: var(--dec-accent-soft); border-bottom: 1px solid var(--dec-border); }
+        .device-title > span { color: var(--dec-good); }
+        .device-kicker { display: block; margin-bottom: 4px; color: var(--dec-muted); font-size: 9px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+        .setup-list { display: grid; }
+        .setup-row { display: grid; grid-template-columns: minmax(0, .8fr) auto minmax(0, 1.2fr); gap: 4px 10px; padding: 11px 14px; border-bottom: 1px solid var(--dec-border); }
+        .setup-row:last-child { border-bottom: 0; }
+        .setup-row span { color: var(--dec-muted); font-size: 10px; }
+        .setup-row em { justify-self: end; color: var(--dec-warn); font-size: 8px; font-style: normal; font-weight: 750; letter-spacing: .05em; text-transform: uppercase; }
+        .setup-row strong { grid-column: 3; min-width: 0; font-size: 12px; overflow-wrap: anywhere; }
+        .setup-row small { grid-column: 3; color: var(--dec-muted); font-size: 10px; line-height: 1.4; }
+        .ownership-policy { padding: 18px 20px; border-bottom: 1px solid var(--dec-border); background: color-mix(in srgb, var(--dec-warn) 8%, var(--dec-surface)); }
+        .ownership-policy > strong { font-size: 14px; }
+        .ownership-policy p, .ownership-policy li { color: var(--dec-muted); font-size: 11px; line-height: 1.5; }
+        .ownership-policy ul { margin: 10px 0; padding-left: 18px; }
+        .ownership-policy code { color: var(--dec-good); font-size: 11px; }
+        .ownership-policy .no-write { margin-bottom: 0; color: var(--dec-good); font-weight: 700; }
         .automation-list { display: grid; gap: 1px; padding: 18px 20px; background: var(--dec-border); }
         .automation-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; background: var(--dec-surface); }
         .automation-row strong { font-family: var(--ha-font-family-code, ui-monospace, monospace); font-size: 12px; }
@@ -1605,14 +1920,30 @@ export class DynamicEnergyControlConfigCard extends HTMLElementBase {
         @media (max-width: 700px) {
           .control-header { flex-direction: column; padding: 17px 16px 14px; }
           .control-status { align-self: flex-start; }
+          .section-heading, .device-title, .source-line { flex-direction: column; }
+          .readiness, .device-title > span { align-self: flex-start; }
+          .strategy-grid, .live-context { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .strategy-grid .metric:nth-child(2), .live-context .metric:nth-child(2) { border-right: 0; }
+          .strategy-grid .metric:nth-child(-n+2), .live-context .metric:nth-child(-n+2) { border-bottom: 1px solid var(--dec-border); }
+          .device-guidance { grid-template-columns: 1fr; padding: 14px; }
           .control-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
           .control-grid div:nth-child(2) { border-right: 0; }
           .control-grid div:nth-child(-n+2) { border-bottom: 1px solid var(--dec-border); }
           .control-actions { flex-direction: column; }
           button { width: 100%; }
         }
+        @media (max-width: 430px) {
+          .control-overview, .ownership-policy { padding: 15px; }
+          .setup-row { grid-template-columns: 1fr auto; }
+          .setup-row strong, .setup-row small { grid-column: 1 / -1; }
+        }
       </style>
-      ${renderBlockedControlConfig(this._config, state, this._message)}`;
+      ${renderBlockedControlConfig(
+        this._config,
+        state,
+        this._message,
+        buildControlPanelSnapshot(this._hass, this._config),
+      )}`;
     this._root.querySelectorAll("button[data-action]").forEach((button) => {
       button.disabled = this._busy;
       button.addEventListener("click", () => this._handleAction(button.dataset.action));

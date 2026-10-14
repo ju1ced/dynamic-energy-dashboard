@@ -136,11 +136,31 @@
       name_prefix: "Dynamic Energy",
       plan_entity: "sensor.shadow_plan",
       peak_limit_kw: 7,
+      battery_soc_entity: "sensor.battery_soc",
+      grid_power_entity: "sensor.grid_power",
+      grid_import_positive: true,
+      ev_power_entity: "sensor.ev_power",
+      plan_stale_after_hours: 30,
+      sma_controller: "Sunny Home Manager 2.0",
+      sma_optimization_goal: "Economisch",
+      sma_tariff_type: "Dynamisch · Day-Ahead · BE · EPEX Spot",
+      sma_forecast_charging: "OFF",
+      sma_grid_charge_soc_percent: 0,
+      sma_feed_in_eur_per_kwh: 0.02,
+      smappee_mode: "smart",
+      smappee_grid_connection: "Driefasig – Delta · 2 × 40 A",
+      smappee_capacity_threshold_kw: 5.5,
+      smappee_max_current_ampere: 32,
+      smappee_offline_fallback_ampere: 8,
     });
     controlCard.hass = {
-      states: {},
+      states: liveStates(false),
       callWS: async () => undefined,
-      callApi: async () => undefined,
+      callApi: async () => {
+        const error = new Error("not found");
+        error.status = 404;
+        throw error;
+      },
       callService: async () => undefined,
     };
     window.fixtureControlEditorFieldCount = DynamicEnergyControlConfigCard.getConfigForm().schema.length;

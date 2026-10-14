@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.0-alpha.2 — 2026-10-14
+
+- Expand the alpha card into a dynamic-price control panel with current,
+  cheapest and highest upcoming prices, live battery/grid/EV context and the
+  current shadow action.
+- Add an explicit readiness state and warnings for stale plan data, pending SMA
+  forecast charging, Smappee offline fallback and differing capacity limits.
+- Add separate SMA battery and Smappee EV configuration guides while preserving
+  one active controller per actuator.
+- Keep all physical and provider writes absent; the only existing writes remain
+  the confirmed, namespaced and hard-blocked Home Assistant automations.
+- Add optional visual-editor mappings for control-panel entities and documented
+  vendor-profile values.
+
 ## 0.3.0-alpha.1 — 2026-10-14
 
 - Add a separate `dynamic-energy-control-config-card` for creating and managing
