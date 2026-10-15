@@ -22,12 +22,17 @@ any SMA, Smappee, battery or EV-charger action.
 - current shadow-plan action, reason and planned-versus-actual deviation;
 - upcoming quarter-hour market and tariff prices, compared with
   the indicative `€0.277/kWh` reference and aligned with planned actions;
+- previous/next navigation that keeps its position across Home Assistant state
+  refreshes;
+- a responsive full-day quarter-price graph, including elapsed intervals and
+  daylight-saving days with 92 or 100 quarters, bounded to the three latest
+  local price days;
 - visible missing, unavailable and stale-data states;
 - visual editor for entity mapping and thresholds;
 - responsive light/dark Home Assistant styling;
 - no runtime dependencies.
 
-Alpha `0.3.0-alpha.2` also adds:
+Alpha `0.3.0-alpha.3` also adds:
 
 - a separate visual editor for battery/EV dry-run settings;
 - explicit confirmation before Home Assistant configuration changes;
@@ -44,7 +49,9 @@ Alpha `0.3.0-alpha.2` also adds:
 - explicit controller ownership and a separate setup guide for SMA battery and
   Smappee EV configuration;
 - visible warnings when the shared dashboard limit and the Smappee capacity
-  threshold differ.
+  threshold differ;
+- reliable quarter-price navigation and a daily graph that does not require
+  horizontal scrolling.
 
 ## Install with HACS
 
@@ -62,7 +69,7 @@ artifact. No publication is performed automatically by this repository.
 The alpha control card requires Home Assistant `2024.10.0` or newer because its
 generated automations use the current plural automation syntax.
 
-For the alpha control card, explicitly select the `0.3.0-alpha.2` prerelease in
+For the alpha control card, explicitly select the `0.3.0-alpha.3` prerelease in
 HACS. Do not replace a stable read-only installation with the alpha unless the
 Home Assistant configuration-write boundary below is understood.
 
@@ -314,4 +321,4 @@ npm run check:hacs
 The HACS artifact is `dist/dynamic-energy-dashboard.js`.
 
 Release validation for the alpha is documented in
-`docs/releases/v0.3.0-alpha.2-checklist.md`.
+`docs/releases/v0.3.0-alpha.3-checklist.md`.

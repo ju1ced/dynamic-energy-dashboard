@@ -7,6 +7,7 @@ import {
   getEntityPriceIntervals,
   getUpcomingPriceIntervals,
   readEntity,
+  renderDailyPriceGraph,
   renderPriceAggregates,
   renderPriceTimeline,
   toKilowatts,
@@ -176,6 +177,23 @@ test("Ecopower Dynamic data attributes provide future import and injection price
   assert.equal(prices[1].exportEurPerKwh, 0.02);
 });
 
+test("daily price data retains elapsed quarters for the full-day graph", () => {
+  const now = new Date("2026-10-07T10:20:00Z");
+  const importState = state(0.08, "EUR/kWh", "2026-10-07T10:19:00Z", {
+    data: [
+      { start_time: "2026-10-07T10:00:00Z", end_time: "2026-10-07T10:15:00Z", price_per_kwh: 0.12 },
+      { start_time: "2026-10-07T10:15:00Z", end_time: "2026-10-07T10:30:00Z", price_per_kwh: 0.08 },
+    ],
+  });
+
+  const futureOnly = getEntityPriceIntervals(importState, null, "data", now);
+  const completeDay = getEntityPriceIntervals(importState, null, "data", now, true);
+
+  assert.equal(futureOnly.length, 1);
+  assert.equal(completeDay.length, 2);
+  assert.equal(completeDay[0].importEurPerKwh, 0.12);
+});
+
 test("EPEX and Ecopower identical duplicate rows are collapsed", () => {
   const now = new Date("2026-10-12T08:00:00+02:00");
   const importRow = {
@@ -339,6 +357,86 @@ test("price timeline renders quarter prices reference and planned actions", () =
   assert.match(html, /€0,310/);
   assert.match(html, /€0,277/);
   assert.match(html, /Laden vanaf net/);
+  assert.match(html, /data-price-scroll-by="-1"/);
+  assert.match(html, /data-price-scroll-by="1"/);
+  assert.match(html, /aria-label="Eerdere kwartierprijzen"/);
+});
+
+test("daily price graph groups quarter prices by local day without horizontal scrolling", () => {
+  const intervals = Array.from({ length: 100 }, (_, index) => {
+    const start = new Date(Date.parse("2026-10-24T22:00:00Z") + index * 900000);
+    return {
+      startUtc: start.toISOString(),
+      endUtc: new Date(start.getTime() + 900000).toISOString(),
+      importEurPerKwh: 0.08 + index * 0.001,
+      exportEurPerKwh: 0.03,
+      marketEurPerMwh: null,
+    };
+  });
+
+  const html = renderDailyPriceGraph(intervals, 0.277);
+
+  assert.match(html, /Kwartierprijzen per dag/);
+  assert.match(html, /data-quarter-count="100"/);
+  assert.match(html, /<svg/);
+  assert.match(html, /price-reference-line/);
+  assert.match(html, /€0,080–€0,179\/kWh/);
+  assert.match(html, /data-axis-hour="6" style="left:28\.00%"/);
+  assert.doesNotMatch(html, /price-scroll/);
+  assert.equal((html.match(/class="price-bar /g) || []).length, 100);
+});
+
+test("daily price graph positions local-time markers correctly on a 92-quarter DST day", () => {
+  const intervals = Array.from({ length: 92 }, (_, index) => {
+    const start = new Date(Date.parse("2027-03-27T23:00:00Z") + index * 900000);
+    return {
+      startUtc: start.toISOString(),
+      endUtc: new Date(start.getTime() + 900000).toISOString(),
+      importEurPerKwh: 0.1,
+    };
+  });
+
+  const html = renderDailyPriceGraph(intervals, 0.277);
+
+  assert.match(html, /data-quarter-count="92"/);
+  assert.match(html, /data-axis-hour="6" style="left:21\.74%"/);
+  assert.match(html, /data-axis-hour="12" style="left:47\.83%"/);
+  assert.match(html, /data-axis-hour="18" style="left:73\.91%"/);
+});
+
+test("daily price graph renders an ordinary 96-quarter day", () => {
+  const intervals = Array.from({ length: 96 }, (_, index) => {
+    const start = new Date(Date.parse("2026-10-14T22:00:00Z") + index * 900000);
+    return {
+      startUtc: start.toISOString(),
+      endUtc: new Date(start.getTime() + 900000).toISOString(),
+      importEurPerKwh: 0.1,
+    };
+  });
+
+  const html = renderDailyPriceGraph(intervals, 0.277);
+
+  assert.match(html, /data-quarter-count="96"/);
+  assert.match(html, /data-axis-hour="6" style="left:25\.00%"/);
+  assert.match(html, /data-axis-hour="12" style="left:50\.00%"/);
+  assert.match(html, /data-axis-hour="18" style="left:75\.00%"/);
+});
+
+test("daily price graph bounds long feeds to the three latest days", () => {
+  const intervals = Array.from({ length: 96 * 5 }, (_, index) => {
+    const start = new Date(Date.parse("2026-10-10T22:00:00Z") + index * 900000);
+    return {
+      startUtc: start.toISOString(),
+      endUtc: new Date(start.getTime() + 900000).toISOString(),
+      importEurPerKwh: 0.1 + index * 0.0001,
+    };
+  });
+
+  const html = renderDailyPriceGraph(intervals, 0.277);
+
+  assert.equal((html.match(/class="price-day-chart"/g) || []).length, 3);
+  assert.doesNotMatch(html, /data-day="2026-10-11"/);
+  assert.match(html, /data-day="2026-10-15"/);
 });
 
 test("price aggregates render day week and month comparisons", () => {

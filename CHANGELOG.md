@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.0-alpha.3 — 2026-10-14
+
+- Keep the horizontal quarter-price position stable when Home Assistant refreshes
+  the card.
+- Add explicit previous/next controls with keyboard-accessible 44 px targets for
+  quarter-price navigation.
+- Add a responsive, non-scrolling daily graph that retains elapsed quarters,
+  groups prices by the Europe/Brussels calendar day and handles 92/100-quarter
+  daylight-saving days.
+- Parse each price source once, reuse timezone formatters and cache unchanged
+  graph markup to keep frequent Home Assistant refreshes responsive.
+- Bound unusually long feeds to the three latest local price days.
+- Preserve the read-only boundary and all `OFF`/`ARMED_BLOCKED` safety limits.
+
 ## 0.3.0-alpha.2 — 2026-10-14
 
 - Expand the alpha card into a dynamic-price control panel with current,

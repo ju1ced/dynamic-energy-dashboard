@@ -51,10 +51,12 @@
       house_power_entity: "sensor.house_power",
       ev_power_entity: "sensor.ev_power",
       heat_pump_power_entity: "sensor.heat_pump_power",
+      import_price_entity: "sensor.import_price",
       export_price_entity: "sensor.export_price",
       plan_entity: "sensor.shadow_plan",
       plan_attribute: "schedule",
       price_attribute: "prices",
+      integration_price_attribute: "data",
       peak_limit_kw: 7,
       stale_after_minutes: 10,
       plan_stale_after_hours: 30,
@@ -74,6 +76,16 @@
       const now = new Date();
       const updated = new Date(now.getTime() - (stale ? 45 : 1) * 60000).toISOString();
       const start = new Date(Math.floor(now.getTime() / 900000) * 900000);
+      const dayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+      const integrationPrices = Array.from({ length: 192 }, (_, index) => ({
+        start_time: new Date(dayStart.getTime() + index * 900000).toISOString(),
+        end_time: new Date(dayStart.getTime() + (index + 1) * 900000).toISOString(),
+        price_per_kwh: 0.16 + Math.sin(index / 7) * 0.11 + (index % 29 === 0 ? -0.04 : 0),
+      }));
+      const exportPrices = integrationPrices.map((row) => ({
+        ...row,
+        price_per_kwh: row.price_per_kwh - 0.09,
+      }));
       const prices = Array.from({ length: 32 }, (_, index) => ({
         start_utc: new Date(start.getTime() + index * 900000).toISOString(),
         duration_hours: 0.25,
@@ -89,7 +101,14 @@
         "sensor.house_power": makeState(5500, "W", updated, { friendly_name: "Huisvermogen" }),
         "sensor.ev_power": makeState(2200, "W", updated, { friendly_name: "EV-laden" }),
         "sensor.heat_pump_power": makeState(900, "W", updated, { friendly_name: "Warmtepomp" }),
-        "sensor.export_price": makeState(0.041, "EUR/kWh", updated, { friendly_name: "Injectieprijs" }),
+        "sensor.import_price": makeState(0.21, "EUR/kWh", updated, {
+          friendly_name: "Afnameprijs",
+          data: integrationPrices,
+        }),
+        "sensor.export_price": makeState(0.041, "EUR/kWh", updated, {
+          friendly_name: "Injectieprijs",
+          data: exportPrices,
+        }),
         "sensor.shadow_plan": makeState("planned", null, updated, {
           mode: "READ_ONLY_SHADOW",
           price_source: "ENTSO-E Transparency Platform Web API",
