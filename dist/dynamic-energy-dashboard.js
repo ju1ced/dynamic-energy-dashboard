@@ -664,7 +664,12 @@ export function getCurrentPlanInterval(planState, attributeName = "schedule", no
   return interval;
 }
 
-export function getUpcomingPriceIntervals(planState, attributeName = "prices", now = new Date()) {
+export function getUpcomingPriceIntervals(
+  planState,
+  attributeName = "prices",
+  now = new Date(),
+  includeElapsed = false,
+) {
   if (!planState) return [];
   const rows = safeValue(safeAttributes(planState), attributeName);
   if (!Array.isArray(rows)) return [];
@@ -708,7 +713,7 @@ export function getUpcomingPriceIntervals(planState, attributeName = "prices", n
     });
   }
   return nonOverlappingRows(parsedRows)
-    .filter((row) => row.endMs > nowMs)
+    .filter((row) => includeElapsed || row.endMs > nowMs)
     .map(({ startMs, endMs, ...row }) => row);
 }
 
@@ -717,6 +722,7 @@ export function getEntityPriceIntervals(
   exportState = null,
   attributeName = "data",
   now = new Date(),
+  includeElapsed = false,
 ) {
   const importRows = safeValue(safeAttributes(importState), attributeName);
   if (!Array.isArray(importRows)) return [];
@@ -761,7 +767,7 @@ export function getEntityPriceIntervals(
   const nowMs = now.getTime();
   const parsedImportRows = parseIntegrationRows(importRows);
   return parsedImportRows
-    .filter((row) => row.endMs > nowMs)
+    .filter((row) => includeElapsed || row.endMs > nowMs)
     .map((row) => ({
       startUtc: new Date(row.startMs).toISOString(),
       endUtc: new Date(row.endMs).toISOString(),
@@ -882,22 +888,30 @@ export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
   const planSchedule = planIsFresh
     ? normaliseScheduleRows(planReading.stateObject, planAttribute).map(({ startMs, endMs, ...row }) => row)
     : [];
-  const planPriceIntervals = planIsFresh
+  const nowMs = now.getTime();
+  const planDailyPriceIntervals = planIsFresh
     ? getUpcomingPriceIntervals(
       planReading.stateObject,
       config.price_attribute || "prices",
       now,
+      true,
     )
     : [];
-  const entityPriceIntervals = importPrice.quality === "GOOD"
+  const planPriceIntervals = planDailyPriceIntervals.filter(
+    (row) => Date.parse(row.endUtc) > nowMs,
+  );
+  const entityDailyPriceIntervals = importPrice.quality === "GOOD"
     ? getEntityPriceIntervals(
       importPrice.stateObject,
       exportPrice.quality === "GOOD" ? exportPrice.stateObject : null,
       config.integration_price_attribute || DEFAULT_CONFIG.integration_price_attribute,
       now,
+      true,
     )
     : [];
-  const nowMs = now.getTime();
+  const entityPriceIntervals = entityDailyPriceIntervals.filter(
+    (row) => Date.parse(row.endUtc) > nowMs,
+  );
   const shadowCoverage = intervalCoverageMs(planPriceIntervals, nowMs);
   const integrationCoverage = intervalCoverageMs(entityPriceIntervals, nowMs);
   const hasIntegrationSource = importPrice.quality === "GOOD"
@@ -907,6 +921,8 @@ export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
     : planPriceIntervals.length > 0 ? "shadow" : hasIntegrationSource ? "integration" : null;
   const priceIntervals = selectedPriceSource === "shadow" ? planPriceIntervals
     : selectedPriceSource === "integration" ? entityPriceIntervals : [];
+  const dailyPriceIntervals = selectedPriceSource === "shadow" ? planDailyPriceIntervals
+    : selectedPriceSource === "integration" ? entityDailyPriceIntervals : [];
   const currentTimelinePrice = priceIntervals.find(
     (row) => Date.parse(row.startUtc) <= nowMs && nowMs < Date.parse(row.endUtc),
   );
@@ -1004,6 +1020,7 @@ export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
     },
     prices: {
       intervals: priceIntervals,
+      dailyIntervals: dailyPriceIntervals,
       referenceEurPerKwh: priceReference,
       source: selectedSourceLabel,
       tariffVersion: selectedTariffVersion,
@@ -1241,7 +1258,132 @@ export function renderPriceTimeline(
     const tone = difference === null ? "neutral" : difference <= 0 ? "cheap" : "expensive";
     return `<div class="price-quarter ${tone}"><time>${escapeHtml(formatter.format(new Date(row.startMs)))}</time><strong>${escapeHtml(compactPrice(row.importEurPerKwh))}</strong><small>markt ${escapeHtml(row.marketEurPerMwh === null ? "—" : `€${row.marketEurPerMwh.toFixed(2)}/MWh`)}</small><small>injectie ${escapeHtml(compactPrice(row.exportEurPerKwh))}</small>${action ? `<span>${escapeHtml(actionLabel(action))}</span>` : ""}</div>`;
   }).join("");
-  return `<section class="price-timeline"><div class="section-title"><h3>Komende kwartierprijzen</h3><small>${metadata}</small></div><div class="price-scroll"><div class="price-quarters">${rows}</div></div></section>`;
+  return `<section class="price-timeline"><div class="section-title price-heading"><div><h3>Komende kwartierprijzen</h3><small>${metadata}</small></div><div class="price-nav" aria-label="Navigatie door kwartierprijzen"><button type="button" data-price-scroll-by="-1" aria-label="Eerdere kwartierprijzen" title="Eerdere kwartierprijzen">‹</button><button type="button" data-price-scroll-by="1" aria-label="Latere kwartierprijzen" title="Latere kwartierprijzen">›</button></div></div><div class="price-scroll" tabindex="0" aria-label="Komende kwartierprijzen, horizontaal scrollbaar"><div class="price-quarters">${rows}</div></div></section>`;
+}
+
+const DAILY_GRAPH_MAX_DAYS = 3;
+const DAILY_GRAPH_CACHE_LIMIT = 4;
+const DAILY_GRAPH_CACHE = new Map();
+const LOCAL_DAY_FORMATTER = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: "Europe/Brussels",
+});
+const DAILY_GRAPH_TIME_FORMATTER = new Intl.DateTimeFormat("nl-BE", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Europe/Brussels",
+  timeZoneName: "shortOffset",
+});
+const DAILY_GRAPH_DAY_FORMATTER = new Intl.DateTimeFormat("nl-BE", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  timeZone: "Europe/Brussels",
+});
+const DAILY_GRAPH_AXIS_FORMATTER = new Intl.DateTimeFormat("en-GB", {
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+  timeZone: "Europe/Brussels",
+});
+
+function localDayKey(timestamp) {
+  const parts = LOCAL_DAY_FORMATTER.formatToParts(new Date(timestamp));
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function dailyGraphCacheKey(rows, reference) {
+  const values = rows.map((row) => (
+    `${row.startMs}:${row.endMs}:${row.importEurPerKwh}`
+  )).join(";");
+  return `${reference === null ? "null" : reference}|${values}`;
+}
+
+function cacheDailyGraph(key, html) {
+  DAILY_GRAPH_CACHE.set(key, html);
+  while (DAILY_GRAPH_CACHE.size > DAILY_GRAPH_CACHE_LIMIT) {
+    DAILY_GRAPH_CACHE.delete(DAILY_GRAPH_CACHE.keys().next().value);
+  }
+  return html;
+}
+
+export function renderDailyPriceGraph(intervals, referenceEurPerKwh = null) {
+  const reference = finiteNumber(referenceEurPerKwh);
+  const rows = (Array.isArray(intervals) ? intervals : []).flatMap((row) => {
+    if (!isPlainObject(row)) return [];
+    const startMs = externalDateMs(safeValue(row, "startUtc"));
+    const endMs = externalDateMs(safeValue(row, "endUtc"));
+    const importEurPerKwh = finiteNumber(safeValue(row, "importEurPerKwh"));
+    if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs || importEurPerKwh === null) return [];
+    return [{ startMs, endMs, importEurPerKwh }];
+  }).sort((left, right) => left.startMs - right.startMs);
+  if (!rows.length) {
+    return '<section class="daily-price-graph"><div class="section-title"><h3>Kwartierprijzen per dag</h3><small>geen dagdata beschikbaar</small></div></section>';
+  }
+  const cacheKey = dailyGraphCacheKey(rows, reference);
+  const cached = DAILY_GRAPH_CACHE.get(cacheKey);
+  if (cached) {
+    DAILY_GRAPH_CACHE.delete(cacheKey);
+    DAILY_GRAPH_CACHE.set(cacheKey, cached);
+    return cached;
+  }
+
+  const days = new Map();
+  rows.forEach((row) => {
+    const key = localDayKey(row.startMs);
+    if (!days.has(key)) days.set(key, []);
+    days.get(key).push(row);
+  });
+  const localTimeParts = (timestamp) => Object.fromEntries(
+    DAILY_GRAPH_AXIS_FORMATTER.formatToParts(new Date(timestamp))
+      .map((part) => [part.type, part.value]),
+  );
+  const charts = [...days.entries()].slice(-DAILY_GRAPH_MAX_DAYS).map(([day, dayRows]) => {
+    const values = dayRows.map((row) => row.importEurPerKwh);
+    const actualMinimum = Math.min(...values);
+    const actualMaximum = Math.max(...values);
+    const scaleValues = reference === null ? [0, ...values] : [0, reference, ...values];
+    const minimum = Math.min(...scaleValues);
+    const maximum = Math.max(...scaleValues);
+    const range = maximum - minimum || 1;
+    const chartHeight = 160;
+    const plotTop = 8;
+    const plotHeight = 132;
+    const yFor = (value) => plotTop + ((maximum - value) / range) * plotHeight;
+    const zeroY = yFor(0);
+    const width = dayRows.length * 10;
+    const bars = dayRows.map((row, index) => {
+      const valueY = yFor(row.importEurPerKwh);
+      const y = Math.min(valueY, zeroY);
+      const height = Math.max(1, Math.abs(zeroY - valueY));
+      const tone = reference === null ? "neutral" : row.importEurPerKwh <= reference ? "cheap" : "expensive";
+      const label = `${DAILY_GRAPH_TIME_FORMATTER.format(new Date(row.startMs))} · ${compactPrice(row.importEurPerKwh)}/kWh`;
+      return `<rect class="price-bar ${tone}" x="${index * 10 + 1}" y="${y.toFixed(2)}" width="8" height="${height.toFixed(2)}" role="img" aria-label="${escapeHtml(label)}"><title>${escapeHtml(label)}</title></rect>`;
+    }).join("");
+    const referenceLine = reference === null ? "" : `<line class="price-reference-line" x1="0" x2="${width}" y1="${yFor(reference).toFixed(2)}" y2="${yFor(reference).toFixed(2)}"><title>Referentie ${escapeHtml(compactPrice(reference))}/kWh</title></line>`;
+    const dateLabel = DAILY_GRAPH_DAY_FORMATTER.format(new Date(dayRows[0].startMs));
+    const axisMarkers = [0, 6, 12, 18].flatMap((hour) => {
+      const index = dayRows.findIndex((row) => {
+        const parts = localTimeParts(row.startMs);
+        return Number(parts.hour) === hour && Number(parts.minute) === 0;
+      });
+      if (index < 0) return [];
+      const position = (index / dayRows.length) * 100;
+      const edgeClass = index === 0 ? " first" : "";
+      return [`<span class="price-axis-marker${edgeClass}" data-axis-hour="${hour}" style="left:${position.toFixed(2)}%">${String(hour).padStart(2, "0")}:00</span>`];
+    }).join("");
+    const endParts = localTimeParts(dayRows.at(-1).endMs);
+    const endLabel = `${endParts.hour}:${endParts.minute}`;
+    const axis = `<div class="price-axis">${axisMarkers}<span class="price-axis-marker last" data-axis-hour="24" style="left:100.00%">${escapeHtml(endLabel)}</span></div>`;
+    return `<article class="price-day-chart" data-day="${escapeHtml(day)}" data-quarter-count="${dayRows.length}"><div class="price-day-heading"><strong>${escapeHtml(dateLabel)}</strong><span>${dayRows.length} kwartieren · ${escapeHtml(compactPrice(actualMinimum))}–${escapeHtml(compactPrice(actualMaximum))}/kWh</span></div><svg viewBox="0 0 ${width} ${chartHeight}" preserveAspectRatio="none" role="img" aria-label="Kwartierprijzen voor ${escapeHtml(dateLabel)}">${referenceLine}<line class="price-zero-line" x1="0" x2="${width}" y1="${zeroY.toFixed(2)}" y2="${zeroY.toFixed(2)}"/>${bars}</svg>${axis}</article>`;
+  }).join("");
+  return cacheDailyGraph(
+    cacheKey,
+    `<section class="daily-price-graph"><div class="section-title"><h3>Kwartierprijzen per dag</h3><small>afnameprijs · lokale tijd</small></div><div class="price-day-list">${charts}</div></section>`,
+  );
 }
 
 export function renderPriceAggregates(aggregates, referenceEurPerKwh = null) {
@@ -1380,6 +1522,8 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
 
   _render() {
     if (!this._root) return;
+    const existingPriceScroll = this._root.querySelector?.(".price-scroll");
+    if (existingPriceScroll) this._priceScrollLeft = existingPriceScroll.scrollLeft;
     const snapshot = buildSnapshot(this._hass, this._config, new Date());
     const interval = snapshot.plan.interval;
     const statusClass = snapshot.status.toLowerCase().replaceAll("_", "-");
@@ -1433,15 +1577,37 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
         .metric strong { display: block; margin-top: 7px; font-family: var(--ha-font-family-code, ui-monospace, monospace); font-size: 20px; font-variant-numeric: tabular-nums; }
         .metric small { display: block; margin-top: 4px; color: var(--des-muted); font-size: 11px; }
         .price-timeline { min-width: 0; padding: 18px 20px; border-bottom: 1px solid var(--des-border); }
-        .price-scroll { max-width: 100%; overflow-x: auto; padding-bottom: 5px; scrollbar-width: thin; }
+        .price-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; padding-bottom: 5px; scrollbar-width: thin; touch-action: pan-x pan-y; }
         .price-quarters { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(118px, 1fr); gap: 7px; min-width: max-content; }
-        .price-quarter { display: grid; gap: 5px; padding: 10px; border: 1px solid var(--des-border); border-top: 4px solid var(--des-muted); border-radius: 8px; background: var(--des-surface); }
+        .price-quarter { display: grid; gap: 5px; padding: 10px; border: 1px solid var(--des-border); border-top: 4px solid var(--des-muted); border-radius: 8px; background: var(--des-surface); scroll-snap-align: start; }
         .price-quarter.cheap { border-top-color: var(--des-good); }
         .price-quarter.expensive { border-top-color: var(--des-bad); }
         .price-quarter time, .price-quarter small { color: var(--des-muted); font-size: 10px; }
         .price-quarter strong { font-family: var(--ha-font-family-code, ui-monospace, monospace); font-size: 16px; }
         .price-quarter span { color: var(--des-accent); font-size: 10px; font-weight: 700; }
         .price-empty { margin: 0; color: var(--des-muted); font-size: 12px; }
+        .price-heading > div:first-child { min-width: 0; }
+        .price-heading small { display: block; margin-top: 4px; }
+        .price-nav { display: flex; flex: 0 0 auto; gap: 6px; }
+        .price-nav button { display: inline-grid; width: 44px; height: 44px; place-items: center; border: 1px solid var(--des-border); border-radius: 8px; background: var(--des-surface); color: var(--des-ink); font: inherit; font-size: 24px; cursor: pointer; }
+        .price-nav button:focus-visible { outline: 3px solid color-mix(in srgb, var(--des-accent) 45%, transparent); outline-offset: 2px; }
+        .price-nav button:disabled { cursor: default; opacity: .42; }
+        .daily-price-graph { min-width: 0; padding: 18px 20px; border-bottom: 1px solid var(--des-border); }
+        .price-day-list { display: grid; gap: 16px; }
+        .price-day-chart { min-width: 0; padding: 12px; border: 1px solid var(--des-border); border-radius: 10px; background: var(--des-surface); }
+        .price-day-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+        .price-day-heading strong { font-size: 13px; }
+        .price-day-heading span, .price-axis { color: var(--des-muted); font-size: 10px; }
+        .price-day-chart svg { display: block; width: 100%; height: 180px; overflow: visible; }
+        .price-bar { fill: var(--des-muted); }
+        .price-bar.cheap { fill: var(--des-good); }
+        .price-bar.expensive { fill: var(--des-bad); }
+        .price-reference-line { stroke: var(--des-warn); stroke-dasharray: 5 4; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+        .price-zero-line { stroke: var(--des-border); stroke-width: 1; vector-effect: non-scaling-stroke; }
+        .price-axis { position: relative; height: 14px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .price-axis-marker { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+        .price-axis-marker.first { transform: none; }
+        .price-axis-marker.last { transform: translateX(-100%); }
         .price-aggregates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--des-border); }
         .price-summary { min-width: 0; padding: 12px 20px; border-right: 1px solid var(--des-border); }
         .price-summary:last-child { border-right: 0; }
@@ -1495,6 +1661,11 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
           .main, .side { padding: 14px; }
           .metric { padding: 13px; }
           .metric strong { font-size: 17px; }
+          .price-heading, .price-day-heading { align-items: stretch; flex-direction: column; }
+          .price-nav { align-self: stretch; }
+          .price-nav button { flex: 1 1 0; }
+          .daily-price-graph, .price-timeline { padding-inline: 14px; }
+          .price-day-chart svg { height: 150px; }
         }
       </style>
       <ha-card>
@@ -1516,6 +1687,7 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
             snapshot.prices.source,
             snapshot.prices.tariffVersion,
           )}
+          ${renderDailyPriceGraph(snapshot.prices.dailyIntervals, snapshot.prices.referenceEurPerKwh)}
           ${renderPriceAggregates(snapshot.prices.aggregates, snapshot.prices.referenceEurPerKwh)}
           <div class="body">
             <main class="main">
@@ -1546,6 +1718,36 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
           <footer class="footer"><span>READ_ONLY_SHADOW</span><span>geen Home Assistant-, SMA- of Smappee-writes</span></footer>
         </div>
       </ha-card>`;
+    const priceScroll = this._root.querySelector(".price-scroll");
+    if (priceScroll) {
+      const maximumScroll = () => Math.max(0, priceScroll.scrollWidth - priceScroll.clientWidth);
+      priceScroll.scrollLeft = Math.min(this._priceScrollLeft || 0, maximumScroll());
+      const scrollButtons = [...this._root.querySelectorAll("[data-price-scroll-by]")];
+      const syncScrollButtons = () => {
+        const currentMaximum = maximumScroll();
+        scrollButtons.forEach((button) => {
+          const direction = Number(button.dataset.priceScrollBy) || 0;
+          button.disabled = direction < 0
+            ? priceScroll.scrollLeft <= 1
+            : priceScroll.scrollLeft >= currentMaximum - 1;
+        });
+      };
+      priceScroll.addEventListener("scroll", () => {
+        this._priceScrollLeft = priceScroll.scrollLeft;
+        syncScrollButtons();
+      }, { passive: true });
+      scrollButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const direction = Number(button.dataset.priceScrollBy) || 0;
+          const requested = priceScroll.scrollLeft
+            + direction * Math.max(240, priceScroll.clientWidth * 0.75);
+          priceScroll.scrollLeft = Math.max(0, Math.min(maximumScroll(), requested));
+          this._priceScrollLeft = priceScroll.scrollLeft;
+          syncScrollButtons();
+        });
+      });
+      syncScrollButtons();
+    }
   }
 }
 
