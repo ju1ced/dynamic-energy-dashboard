@@ -32,7 +32,7 @@ any SMA, Smappee, battery or EV-charger action.
 - responsive light/dark Home Assistant styling;
 - no runtime dependencies.
 
-Alpha `0.3.0-alpha.3` also adds:
+Alpha `0.3.0-alpha.4` also adds:
 
 - a separate visual editor for battery/EV dry-run settings;
 - explicit confirmation before Home Assistant configuration changes;
@@ -46,8 +46,14 @@ Alpha `0.3.0-alpha.3` also adds:
   every managed automation;
 - a data-dense control overview with current, cheapest and highest upcoming
   prices, current shadow action and live battery/grid/EV context;
+- independent read-only price-entity freshness, so current and upcoming
+  Ecopower prices remain visible when the shadow plan is stale;
+- a separate `PRICE_READY_PLAN_BLOCKED` state that keeps price context visible
+  without implying that a stale plan may be executed;
 - explicit controller ownership and a separate setup guide for SMA battery and
   Smappee EV configuration;
+- an explicit Smappee dynamic-tariff status that defaults to `NOT_VERIFIED` and
+  never treats Smappee Smart mode as proof that dynamic tariffs are active;
 - visible warnings when the shared dashboard limit and the Smappee capacity
   threshold differ;
 - reliable quarter-price navigation and a daily graph that does not require
@@ -69,7 +75,7 @@ artifact. No publication is performed automatically by this repository.
 The alpha control card requires Home Assistant `2024.10.0` or newer because its
 generated automations use the current plural automation syntax.
 
-For the alpha control card, explicitly select the `0.3.0-alpha.3` prerelease in
+For the alpha control card, explicitly select the `0.3.0-alpha.4` prerelease in
 HACS. Do not replace a stable read-only installation with the alpha unless the
 Home Assistant configuration-write boundary below is understood.
 
@@ -143,6 +149,10 @@ battery_soc_entity: sensor.battery_soc
 grid_power_entity: sensor.grid_power
 grid_import_positive: true
 ev_power_entity: sensor.ev_power
+import_price_entity: sensor.ecopower_dynamische_tarieven_market_price_consumption_price
+export_price_entity: sensor.ecopower_dynamische_tarieven_market_price_injection_price
+integration_price_attribute: data
+price_stale_after_minutes: 20
 data_stale_after_minutes: 10
 plan_stale_after_hours: 30
 sma_controller: Sunny Home Manager 2.0
@@ -156,6 +166,7 @@ smappee_grid_connection: Driefasig – Delta · 2 × 40 A
 smappee_capacity_threshold_kw: 5.5
 smappee_max_current_ampere: 32
 smappee_offline_fallback_ampere: 8
+smappee_dynamic_tariff_status: NOT_VERIFIED
 ```
 
 The card has three confirmed actions:
@@ -234,6 +245,9 @@ Recommended staged profile:
    controller, never several at the same time.
 7. Treat Smappee dynamic-tariff displays as planning context unless all supplier
    surcharges and charges have been reconciled separately.
+8. Leave `smappee_dynamic_tariff_status` at `NOT_VERIFIED` unless a separate,
+   readable and trustworthy status source proves the setting. `Smart` charging
+   mode alone does not prove that dynamic tariffs are active.
 
 Primary Smappee references:
 

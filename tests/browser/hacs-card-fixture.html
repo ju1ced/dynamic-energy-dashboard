@@ -72,9 +72,10 @@
       attributes: { unit_of_measurement: unit, ...attributes },
     });
 
-    function liveStates(stale = false) {
+    function liveStates(stale = false, planStale = stale) {
       const now = new Date();
       const updated = new Date(now.getTime() - (stale ? 45 : 1) * 60000).toISOString();
+      const planUpdated = new Date(now.getTime() - (planStale ? 31 * 60 : 1) * 60000).toISOString();
       const start = new Date(Math.floor(now.getTime() / 900000) * 900000);
       const dayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
       const integrationPrices = Array.from({ length: 192 }, (_, index) => ({
@@ -109,7 +110,7 @@
           friendly_name: "Injectieprijs",
           data: exportPrices,
         }),
-        "sensor.shadow_plan": makeState("planned", null, updated, {
+        "sensor.shadow_plan": makeState("planned", null, planUpdated, {
           mode: "READ_ONLY_SHADOW",
           price_source: "ENTSO-E Transparency Platform Web API",
           price_tariff_version: "ECOPOWER_DBS_2026-08-01",
@@ -159,6 +160,10 @@
       grid_power_entity: "sensor.grid_power",
       grid_import_positive: true,
       ev_power_entity: "sensor.ev_power",
+      import_price_entity: "sensor.import_price",
+      export_price_entity: "sensor.export_price",
+      integration_price_attribute: "data",
+      price_stale_after_minutes: 20,
       plan_stale_after_hours: 30,
       sma_controller: "Sunny Home Manager 2.0",
       sma_optimization_goal: "Economisch",
@@ -171,9 +176,10 @@
       smappee_capacity_threshold_kw: 5.5,
       smappee_max_current_ampere: 32,
       smappee_offline_fallback_ampere: 8,
+      smappee_dynamic_tariff_status: "NOT_VERIFIED",
     });
-    controlCard.hass = {
-      states: liveStates(false),
+    const controlHass = (planStale = false) => ({
+      states: liveStates(false, planStale),
       callWS: async () => undefined,
       callApi: async () => {
         const error = new Error("not found");
@@ -181,6 +187,10 @@
         throw error;
       },
       callService: async () => undefined,
+    });
+    controlCard.hass = controlHass(false);
+    window.setControlFixtureMode = (mode) => {
+      controlCard.hass = controlHass(mode === "stale-plan");
     };
     window.fixtureControlEditorFieldCount = DynamicEnergyControlConfigCard.getConfigForm().schema.length;
     window.setFixtureMode("live-plan");
