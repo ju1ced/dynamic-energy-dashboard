@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0-alpha.4 — 2026-10-15
+
+- Let the control panel read fresh EPEX/Ecopower price entities independently
+  from the shadow-plan freshness window.
+- Keep current, cheapest and highest quarter prices visible when an old or
+  missing shadow plan blocks planned actions.
+- Add a distinct `PRICE_READY_PLAN_BLOCKED` readiness state so usable price
+  context is not presented as executable planning readiness.
+- Expose the price-entity mappings, price freshness threshold and explicit
+  Smappee dynamic-tariff verification status in the visual editor.
+- Keep Smappee dynamic tariffs informational only; Ecopower remains the
+  read-only observation source unless a separately verified mapping is chosen.
+- Preserve `OFF`/`ARMED_BLOCKED`, `execution_allowed: false` and the absence of
+  physical SMA, Smappee, battery, EV, MQTT or Modbus writes.
+
 ## 0.3.0-alpha.3 — 2026-10-14
 
 - Keep the horizontal quarter-price position stable when Home Assistant refreshes

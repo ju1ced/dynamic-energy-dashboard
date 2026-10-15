@@ -96,12 +96,12 @@ class HacsLovelacePackageTests(unittest.TestCase):
         self.assertIn("https://support.smappee.com/hc/en-gb/articles/4900468508692", readme)
         self.assertIn("performs no sma- or smappee-setting change", readme.lower())
 
-    def test_package_version_matches_the_alpha_3_release(self):
+    def test_package_version_matches_the_alpha_4_release(self):
         package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(package["version"], "0.3.0-alpha.3")
+        self.assertEqual(package["version"], "0.3.0-alpha.4")
         self.assertTrue(
-            (ROOT / "docs" / "releases" / "v0.3.0-alpha.3-checklist.md").is_file()
+            (ROOT / "docs" / "releases" / "v0.3.0-alpha.4-checklist.md").is_file()
         )
 
     def test_readme_documents_only_supported_frontend_price_inputs(self):

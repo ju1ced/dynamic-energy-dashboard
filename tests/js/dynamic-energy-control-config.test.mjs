@@ -80,6 +80,10 @@ const PANEL_SPEC = Object.freeze({
   grid_power_entity: "sensor.grid_power",
   grid_import_positive: true,
   ev_power_entity: "sensor.ev_power",
+  import_price_entity: "",
+  export_price_entity: "",
+  integration_price_attribute: "data",
+  price_stale_after_minutes: 20,
   data_stale_after_minutes: 10,
   plan_stale_after_hours: 30,
   sma_controller: "Sunny Home Manager 2.0",
@@ -93,7 +97,38 @@ const PANEL_SPEC = Object.freeze({
   smappee_capacity_threshold_kw: 5.5,
   smappee_max_current_ampere: 32,
   smappee_offline_fallback_ampere: 8,
+  smappee_dynamic_tariff_status: "NOT_VERIFIED",
 });
+
+function addIntegrationPrices(hass, updated = "2026-10-14T08:04:00Z") {
+  hass.states["sensor.import_price"] = {
+    state: "0.25",
+    last_updated: updated,
+    last_changed: updated,
+    attributes: {
+      unit_of_measurement: "EUR/kWh",
+      data: [
+        { start_time: "2026-10-14T08:00:00Z", end_time: "2026-10-14T08:15:00Z", price_per_kwh: 0.25 },
+        { start_time: "2026-10-14T08:15:00Z", end_time: "2026-10-14T08:30:00Z", price_per_kwh: 0.07 },
+        { start_time: "2026-10-14T08:30:00Z", end_time: "2026-10-14T08:45:00Z", price_per_kwh: 0.34 },
+      ],
+    },
+  };
+  hass.states["sensor.export_price"] = {
+    state: "0.09",
+    last_updated: updated,
+    last_changed: updated,
+    attributes: {
+      unit_of_measurement: "EUR/kWh",
+      data: [
+        { start_time: "2026-10-14T08:00:00Z", end_time: "2026-10-14T08:15:00Z", price_per_kwh: 0.09 },
+        { start_time: "2026-10-14T08:15:00Z", end_time: "2026-10-14T08:30:00Z", price_per_kwh: 0.02 },
+        { start_time: "2026-10-14T08:30:00Z", end_time: "2026-10-14T08:45:00Z", price_per_kwh: 0.13 },
+      ],
+    },
+  };
+  return hass;
+}
 
 test("joint control builder creates namespaced battery and EV automations that stop before any actuator action", () => {
   const automations = buildBlockedAutomationConfigs(SPEC);
@@ -596,6 +631,53 @@ test("control panel marks stale plan data unavailable instead of showing old pri
   assert.equal(snapshot.readiness.mode, "DATA_BLOCKED");
 });
 
+test("fresh Ecopower price entities remain visible when the shadow plan is stale", () => {
+  const hass = addIntegrationPrices(controlPanelHass("2026-10-12T23:00:00Z"));
+  const snapshot = buildControlPanelSnapshot(hass, {
+    ...PANEL_SPEC,
+    import_price_entity: "sensor.import_price",
+    export_price_entity: "sensor.export_price",
+  }, CONTROL_NOW);
+
+  assert.equal(snapshot.price.quality, "GOOD");
+  assert.equal(snapshot.price.currentEurPerKwh, 0.25);
+  assert.equal(snapshot.price.cheapestEurPerKwh, 0.07);
+  assert.equal(snapshot.price.highestEurPerKwh, 0.34);
+  assert.equal(snapshot.price.source, "Home Assistant price entities");
+  assert.equal(snapshot.plan.quality, "STALE");
+  assert.equal(snapshot.plan.action, "NO_ACTION");
+  assert.equal(snapshot.readiness.mode, "PRICE_READY_PLAN_BLOCKED");
+  assert.match(snapshot.readiness.warnings.join(" "), /shadow-plan is verouderd/i);
+});
+
+test("a longer future integration feed cannot replace a shadow source that covers now", () => {
+  const hass = controlPanelHass();
+  hass.states["sensor.import_price"] = {
+    state: "0.07",
+    last_updated: "2026-10-14T08:04:00Z",
+    last_changed: "2026-10-14T08:04:00Z",
+    attributes: {
+      unit_of_measurement: "EUR/kWh",
+      data: [
+        { start_time: "2026-10-14T08:15:00Z", end_time: "2026-10-14T08:30:00Z", price_per_kwh: 0.07 },
+        { start_time: "2026-10-14T08:30:00Z", end_time: "2026-10-14T08:45:00Z", price_per_kwh: 0.09 },
+        { start_time: "2026-10-14T08:45:00Z", end_time: "2026-10-14T09:00:00Z", price_per_kwh: 0.11 },
+        { start_time: "2026-10-14T09:00:00Z", end_time: "2026-10-14T09:15:00Z", price_per_kwh: 0.13 },
+      ],
+    },
+  };
+
+  const snapshot = buildControlPanelSnapshot(hass, {
+    ...PANEL_SPEC,
+    import_price_entity: "sensor.import_price",
+  }, CONTROL_NOW);
+
+  assert.equal(snapshot.price.quality, "GOOD");
+  assert.equal(snapshot.price.currentEurPerKwh, 0.12);
+  assert.equal(snapshot.price.source, "Validated Day-Ahead feed");
+  assert.equal(snapshot.readiness.mode, "SHADOW_READY");
+});
+
 test("control panel keeps a valid Day-Ahead plan visible when it is older than live telemetry", () => {
   const snapshot = buildControlPanelSnapshot(
     controlPanelHass("2026-10-14T06:00:00Z"),
@@ -664,6 +746,8 @@ test("control panel supports an explicit negative-import grid sign convention", 
 
 test("control panel rejects YAML freshness limits outside the visual editor bounds", () => {
   for (const override of [
+    { price_stale_after_minutes: 0 },
+    { price_stale_after_minutes: 181 },
     { data_stale_after_minutes: 0 },
     { data_stale_after_minutes: 181 },
     { plan_stale_after_hours: 0 },
@@ -714,6 +798,8 @@ test("the richer control card renders prices, readiness and separate SMA and Sma
   assert.match(html, /één actieve controller per actuator/);
   assert.match(html, /Geen instelling wordt vanuit deze kaart naar SMA of Smappee geschreven/);
   assert.match(html, /Offline laden[\s\S]*UIT aanbevolen[\s\S]*Huidige sitefallback 8 A/);
+  assert.match(html, /Dynamische tarieven[\s\S]*Niet geverifieerd/);
+  assert.match(html, /Smappee-dynamische tarieven zijn niet geverifieerd/);
   assert.doesNotMatch(html, /data-action="sma|data-action="smappee/);
 });
 
@@ -736,6 +822,10 @@ test("the separate HACS control card exposes a bounded visual configuration sche
     "grid_power_entity",
     "grid_import_positive",
     "ev_power_entity",
+    "import_price_entity",
+    "export_price_entity",
+    "integration_price_attribute",
+    "price_stale_after_minutes",
     "data_stale_after_minutes",
     "plan_stale_after_hours",
     "sma_controller",
@@ -749,6 +839,7 @@ test("the separate HACS control card exposes a bounded visual configuration sche
     "smappee_capacity_threshold_kw",
     "smappee_max_current_ampere",
     "smappee_offline_fallback_ampere",
+    "smappee_dynamic_tariff_status",
   ]);
   assert.equal(DynamicEnergyControlConfigCard.getStubConfig().control_mode, "ARMED_BLOCKED");
   assert.equal(DynamicEnergyControlConfigCard.getStubConfig().execution_allowed, false);

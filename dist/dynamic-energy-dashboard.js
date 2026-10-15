@@ -62,6 +62,10 @@ const DEFAULT_CONTROL_CONFIG = Object.freeze({
   grid_power_entity: "",
   grid_import_positive: true,
   ev_power_entity: "",
+  import_price_entity: "",
+  export_price_entity: "",
+  integration_price_attribute: "data",
+  price_stale_after_minutes: 20,
   data_stale_after_minutes: 10,
   plan_stale_after_hours: 30,
   sma_controller: "Sunny Home Manager 2.0",
@@ -75,6 +79,7 @@ const DEFAULT_CONTROL_CONFIG = Object.freeze({
   smappee_capacity_threshold_kw: 5.5,
   smappee_max_current_ampere: 32,
   smappee_offline_fallback_ampere: 8,
+  smappee_dynamic_tariff_status: "NOT_VERIFIED",
   control_mode: "ARMED_BLOCKED",
   execution_allowed: false,
 });
@@ -1048,12 +1053,44 @@ export function buildControlPanelSnapshot(hass, suppliedConfig = {}, now = new D
     1,
     72,
   );
+  const priceStaleMinutes = requiredFinite(
+    config.price_stale_after_minutes,
+    "price_stale_after_minutes",
+    1,
+    180,
+  );
   const planReading = readEntity(hass, config.plan_entity, now, planStaleHours * 60);
   const planIsFresh = planReading.quality === "GOOD";
-  const prices = planIsFresh
+  const planPrices = planIsFresh
     ? getUpcomingPriceIntervals(planReading.stateObject, "prices", now)
     : [];
   const nowMs = now.getTime();
+  const importPrice = readPrice(hass, config.import_price_entity, now, priceStaleMinutes);
+  const exportPrice = readPrice(hass, config.export_price_entity, now, priceStaleMinutes);
+  const integrationPrices = importPrice.quality === "GOOD"
+    ? getEntityPriceIntervals(
+      importPrice.stateObject,
+      exportPrice.quality === "GOOD" ? exportPrice.stateObject : null,
+      config.integration_price_attribute || DEFAULT_CONTROL_CONFIG.integration_price_attribute,
+      now,
+    )
+    : [];
+  const planCoverage = intervalCoverageMs(planPrices, nowMs);
+  const integrationCoverage = intervalCoverageMs(integrationPrices, nowMs);
+  const coversNow = (rows) => rows.some(
+    (row) => Date.parse(row.startUtc) <= nowMs && nowMs < Date.parse(row.endUtc),
+  );
+  const planCoversNow = coversNow(planPrices);
+  const integrationCoversNow = coversNow(integrationPrices);
+  const hasIntegrationSource = importPrice.quality === "GOOD"
+    && (integrationPrices.length > 0 || importPrice.value !== null);
+  const selectedPriceSource = planCoversNow !== integrationCoversNow
+    ? planCoversNow ? "shadow" : "integration"
+    : hasIntegrationSource && integrationCoverage > planCoverage
+      ? "integration"
+      : planPrices.length > 0 ? "shadow" : hasIntegrationSource ? "integration" : null;
+  const prices = selectedPriceSource === "integration" ? integrationPrices
+    : selectedPriceSource === "shadow" ? planPrices : [];
   const current = prices.find(
     (row) => Date.parse(row.startUtc) <= nowMs && nowMs < Date.parse(row.endUtc),
   ) || null;
@@ -1083,6 +1120,11 @@ export function buildControlPanelSnapshot(hass, suppliedConfig = {}, now = new D
   const peakLimitKw = finiteNumber(config.peak_limit_kw);
   const smappeeLimitKw = finiteNumber(config.smappee_capacity_threshold_kw);
   const warnings = [];
+  if (planReading.quality !== "GOOD") {
+    warnings.push(
+      `Shadow-plan is ${qualityLabel(planReading.quality)}; eventuele verse prijsdata blijft alleen observatiecontext.`,
+    );
+  }
   if (
     peakLimitKw !== null
     && smappeeLimitKw !== null
@@ -1101,6 +1143,14 @@ export function buildControlPanelSnapshot(hass, suppliedConfig = {}, now = new D
       `Smappee offline laden gebruikt ${offlineAmpere} A zonder gegarandeerde automatische overbelastingsregeling.`,
     );
   }
+  const smappeeDynamicTariffStatus = String(
+    config.smappee_dynamic_tariff_status || "NOT_VERIFIED",
+  ).toUpperCase();
+  if (smappeeDynamicTariffStatus === "NOT_VERIFIED") {
+    warnings.push(
+      "Smappee-dynamische tarieven zijn niet geverifieerd; Ecopower-prijsentities blijven de observatiebron.",
+    );
+  }
   const liveReadings = [
     ["batterij-SOC", batterySoc],
     ["netvermogen", grid],
@@ -1112,12 +1162,23 @@ export function buildControlPanelSnapshot(hass, suppliedConfig = {}, now = new D
   for (const [label, reading] of degradedLiveReadings) {
     warnings.push(`Live ${label} is ${qualityLabel(reading.quality)}.`);
   }
-  const priceQuality = planReading.quality !== "GOOD"
-    ? planReading.quality
-    : current && prices.length ? "GOOD" : "UNAVAILABLE";
+  const configuredPriceQualities = [
+    planReading.quality,
+    config.import_price_entity ? importPrice.quality : "NOT_CONFIGURED",
+  ].filter((quality) => quality !== "NOT_CONFIGURED");
+  const unavailablePriceQuality = configuredPriceQualities.includes("INVALID")
+    ? "INVALID"
+    : configuredPriceQualities.includes("STALE")
+      ? "STALE"
+      : configuredPriceQualities.includes("MISSING")
+        ? "MISSING"
+        : "UNAVAILABLE";
+  const priceQuality = current && prices.length ? "GOOD" : unavailablePriceQuality;
   const readinessMode = priceQuality !== "GOOD"
     ? "DATA_BLOCKED"
-    : degradedLiveReadings.length ? "SHADOW_READY_LIVE_DEGRADED" : "SHADOW_READY";
+    : planReading.quality !== "GOOD"
+      ? "PRICE_READY_PLAN_BLOCKED"
+      : degradedLiveReadings.length ? "SHADOW_READY_LIVE_DEGRADED" : "SHADOW_READY";
   const attrs = safeAttributes(planReading.stateObject);
   return {
     generatedAt: now.toISOString(),
@@ -1137,10 +1198,12 @@ export function buildControlPanelSnapshot(hass, suppliedConfig = {}, now = new D
       highestEurPerKwh: priceQuality === "GOOD" ? highest?.importEurPerKwh ?? null : null,
       highestStartUtc: priceQuality === "GOOD" ? highest?.startUtc ?? null : null,
       intervalCount: priceQuality === "GOOD" ? prices.length : 0,
-      source: typeof attrs.price_source === "string" ? attrs.price_source : null,
-      tariffVersion: typeof attrs.price_tariff_version === "string"
-        ? attrs.price_tariff_version
-        : null,
+      source: selectedPriceSource === "integration"
+        ? "Home Assistant price entities"
+        : typeof attrs.price_source === "string" ? attrs.price_source : null,
+      tariffVersion: selectedPriceSource === "integration"
+        ? null
+        : typeof attrs.price_tariff_version === "string" ? attrs.price_tariff_version : null,
     },
     plan: {
       quality: planReading.quality,
@@ -1804,8 +1867,17 @@ export function renderBlockedControlConfig(config, state, message = "", dashboar
   const readinessLabels = {
     SHADOW_READY: "Prijsdata gereed",
     SHADOW_READY_LIVE_DEGRADED: "Prijsdata gereed · live data beperkt",
+    PRICE_READY_PLAN_BLOCKED: "Prijsdata gereed · plan geblokkeerd",
     DATA_BLOCKED: "Data geblokkeerd",
   };
+  const smappeeTariffLabels = {
+    NOT_VERIFIED: "Niet geverifieerd",
+    DISABLED: "Uitgeschakeld",
+    ENABLED_CONTEXT_ONLY: "Actief · alleen prijscontext",
+  };
+  const smappeeTariffStatus = String(
+    config.smappee_dynamic_tariff_status || "NOT_VERIFIED",
+  ).toUpperCase();
   return `
     <ha-card>
       <div class="control-shell">
@@ -1862,6 +1934,7 @@ export function renderBlockedControlConfig(config, state, message = "", dashboar
               ${setupRow("Capaciteitsdrempel", formatKw(config.smappee_capacity_threshold_kw), "Deze lokale limiet gaat vóór de hogere dashboardgrens")}
               ${setupRow("Maximale laadstroom", `${escapeHtml(config.smappee_max_current_ampere)} A`, "Niet verhogen zonder installateursvalidatie")}
               ${setupRow("Offline laden", "UIT aanbevolen", `Huidige sitefallback ${escapeHtml(config.smappee_offline_fallback_ampere)} A; alleen inschakelen na fysieke validatie`)}
+              ${setupRow("Dynamische tarieven", smappeeTariffLabels[smappeeTariffStatus] || "Niet geverifieerd", "Geen primaire prijs- of schedulerbron zonder afzonderlijke vergelijking")}
               ${setupRow("Planning", "Één scheduler", "Geen gelijktijdig Kia-, Smappee- en Home Assistant-laadschema")}
               ${setupRow("Solar-modus", "Alleen bewust kiezen", "Gebruik Solar voor PV-overschot; Smart voor net- en capaciteitsbewaking")}
             </div>
@@ -1914,6 +1987,10 @@ export class DynamicEnergyControlConfigCard extends HTMLElementBase {
         { name: "grid_power_entity", selector: { entity: {} } },
         { name: "grid_import_positive", selector: { boolean: {} } },
         { name: "ev_power_entity", selector: { entity: {} } },
+        { name: "import_price_entity", selector: { entity: {} } },
+        { name: "export_price_entity", selector: { entity: {} } },
+        { name: "integration_price_attribute", selector: { text: {} } },
+        { name: "price_stale_after_minutes", selector: { number: { min: 1, max: 180, step: 1, unit_of_measurement: "min" } } },
         { name: "data_stale_after_minutes", selector: { number: { min: 1, max: 180, step: 1, unit_of_measurement: "min" } } },
         { name: "plan_stale_after_hours", selector: { number: { min: 1, max: 72, step: 1, unit_of_measurement: "h" } } },
         { name: "sma_controller", selector: { text: {} } },
@@ -1927,6 +2004,7 @@ export class DynamicEnergyControlConfigCard extends HTMLElementBase {
         { name: "smappee_capacity_threshold_kw", selector: { number: { min: 0.1, max: 30, step: 0.1, unit_of_measurement: "kW" } } },
         { name: "smappee_max_current_ampere", selector: { number: { min: 6, max: 32, step: 1, unit_of_measurement: "A" } } },
         { name: "smappee_offline_fallback_ampere", selector: { number: { min: 0, max: 32, step: 1, unit_of_measurement: "A" } } },
+        { name: "smappee_dynamic_tariff_status", selector: { select: { options: ["NOT_VERIFIED", "DISABLED", "ENABLED_CONTEXT_ONLY"] } } },
       ],
       computeLabel: (schema) => ({
         title: "Titel",
@@ -1943,6 +2021,10 @@ export class DynamicEnergyControlConfigCard extends HTMLElementBase {
         grid_power_entity: "Live netvermogen (optioneel)",
         grid_import_positive: "Positief netvermogen betekent afname",
         ev_power_entity: "Live EV-laadvermogen (optioneel)",
+        import_price_entity: "Actuele afnameprijs (optioneel)",
+        export_price_entity: "Actuele injectieprijs (optioneel)",
+        integration_price_attribute: "Attribuut van EPEX/Ecopower-prijsentities",
+        price_stale_after_minutes: "Prijsdata verouderd na",
         data_stale_after_minutes: "Control-data verouderd na",
         plan_stale_after_hours: "Plan en prijzen verouderd na",
         sma_controller: "SMA-controller",
@@ -1956,6 +2038,7 @@ export class DynamicEnergyControlConfigCard extends HTMLElementBase {
         smappee_capacity_threshold_kw: "Smappee capaciteitsdrempel",
         smappee_max_current_ampere: "Smappee maximale laadstroom",
         smappee_offline_fallback_ampere: "Smappee offline fallbackstroom",
+        smappee_dynamic_tariff_status: "Smappee dynamische-tarievenstatus",
       })[schema.name] || schema.name,
     };
   }
