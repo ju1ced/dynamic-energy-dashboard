@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0-alpha.6 — 2026-10-16
+
+- Ignore Home Assistant updates that do not affect any entity configured on the
+  shadow card, avoiding unnecessary full card rebuilds and lost interaction.
+- Preserve quarter-price navigation position and focused navigation control when
+  a relevant state update does require a render.
+- Add the live-dashboard rollout contract for a separate third `Validatie` view
+  using the actuator-read-only validation card.
+- Preserve `OFF`/`ARMED_BLOCKED`, `execution_allowed: false` and the absence of
+  physical SMA, Smappee, battery, EV, MQTT or Modbus writes.
+
 ## 0.3.0-alpha.5 — 2026-10-16
 
 - Add a separate actuator-read-only validation card for current-quarter

@@ -38,6 +38,15 @@ const REQUIRED_ENTITY_FIELDS = Object.freeze([
   "battery_power_entity",
   "battery_soc_entity",
 ]);
+const SHADOW_RENDER_ENTITY_FIELDS = Object.freeze([
+  ...REQUIRED_ENTITY_FIELDS,
+  "house_power_entity",
+  "ev_power_entity",
+  "heat_pump_power_entity",
+  "import_price_entity",
+  "export_price_entity",
+  "plan_entity",
+]);
 
 const CONTROL_CARD_TAG = "dynamic-energy-control-config-card";
 const VALIDATION_CARD_TAG = "dynamic-energy-validation-card";
@@ -1929,12 +1938,26 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
       throw new Error("Ongeldige kaartconfiguratie");
     }
     this._config = { ...DEFAULT_CONFIG, ...config };
+    this._renderStateRefs = null;
+    this._renderMinute = null;
     this._render();
   }
 
   set hass(hass) {
     this._hass = hass;
-    this._render();
+    const states = hass?.states || {};
+    const nextRefs = SHADOW_RENDER_ENTITY_FIELDS.map((field) => {
+      const entityId = this._config[field];
+      return entityId ? states[entityId] || null : null;
+    });
+    const nextMinute = Math.floor(Date.now() / 60000);
+    const relevantStateChanged = !this._renderStateRefs
+      || nextRefs.some((stateObject, index) => stateObject !== this._renderStateRefs[index]);
+    if (relevantStateChanged || nextMinute !== this._renderMinute) {
+      this._renderStateRefs = nextRefs;
+      this._renderMinute = nextMinute;
+      this._render();
+    }
   }
 
   getCardSize() {
@@ -1944,6 +1967,7 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
   _render() {
     if (!this._root) return;
     const existingPriceScroll = this._root.querySelector?.(".price-scroll");
+    const activePriceDirection = this._root.activeElement?.dataset?.priceScrollBy || null;
     if (existingPriceScroll) this._priceScrollLeft = existingPriceScroll.scrollLeft;
     const snapshot = buildSnapshot(this._hass, this._config, new Date());
     const interval = snapshot.plan.interval;
@@ -2168,6 +2192,12 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
         });
       });
       syncScrollButtons();
+      if (activePriceDirection !== null) {
+        const replacement = scrollButtons.find(
+          (button) => button.dataset.priceScrollBy === activePriceDirection,
+        );
+        replacement?.focus({ preventScroll: true });
+      }
     }
   }
 }
