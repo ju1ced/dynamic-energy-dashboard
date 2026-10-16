@@ -59,6 +59,10 @@ Alpha `0.3.0-alpha.4` also adds:
 - reliable quarter-price navigation and a daily graph that does not require
   horizontal scrolling.
 
+The current operational conclusion, remaining validation gaps and recommended
+order of further actions are documented in
+[`docs/DYNAMIC_TARIFF_CONTROL_CONCLUSION.md`](docs/DYNAMIC_TARIFF_CONTROL_CONCLUSION.md).
+
 ## Install with HACS
 
 A committed GitHub revision or release is required before HACS can install the
@@ -156,7 +160,7 @@ price_stale_after_minutes: 20
 data_stale_after_minutes: 10
 plan_stale_after_hours: 30
 sma_controller: Sunny Home Manager 2.0
-sma_optimization_goal: Economisch
+sma_optimization_goal: Verify current SMA UI (official workflow: Efficient)
 sma_tariff_type: Dynamisch · Day-Ahead · BE · EPEX Spot
 sma_forecast_charging: OFF
 sma_grid_charge_soc_percent: 0
@@ -202,7 +206,9 @@ owner, Home Assistant remains an observer and blocked dry-run surface.
 
 Recommended staged profile for a Sunny Home Manager 2.0 installation:
 
-1. Set the optimization objective to `Economisch`.
+1. Confirm which label in the installed firmware corresponds to SMA's officially
+   documented `Efficient` objective. Do not assume that the observed Dutch label
+   `Economisch` is equivalent without checking the current vendor interface.
 2. Select a dynamic Day-Ahead tariff for region `BE` with the supported EPEX
    Spot source and confirm that quarter-hour prices are visible.
 3. Keep the dynamic grid-charging SOC setting at `0%` where required by the
@@ -219,24 +225,26 @@ Recommended staged profile for a Sunny Home Manager 2.0 installation:
 Primary SMA references:
 
 - [Planning forecast-based battery charging](https://manuals.sma.de/HM-20-ennexOS/en-US/12563269899.html)
-- [Configuring electricity tariffs](https://manuals.sma.de/HM-20-ennexOS/nl-NL/11412423819.html)
+- [Configuring electricity tariffs](https://manuals.sma.de/HM-20-ennexOS/en-US/16129800843.html)
 - [Sunny Home Manager product information](https://www.sma.de/en/products/energy-management/sunny-home-manager)
 
 ### Smappee EV-configuratie
 
-Keep Smappee as the local EV and overload-protection owner. The dashboard can
-explain price windows, but it must not become a second charger scheduler.
+Keep Smappee as the EV and cloud-based overload-protection owner. The dashboard
+can explain price windows, but it must not become a second charger scheduler.
 
 Recommended staged profile:
 
-1. Use `Smart` mode when local overload protection and capacity control are the
-   priority. Select `Solar` only deliberately for PV-surplus charging.
+1. Use `Smart` mode when cloud-based overload protection and capacity control
+   are the priority. Select `Solar` only deliberately for PV-surplus charging.
 2. Verify that the configured grid topology and current rating exactly match
    the physical installation; these are safety inputs, not price preferences.
 3. Keep the charger current at or below the validated installation and device
    maximum.
-4. Keep the Smappee capacity threshold as the EV-specific limit. If it is lower
-   than the dashboard's shared grid limit, the stricter Smappee value wins.
+4. Treat `Maximum current` as the charger overload-protection input. Treat the
+   optional `Maximum grid capacity` separately as a cap on total building/grid
+   consumption; the dashboard only compares its configured shared limit with
+   this value and does not enforce either setting.
 5. Keep offline charging disabled until the fallback current and physical
    installation have been validated. If offline operation is later enabled,
    treat it as degraded operation because automatic overload protection is not
@@ -254,6 +262,7 @@ Primary Smappee references:
 - [Charging modes and schedules](https://support.smappee.com/hc/en-gb/articles/4900468508692)
 - [Smart Charging](https://support.smappee.com/hc/en-gb/articles/4406735969940)
 - [EV Wall Home](https://support.smappee.com/hc/en-gb/articles/4402413229844-EV-Wall-Home)
+- [Offline charging behavior](https://support.smappee.com/hc/en-gb/articles/54047739821460-Does-my-charger-keep-charging-when-it-is-offline)
 
 The card performs no SMA- or Smappee-setting change. Device configuration must
 still be applied and verified in the vendor interface by the owner or installer.
