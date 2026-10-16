@@ -1,16 +1,22 @@
 # Dynamic Energy Shadow Dashboard
 
-Home Assistant Lovelace package with two deliberately separate cards:
+Home Assistant Lovelace package with three deliberately separate cards:
 
 - `dynamic-energy-shadow-card`: the stable read-only monitor for live energy
   values and a proposed Day-Ahead battery shadow plan;
 - `dynamic-energy-control-config-card`: an alpha configuration surface limited
-  to namespaced, hard-blocked Home Assistant automations.
+  to namespaced, hard-blocked Home Assistant automations;
+- `dynamic-energy-validation-card`: an actuator-read-only comparison of the
+  current shadow plan, measured behavior, shared net headroom and optional daily
+  evidence summary.
 
 The monitoring card never calls Home Assistant actions. The alpha control card
 can create or switch only its own automations between `OFF` and
 `ARMED_BLOCKED`. It cannot select `LIVE`, and generated automations stop before
 any SMA, Smappee, battery or EV-charger action.
+
+Alpha `0.3.0-alpha.5` adds the separate validation card. It has no buttons or
+write API and keeps `execution_allowed: false` regardless of pilot status.
 
 ![Dynamic Energy Shadow Dashboard preview](images/dynamic-energy-shadow-card.png)
 
@@ -59,6 +65,20 @@ Alpha `0.3.0-alpha.4` also adds:
 - reliable quarter-price navigation and a daily graph that does not require
   horizontal scrolling.
 
+Alpha `0.3.0-alpha.5` adds:
+
+- current-quarter expected-versus-observed battery behavior without claiming a
+  vendor-internal cause;
+- measured EV charging, PV and heat-pump context, plus measured house power or
+  a clearly labelled balance derived from net, PV and battery power;
+- shared headroom based on the stricter dashboard or Smappee capacity limit;
+- warnings for simultaneous battery/EV charging and any effective shared-limit
+  exceedance;
+- current price-zone context selected with current-quarter coverage priority;
+- a bounded optional daily summary for coverage, cheap-window energy, peak,
+  matching/deviation counts and actual-versus-shadow cost;
+- fail-closed pilot statuses and no physical device or vendor writes.
+
 The current operational conclusion, remaining validation gaps and recommended
 order of further actions are documented in
 [`docs/DYNAMIC_TARIFF_CONTROL_CONCLUSION.md`](docs/DYNAMIC_TARIFF_CONTROL_CONCLUSION.md).
@@ -79,7 +99,7 @@ artifact. No publication is performed automatically by this repository.
 The alpha control card requires Home Assistant `2024.10.0` or newer because its
 generated automations use the current plural automation syntax.
 
-For the alpha control card, explicitly select the `0.3.0-alpha.4` prerelease in
+For the alpha cards, explicitly select the `0.3.0-alpha.5` prerelease in
 HACS. Do not replace a stable read-only installation with the alpha unless the
 Home Assistant configuration-write boundary below is understood.
 
@@ -173,7 +193,76 @@ smappee_offline_fallback_ampere: 8
 smappee_dynamic_tariff_status: NOT_VERIFIED
 ```
 
-The card has three confirmed actions:
+The observed Dutch SMA value above remains an installation profile, not proof
+that it is equivalent to the officially documented `Efficient` workflow.
+Confirm the current firmware label before activating forecast charging.
+
+## Alpha validation card
+
+Add the actuator-read-only validation card on a separate `Validatie` view:
+
+```yaml
+type: custom:dynamic-energy-validation-card
+title: Gedragsvalidatie
+plan_entity: sensor.dynamic_energy_shadow_plan
+grid_power_entity: sensor.grid_power
+grid_import_positive: true
+battery_power_entity: sensor.battery_power
+battery_charge_positive: true
+ev_power_entity: sensor.ev_power
+house_power_entity: sensor.house_power
+pv_power_entity: sensor.pv_power
+heat_pump_power_entity: sensor.heat_pump_power
+validation_summary_entity: ""
+import_price_entity: sensor.ecopower_dynamische_tarieven_market_price_consumption_price
+export_price_entity: sensor.ecopower_dynamische_tarieven_market_price_injection_price
+integration_price_attribute: data
+price_stale_after_minutes: 20
+peak_limit_kw: 7
+smappee_capacity_threshold_kw: 5.5
+activity_threshold_kw: 0.2
+data_stale_after_minutes: 10
+plan_stale_after_hours: 30
+summary_stale_after_hours: 36
+pilot_status: NOT_STARTED
+```
+
+The release does not create or populate a historical summary entity. Leave
+`validation_summary_entity` empty until a separately validated read-only data
+pipeline provides one. When configured, it must expose these validated
+attributes; absent or invalid values remain unavailable and are never replaced
+with zero:
+
+- `local_date`;
+- `coverage_percent`;
+- `battery_charge_cheap_kwh`;
+- `battery_discharge_expensive_kwh`;
+- `ev_charge_cheap_kwh`;
+- `ev_cheap_share_percent`;
+- `max_grid_import_kw`;
+- `collision_intervals`;
+- `matched_intervals`;
+- `deviation_intervals`;
+- `actual_cost_eur`;
+- `shadow_cost_eur`.
+
+The card accepts only calendar-valid dates, finite bounded values, integer
+quarter counts up to 100 and internally consistent evidence counts. Energy is
+bounded to 500 kWh per metric, maximum grid import to 100 kW and daily costs to
+the range -1000 through 1000 EUR. Match and deviation counts may not exceed the
+reported coverage, and collision counts may not exceed evaluated intervals.
+
+When `house_power_entity` is empty or unavailable while net, PV and battery
+measurements are current, house power is displayed as a derived energy balance.
+It remains explicitly labelled as derived and is not vendor readback.
+
+Supported pilot states are `NOT_STARTED`, `PROTECTION_BASELINE_PENDING`,
+`SMA_ONLY_PILOT`, `SMAPPEE_ONLY_PILOT`, `COMBINED_OBSERVATION`,
+`EVIDENCE_INSUFFICIENT`, `READY_FOR_REVIEW` and `BLOCKED`. An unknown state is
+displayed as `BLOCKED`. Pilot state is presentation context only and never
+enables execution.
+
+The control configuration card has three confirmed actions:
 
 1. create or update only its namespaced blocked automations;
 2. enable verified automations as `ARMED_BLOCKED`;

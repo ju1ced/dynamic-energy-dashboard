@@ -40,6 +40,7 @@ const REQUIRED_ENTITY_FIELDS = Object.freeze([
 ]);
 
 const CONTROL_CARD_TAG = "dynamic-energy-control-config-card";
+const VALIDATION_CARD_TAG = "dynamic-energy-validation-card";
 const CONTROL_MARKER = "managed_by=dynamic-energy-control-config-card";
 const CONTROL_SNAPSHOT_PREFIX = `${CONTROL_MARKER}; execution_allowed=false; controller_state=ARMED_BLOCKED; config_snapshot=`;
 const BLOCKED_STOP = "Dynamic Energy safety lock: live actuator execution is not authorized";
@@ -83,6 +84,42 @@ const DEFAULT_CONTROL_CONFIG = Object.freeze({
   control_mode: "ARMED_BLOCKED",
   execution_allowed: false,
 });
+
+const DEFAULT_VALIDATION_CONFIG = Object.freeze({
+  title: "Dynamic Energy validatie",
+  plan_entity: "sensor.dynamic_energy_shadow_plan",
+  grid_power_entity: "",
+  grid_import_positive: true,
+  battery_power_entity: "",
+  battery_charge_positive: true,
+  ev_power_entity: "",
+  house_power_entity: "",
+  pv_power_entity: "",
+  heat_pump_power_entity: "",
+  validation_summary_entity: "",
+  import_price_entity: "",
+  export_price_entity: "",
+  integration_price_attribute: "data",
+  price_stale_after_minutes: 20,
+  peak_limit_kw: 7,
+  smappee_capacity_threshold_kw: 5.5,
+  activity_threshold_kw: 0.2,
+  data_stale_after_minutes: 10,
+  plan_stale_after_hours: 30,
+  summary_stale_after_hours: 36,
+  pilot_status: "NOT_STARTED",
+  execution_allowed: false,
+});
+const VALIDATION_PILOT_STATUSES = Object.freeze([
+  "NOT_STARTED",
+  "PROTECTION_BASELINE_PENDING",
+  "SMA_ONLY_PILOT",
+  "SMAPPEE_ONLY_PILOT",
+  "COMBINED_OBSERVATION",
+  "EVIDENCE_INSUFFICIENT",
+  "READY_FOR_REVIEW",
+  "BLOCKED",
+]);
 
 function requiredFinite(value, field, minimum, maximum) {
   const parsed = finiteNumber(value);
@@ -463,6 +500,7 @@ export function finiteNumber(value) {
   if (value === null || value === undefined || value === "") return null;
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
   if (typeof value !== "string") return null;
+  if (value.trim() === "") return null;
   const parsed = Number(value.replace(",", "."));
   return Number.isFinite(parsed) ? parsed : null;
 }
@@ -1221,6 +1259,326 @@ export function buildControlPanelSnapshot(hass, suppliedConfig = {}, now = new D
   };
 }
 
+function validationActionFromPlan(action) {
+  if (["CHARGE_FROM_GRID", "STORE_PV_SURPLUS"].includes(action)) return "CHARGING";
+  if (action === "DISCHARGE_TO_LOAD") return "DISCHARGING";
+  if (["HOLD", "NO_ACTION"].includes(action)) return "IDLE";
+  return "INSUFFICIENT_DATA";
+}
+
+function observedBatteryAction(reading, thresholdKw) {
+  if (reading.quality !== "GOOD" || reading.value === null) return "INSUFFICIENT_DATA";
+  if (reading.value > thresholdKw) return "CHARGING";
+  if (reading.value < -thresholdKw) return "DISCHARGING";
+  return "IDLE";
+}
+
+function observedLoadAction(reading, thresholdKw) {
+  if (reading.quality !== "GOOD" || reading.value === null) return "INSUFFICIENT_DATA";
+  return reading.value > thresholdKw ? "CHARGING" : "IDLE";
+}
+
+function validationSummary(reading) {
+  const empty = {
+    quality: reading.quality,
+    localDate: null,
+    coveragePercent: null,
+    batteryChargeCheapKwh: null,
+    batteryDischargeExpensiveKwh: null,
+    evChargeCheapKwh: null,
+    evCheapSharePercent: null,
+    maxGridImportKw: null,
+    collisionIntervals: null,
+    matchedIntervals: null,
+    deviationIntervals: null,
+    actualCostEur: null,
+    shadowCostEur: null,
+    costDeltaEur: null,
+  };
+  if (reading.quality !== "GOOD") return empty;
+  const attrs = safeAttributes(reading.stateObject);
+  const number = (name, minimum = Number.NEGATIVE_INFINITY, maximum = Number.POSITIVE_INFINITY) => {
+    const value = finiteNumber(attrs[name]);
+    return value !== null && value >= minimum && value <= maximum ? value : null;
+  };
+  const coveragePercent = number("coverage_percent", 0, 100);
+  const evCheapSharePercent = number("ev_cheap_share_percent", 0, 100);
+  const batteryChargeCheapKwh = number("battery_charge_cheap_kwh", 0, 500);
+  const batteryDischargeExpensiveKwh = number("battery_discharge_expensive_kwh", 0, 500);
+  const evChargeCheapKwh = number("ev_charge_cheap_kwh", 0, 500);
+  const maxGridImportKw = number("max_grid_import_kw", 0, 100);
+  const collisionIntervals = number("collision_intervals", 0, 100);
+  const matchedIntervals = number("matched_intervals", 0, 100);
+  const deviationIntervals = number("deviation_intervals", 0, 100);
+  const actualCostEur = number("actual_cost_eur", -1000, 1000);
+  const shadowCostEur = number("shadow_cost_eur", -1000, 1000);
+  const requiredValues = [
+    coveragePercent,
+    batteryChargeCheapKwh,
+    batteryDischargeExpensiveKwh,
+    evChargeCheapKwh,
+    evCheapSharePercent,
+    maxGridImportKw,
+    collisionIntervals,
+    matchedIntervals,
+    deviationIntervals,
+    actualCostEur,
+    shadowCostEur,
+  ];
+  const localDate = typeof attrs.local_date === "string"
+    && validAggregatePeriod("daily", attrs.local_date)
+    ? attrs.local_date
+    : null;
+  const intervalCounts = [collisionIntervals, matchedIntervals, deviationIntervals];
+  const evaluatedIntervals = matchedIntervals === null || deviationIntervals === null
+    ? null
+    : matchedIntervals + deviationIntervals;
+  if (
+    !localDate
+    || requiredValues.some((value) => value === null)
+    || intervalCounts.some((value) => !Number.isInteger(value))
+    || evaluatedIntervals > 100
+    || evaluatedIntervals > Math.ceil(coveragePercent)
+    || collisionIntervals > evaluatedIntervals
+  ) {
+    return { ...empty, quality: "INVALID" };
+  }
+  return {
+    quality: "GOOD",
+    localDate,
+    coveragePercent,
+    batteryChargeCheapKwh,
+    batteryDischargeExpensiveKwh,
+    evChargeCheapKwh,
+    evCheapSharePercent,
+    maxGridImportKw,
+    collisionIntervals,
+    matchedIntervals,
+    deviationIntervals,
+    actualCostEur,
+    shadowCostEur,
+    costDeltaEur: Math.round((actualCostEur - shadowCostEur) * 100) / 100,
+  };
+}
+
+export function buildValidationSnapshot(hass, suppliedConfig = {}, now = new Date()) {
+  const config = { ...DEFAULT_VALIDATION_CONFIG, ...suppliedConfig };
+  const staleMinutes = requiredFinite(
+    config.data_stale_after_minutes,
+    "data_stale_after_minutes",
+    1,
+    180,
+  );
+  const planStaleHours = requiredFinite(
+    config.plan_stale_after_hours,
+    "plan_stale_after_hours",
+    1,
+    72,
+  );
+  const summaryStaleHours = requiredFinite(
+    config.summary_stale_after_hours,
+    "summary_stale_after_hours",
+    1,
+    168,
+  );
+  const priceStaleMinutes = requiredFinite(
+    config.price_stale_after_minutes,
+    "price_stale_after_minutes",
+    1,
+    180,
+  );
+  const thresholdKw = requiredFinite(
+    config.activity_threshold_kw,
+    "activity_threshold_kw",
+    0.01,
+    5,
+  );
+  const peakLimitKw = requiredFinite(config.peak_limit_kw, "peak_limit_kw", 0.1, 30);
+  const smappeeLimitKw = requiredFinite(
+    config.smappee_capacity_threshold_kw,
+    "smappee_capacity_threshold_kw",
+    0.1,
+    30,
+  );
+  const plan = readEntity(hass, config.plan_entity, now, planStaleHours * 60);
+  const planInterval = plan.quality === "GOOD"
+    ? getCurrentPlanInterval(plan.stateObject, "schedule", now)
+    : null;
+  const planPrices = plan.quality === "GOOD"
+    ? getUpcomingPriceIntervals(plan.stateObject, "prices", now)
+    : [];
+  const importPrice = readPrice(hass, config.import_price_entity, now, priceStaleMinutes);
+  const exportPrice = readPrice(hass, config.export_price_entity, now, priceStaleMinutes);
+  const integrationPrices = importPrice.quality === "GOOD"
+    ? getEntityPriceIntervals(
+      importPrice.stateObject,
+      exportPrice.quality === "GOOD" ? exportPrice.stateObject : null,
+      config.integration_price_attribute || "data",
+      now,
+    )
+    : [];
+  const nowMs = now.getTime();
+  const coversNow = (rows) => rows.some(
+    (row) => Date.parse(row.startUtc) <= nowMs && nowMs < Date.parse(row.endUtc),
+  );
+  const planCoversNow = coversNow(planPrices);
+  const integrationCoversNow = coversNow(integrationPrices);
+  const planCoverage = intervalCoverageMs(planPrices, nowMs);
+  const integrationCoverage = intervalCoverageMs(integrationPrices, nowMs);
+  const hasIntegrationSource = importPrice.quality === "GOOD"
+    && (integrationPrices.length > 0 || importPrice.value !== null);
+  const selectedPriceSource = planCoversNow !== integrationCoversNow
+    ? planCoversNow ? "shadow" : "integration"
+    : hasIntegrationSource && integrationCoverage > planCoverage
+      ? "integration"
+      : planPrices.length > 0 ? "shadow" : hasIntegrationSource ? "integration" : null;
+  const priceRows = selectedPriceSource === "integration" ? integrationPrices
+    : selectedPriceSource === "shadow" ? planPrices : [];
+  const currentPrice = priceRows.find(
+    (row) => Date.parse(row.startUtc) <= nowMs && nowMs < Date.parse(row.endUtc),
+  ) || null;
+  const sortedPrices = priceRows
+    .map((row) => finiteNumber(row.importEurPerKwh))
+    .filter((value) => value !== null)
+    .sort((left, right) => left - right);
+  const currentPriceValue = finiteNumber(currentPrice?.importEurPerKwh);
+  const cheapThreshold = sortedPrices.length
+    ? sortedPrices[Math.floor((sortedPrices.length - 1) * 0.25)]
+    : null;
+  const expensiveThreshold = sortedPrices.length
+    ? sortedPrices[Math.ceil((sortedPrices.length - 1) * 0.75)]
+    : null;
+  const priceZone = sortedPrices.length < 4
+    || currentPriceValue === null
+    || cheapThreshold === null
+    || expensiveThreshold === null
+    ? "INSUFFICIENT_DATA"
+    : cheapThreshold >= expensiveThreshold ? "NORMAL"
+      : currentPriceValue <= cheapThreshold ? "CHEAP"
+        : currentPriceValue >= expensiveThreshold ? "EXPENSIVE" : "NORMAL";
+  const grid = readPower(
+    hass,
+    config.grid_power_entity,
+    now,
+    staleMinutes,
+    config.grid_import_positive !== false,
+    true,
+  );
+  const battery = readPower(
+    hass,
+    config.battery_power_entity,
+    now,
+    staleMinutes,
+    config.battery_charge_positive !== false,
+    true,
+  );
+  const ev = readPower(hass, config.ev_power_entity, now, staleMinutes, true, true);
+  const configuredHouse = readPower(hass, config.house_power_entity, now, staleMinutes, true, true);
+  const pv = readPower(hass, config.pv_power_entity, now, staleMinutes, true, true);
+  const heatPump = readPower(hass, config.heat_pump_power_entity, now, staleMinutes, true, true);
+  const derivedHouseKw = [grid, battery, pv].every(
+    (reading) => reading.quality === "GOOD" && reading.value !== null,
+  )
+    ? Math.round(Math.max(0, grid.value + pv.value - battery.value) * 1000) / 1000
+    : null;
+  const houseKw = configuredHouse.value ?? derivedHouseKw;
+  const houseQuality = configuredHouse.value !== null
+    ? configuredHouse.quality
+    : derivedHouseKw !== null ? "GOOD" : configuredHouse.quality;
+  const houseSource = configuredHouse.value !== null
+    ? "MEASURED"
+    : derivedHouseKw !== null ? "DERIVED" : "UNAVAILABLE";
+  const summaryReading = readEntity(
+    hass,
+    config.validation_summary_entity,
+    now,
+    summaryStaleHours * 60,
+  );
+  const expectedBatteryAction = planInterval
+    ? validationActionFromPlan(planInterval.action)
+    : "INSUFFICIENT_DATA";
+  const actualBatteryAction = observedBatteryAction(battery, thresholdKw);
+  const evAction = observedLoadAction(ev, thresholdKw);
+  const batteryOutcome = expectedBatteryAction === "INSUFFICIENT_DATA"
+    || actualBatteryAction === "INSUFFICIENT_DATA"
+    ? "INSUFFICIENT_DATA"
+    : expectedBatteryAction === actualBatteryAction ? "MATCH"
+      : expectedBatteryAction === "IDLE" ? "UNEXPECTED_ACTION" : "MISSED_OPPORTUNITY";
+  const effectiveLimitKw = Math.min(peakLimitKw, smappeeLimitKw);
+  const headroomKw = grid.quality === "GOOD" && grid.value !== null
+    ? Math.round((effectiveLimitKw - Math.max(0, grid.value)) * 1000) / 1000
+    : null;
+  const collision = actualBatteryAction === "CHARGING" && evAction === "CHARGING";
+  const requestedPilotStatus = String(config.pilot_status || "NOT_STARTED").toUpperCase();
+  const validPilotStatus = VALIDATION_PILOT_STATUSES.includes(requestedPilotStatus);
+  const pilotStatus = validPilotStatus ? requestedPilotStatus : "BLOCKED";
+  const warnings = validPilotStatus
+    ? []
+    : [`Onbekende pilotstatus ${requestedPilotStatus}; validatie is fail-closed geblokkeerd.`];
+  if (collision) {
+    warnings.push("Gelijktijdig batterij- en EV-laden gedetecteerd; controleer de gedeelde netruimte.");
+  }
+  if (headroomKw !== null && headroomKw < 0) {
+    warnings.push(`De effectieve gedeelde netgrens is met ${Math.abs(headroomKw)} kW overschreden.`);
+  }
+  const status = pilotStatus === "BLOCKED"
+    ? "BLOCKED"
+    : grid.quality !== "GOOD"
+    || batteryOutcome === "INSUFFICIENT_DATA"
+    || evAction === "INSUFFICIENT_DATA"
+    || currentPriceValue === null
+    || priceZone === "INSUFFICIENT_DATA"
+    ? "INSUFFICIENT_DATA"
+    : collision || (headroomKw !== null && headroomKw < 0)
+      ? "SHARED_PEAK_WARNING"
+      : batteryOutcome;
+  return {
+    generatedAt: now.toISOString(),
+    pilotStatus,
+    executionAllowed: false,
+    warnings,
+    status,
+    price: {
+      quality: currentPriceValue === null ? "UNAVAILABLE" : "GOOD",
+      currentEurPerKwh: currentPriceValue,
+      zone: priceZone,
+      source: selectedPriceSource === "integration" ? "Home Assistant price entities"
+        : selectedPriceSource === "shadow" ? "Shadow plan" : null,
+    },
+    interval: {
+      planQuality: plan.quality,
+      expectedBatteryAction,
+      observedBatteryAction: actualBatteryAction,
+      batteryOutcome,
+      evAction,
+      planReason: planInterval?.reason || null,
+    },
+    live: {
+      gridKw: grid.value,
+      gridQuality: grid.quality,
+      batteryKw: battery.value,
+      batteryQuality: battery.quality,
+      evKw: ev.value,
+      evQuality: ev.quality,
+      houseKw,
+      houseQuality,
+      houseSource,
+      pvKw: pv.value,
+      pvQuality: pv.quality,
+      heatPumpKw: heatPump.value,
+      heatPumpQuality: heatPump.quality,
+    },
+    grid: {
+      dashboardLimitKw: peakLimitKw,
+      smappeeLimitKw,
+      effectiveLimitKw,
+      headroomKw,
+      collision,
+    },
+    summary: validationSummary(summaryReading),
+  };
+}
+
 function escapeHtml(value) {
   const safe = ["string", "number", "boolean", "bigint"].includes(typeof value)
     ? String(value)
@@ -1814,6 +2172,296 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
   }
 }
 
+function validationActionLabel(value) {
+  return {
+    CHARGING: "Laden",
+    DISCHARGING: "Ontladen",
+    IDLE: "Geen actie",
+    INSUFFICIENT_DATA: "Onvoldoende data",
+  }[value] || value || "Onvoldoende data";
+}
+
+function validationStatusLabel(value) {
+  return {
+    BLOCKED: "Pilot geblokkeerd",
+    MATCH: "Gedrag komt overeen",
+    ACCEPTABLE_DEVIATION: "Aanvaardbare afwijking",
+    UNEXPECTED_ACTION: "Onverwachte actie",
+    MISSED_OPPORTUNITY: "Gemiste actie",
+    SHARED_PEAK_WARNING: "Gedeelde piekwaarschuwing",
+    INSUFFICIENT_DATA: "Onvoldoende data",
+  }[value] || value || "Onvoldoende data";
+}
+
+function validationPriceZoneLabel(value) {
+  return {
+    CHEAP: "Goedkoop",
+    NORMAL: "Normaal",
+    EXPENSIVE: "Duur",
+    INSUFFICIENT_DATA: "Onvoldoende data",
+  }[value] || "Onvoldoende data";
+}
+
+function validationPilotStatusLabel(value) {
+  return {
+    NOT_STARTED: "Pilot niet gestart",
+    PROTECTION_BASELINE_PENDING: "Protection baseline open",
+    SMA_ONLY_PILOT: "Alleen SMA-pilot",
+    SMAPPEE_ONLY_PILOT: "Alleen Smappee-pilot",
+    COMBINED_OBSERVATION: "Gecombineerde observatie",
+    EVIDENCE_INSUFFICIENT: "Onvoldoende bewijs",
+    READY_FOR_REVIEW: "Gereed voor beoordeling",
+    BLOCKED: "Geblokkeerd",
+  }[value] || "Geblokkeerd";
+}
+
+function validationMetric(label, value, detail = "") {
+  return `<div class="validation-metric"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>${detail ? `<small>${escapeHtml(detail)}</small>` : ""}</div>`;
+}
+
+function formatValidationNumber(value, suffix = "") {
+  const parsed = finiteNumber(value);
+  return parsed === null
+    ? "—"
+    : `${new Intl.NumberFormat("nl-BE", { maximumFractionDigits: 2 }).format(parsed)}${suffix}`;
+}
+
+function formatValidationEur(value) {
+  const parsed = finiteNumber(value);
+  return parsed === null
+    ? "—"
+    : new Intl.NumberFormat("nl-BE", { style: "currency", currency: "EUR" }).format(parsed);
+}
+
+export function renderValidationCard(config, snapshot) {
+  const summary = snapshot?.summary || { quality: "NOT_CONFIGURED" };
+  const summaryTitle = summary.quality === "GOOD"
+    ? `Dagscore · ${summary.localDate}`
+    : "Dagscore · nog niet beschikbaar";
+  const sharedTelemetryGood = [
+    snapshot?.live?.gridQuality,
+    snapshot?.live?.batteryQuality,
+    snapshot?.live?.evQuality,
+  ].every((quality) => quality === "GOOD")
+    && finiteNumber(snapshot?.grid?.headroomKw) !== null;
+  const sharedState = !sharedTelemetryGood
+    ? "UNKNOWN"
+    : snapshot.grid.headroomKw < 0 ? "EXCEEDED"
+      : snapshot.grid.collision ? "COLLISION" : "CLEAR";
+  const collisionText = sharedState === "UNKNOWN"
+    ? "Onvoldoende actuele meetdata om gelijktijdig laden en de gedeelde netgrens betrouwbaar te beoordelen."
+    : sharedState === "EXCEEDED"
+      ? snapshot.grid.collision
+        ? "De effectieve gedeelde netgrens is overschreden terwijl batterij en EV gelijktijdig laden."
+        : "De effectieve gedeelde netgrens is overschreden zonder gelijktijdige batterij- en EV-laadactie."
+      : sharedState === "COLLISION"
+        ? "Gelijktijdig batterij- en EV-laden gedetecteerd; de gemeten netimport blijft binnen de effectieve grens."
+        : "Geen gelijktijdige laadactie of gedeelde grensoverschrijding in dit kwartier.";
+  const summaryMetrics = summary.quality === "GOOD"
+    ? `
+      ${validationMetric("Datadekking", formatValidationNumber(summary.coveragePercent, "%"))}
+      ${validationMetric("Batterij goedkoop geladen", formatValidationNumber(summary.batteryChargeCheapKwh, " kWh"))}
+      ${validationMetric("Batterij duur ontladen", formatValidationNumber(summary.batteryDischargeExpensiveKwh, " kWh"))}
+      ${validationMetric("EV goedkoop geladen", formatValidationNumber(summary.evChargeCheapKwh, " kWh"))}
+      ${validationMetric("EV goedkoop aandeel", formatValidationNumber(summary.evCheapSharePercent, "%"))}
+      ${validationMetric("Maximale netimport", formatKw(summary.maxGridImportKw))}
+      ${validationMetric("Gedeelde laadkwartieren", formatValidationNumber(summary.collisionIntervals))}
+      ${validationMetric("Overeenkomstige kwartieren", formatValidationNumber(summary.matchedIntervals))}
+      ${validationMetric("Afwijkende kwartieren", formatValidationNumber(summary.deviationIntervals))}
+      ${validationMetric("Werkelijke kosten", formatValidationEur(summary.actualCostEur))}
+      ${validationMetric("Shadow-kosten", formatValidationEur(summary.shadowCostEur))}
+      ${validationMetric("Kostenverschil", formatValidationEur(summary.costDeltaEur))}`
+    : validationMetric(
+      "Historische validatie",
+      qualityLabel(summary.quality || "NOT_CONFIGURED"),
+      "Geen nulwaarden ingevuld wanneer een gevalideerde dagsamenvatting ontbreekt.",
+    );
+  return `
+    <ha-card>
+      <div class="validation-shell">
+        <header class="validation-header">
+          <div><span class="validation-eyebrow">Read-only gedragsvalidatie</span><h2>${escapeHtml(config.title || DEFAULT_VALIDATION_CONFIG.title)}</h2></div>
+          <div class="validation-badges"><span title="${escapeHtml(snapshot?.pilotStatus || "NOT_STARTED")}">${escapeHtml(validationPilotStatusLabel(snapshot?.pilotStatus))}</span><strong class="validation-status ${escapeHtml(String(snapshot?.status || "INSUFFICIENT_DATA").toLowerCase())}">${escapeHtml(validationStatusLabel(snapshot?.status))}</strong></div>
+        </header>
+        <section class="validation-lock">
+          <strong>Alleen observeren · er worden geen acties uitgevoerd</strong>
+          <code>execution_allowed = false</code>
+          <p>De kaart vergelijkt meetdata met het shadow-plan. Zij schrijft niets naar Home Assistant-apparaten, SMA, Smappee, batterij of laadpaal.</p>
+        </section>
+        <section class="validation-section">
+          <div class="validation-section-title"><div><span class="validation-eyebrow">Huidig kwartier</span><h3>Verwacht versus werkelijk</h3></div><span>${escapeHtml(snapshot?.interval?.batteryOutcome || "INSUFFICIENT_DATA")}</span></div>
+          <div class="validation-grid four">
+            ${validationMetric("Verwacht batterijgedrag", validationActionLabel(snapshot?.interval?.expectedBatteryAction), snapshot?.interval?.planReason || "Geen planreden")}
+            ${validationMetric("Werkelijk batterijgedrag", validationActionLabel(snapshot?.interval?.observedBatteryAction), qualityLabel(snapshot?.live?.batteryQuality || "NOT_CONFIGURED"))}
+            ${validationMetric("Werkelijk EV-gedrag", validationActionLabel(snapshot?.interval?.evAction), qualityLabel(snapshot?.live?.evQuality || "NOT_CONFIGURED"))}
+            ${validationMetric("Resultaat", validationStatusLabel(snapshot?.interval?.batteryOutcome), "Geen vendoroorzaak afgeleid")}
+          </div>
+          <div class="validation-grid two">
+            ${validationMetric("Actuele afnameprijs", `${compactPrice(snapshot?.price?.currentEurPerKwh)}/kWh`, snapshot?.price?.source || qualityLabel(snapshot?.price?.quality || "UNAVAILABLE"))}
+            ${validationMetric("Prijszone", validationPriceZoneLabel(snapshot?.price?.zone), "Relatief aan de beschikbare kwartierprijzen")}
+          </div>
+        </section>
+        <section class="validation-section peak ${["COLLISION", "EXCEEDED"].includes(sharedState) ? "warning" : ""}">
+          <div class="validation-section-title"><div><span class="validation-eyebrow">Gedeelde netruimte</span><h3>Piek- en collisionbewaking</h3></div><span>${escapeHtml(sharedState)}</span></div>
+          <div class="validation-grid four">
+            ${validationMetric("Netimport", formatKw(snapshot?.live?.gridKw), qualityLabel(snapshot?.live?.gridQuality || "NOT_CONFIGURED"))}
+            ${validationMetric("Batterijvermogen", formatKw(snapshot?.live?.batteryKw))}
+            ${validationMetric("EV-laadvermogen", formatKw(snapshot?.live?.evKw))}
+            ${validationMetric("Gedeelde headroom", formatKw(snapshot?.grid?.headroomKw), `effectieve grens ${formatKw(snapshot?.grid?.effectiveLimitKw)}`)}
+          </div>
+          <div class="validation-grid three">
+            ${validationMetric(
+              "Huisvermogen",
+              formatKw(snapshot?.live?.houseKw),
+              snapshot?.live?.houseSource === "DERIVED"
+                ? "afgeleid uit net, PV en batterij"
+                : qualityLabel(snapshot?.live?.houseQuality || "NOT_CONFIGURED"),
+            )}
+            ${validationMetric("PV-vermogen", formatKw(snapshot?.live?.pvKw), qualityLabel(snapshot?.live?.pvQuality || "NOT_CONFIGURED"))}
+            ${validationMetric("Warmtepomp", formatKw(snapshot?.live?.heatPumpKw), qualityLabel(snapshot?.live?.heatPumpQuality || "NOT_CONFIGURED"))}
+          </div>
+          <p class="validation-notice">${escapeHtml(collisionText)}</p>
+        </section>
+        <section class="validation-section summary">
+          <div class="validation-section-title"><div><span class="validation-eyebrow">Bewijs over tijd</span><h3>${escapeHtml(summaryTitle)}</h3></div><span>${escapeHtml(qualityLabel(summary.quality || "NOT_CONFIGURED"))}</span></div>
+          <div class="validation-grid summary-grid">${summaryMetrics}</div>
+        </section>
+        <footer class="validation-footer"><span>Doelarchitectuur: SMA voor batterij/PV · Smappee voor EV · niet automatisch geverifieerd</span><span>Geen uitvoermodus · geen fysieke writes</span></footer>
+      </div>
+    </ha-card>`;
+}
+
+export class DynamicEnergyValidationCard extends HTMLElementBase {
+  constructor() {
+    super();
+    this._config = { ...DEFAULT_VALIDATION_CONFIG };
+    this._hass = null;
+    this._root = this.attachShadow ? this.attachShadow({ mode: "open" }) : null;
+  }
+
+  static getConfigForm() {
+    return {
+      schema: [
+        { name: "title", selector: { text: {} } },
+        { name: "plan_entity", required: true, selector: { entity: {} } },
+        { name: "grid_power_entity", required: true, selector: { entity: {} } },
+        { name: "grid_import_positive", selector: { boolean: {} } },
+        { name: "battery_power_entity", required: true, selector: { entity: {} } },
+        { name: "battery_charge_positive", selector: { boolean: {} } },
+        { name: "ev_power_entity", required: true, selector: { entity: {} } },
+        { name: "house_power_entity", selector: { entity: {} } },
+        { name: "pv_power_entity", selector: { entity: {} } },
+        { name: "heat_pump_power_entity", selector: { entity: {} } },
+        { name: "validation_summary_entity", selector: { entity: {} } },
+        { name: "import_price_entity", selector: { entity: {} } },
+        { name: "export_price_entity", selector: { entity: {} } },
+        { name: "integration_price_attribute", selector: { text: {} } },
+        { name: "price_stale_after_minutes", selector: { number: { min: 1, max: 180, step: 1, unit_of_measurement: "min" } } },
+        { name: "peak_limit_kw", selector: { number: { min: 0.1, max: 30, step: 0.1, unit_of_measurement: "kW" } } },
+        { name: "smappee_capacity_threshold_kw", selector: { number: { min: 0.1, max: 30, step: 0.1, unit_of_measurement: "kW" } } },
+        { name: "activity_threshold_kw", selector: { number: { min: 0.01, max: 5, step: 0.01, unit_of_measurement: "kW" } } },
+        { name: "data_stale_after_minutes", selector: { number: { min: 1, max: 180, step: 1, unit_of_measurement: "min" } } },
+        { name: "plan_stale_after_hours", selector: { number: { min: 1, max: 72, step: 1, unit_of_measurement: "h" } } },
+        { name: "summary_stale_after_hours", selector: { number: { min: 1, max: 168, step: 1, unit_of_measurement: "h" } } },
+        { name: "pilot_status", selector: { select: { options: ["NOT_STARTED", "PROTECTION_BASELINE_PENDING", "SMA_ONLY_PILOT", "SMAPPEE_ONLY_PILOT", "COMBINED_OBSERVATION", "EVIDENCE_INSUFFICIENT", "READY_FOR_REVIEW", "BLOCKED"] } } },
+      ],
+      computeLabel: (schema) => ({
+        title: "Titel",
+        plan_entity: "Shadow-planentity",
+        grid_power_entity: "Netvermogen",
+        grid_import_positive: "Positief netvermogen betekent afname",
+        battery_power_entity: "Batterijvermogen",
+        battery_charge_positive: "Positief batterijvermogen betekent laden",
+        ev_power_entity: "EV-laadvermogen",
+        house_power_entity: "Huisvermogen (optioneel)",
+        pv_power_entity: "PV-vermogen (optioneel)",
+        heat_pump_power_entity: "Warmtepompvermogen (optioneel)",
+        validation_summary_entity: "Dagelijkse validatiesamenvatting (optioneel)",
+        import_price_entity: "Actuele afnameprijs (optioneel)",
+        export_price_entity: "Actuele injectieprijs (optioneel)",
+        integration_price_attribute: "Attribuut van EPEX/Ecopower-prijsentities",
+        price_stale_after_minutes: "Prijsdata verouderd na",
+        peak_limit_kw: "Gedeelde dashboardgrens",
+        smappee_capacity_threshold_kw: "Smappee Maximum grid capacity",
+        activity_threshold_kw: "Actief-vermogensdrempel",
+        data_stale_after_minutes: "Meetdata verouderd na",
+        plan_stale_after_hours: "Shadow-plan verouderd na",
+        summary_stale_after_hours: "Dagscore verouderd na",
+        pilot_status: "Pilotstatus",
+      })[schema.name] || schema.name,
+    };
+  }
+
+  static getStubConfig() {
+    return { ...DEFAULT_VALIDATION_CONFIG };
+  }
+
+  static getCardSize() {
+    return 7;
+  }
+
+  setConfig(config) {
+    if (!isPlainObject(config)) throw new Error("Ongeldige validatiekaartconfiguratie");
+    this._config = { ...DEFAULT_VALIDATION_CONFIG, ...config };
+    this._render();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    this._render();
+  }
+
+  getCardSize() {
+    return 7;
+  }
+
+  _render() {
+    if (!this._root) return;
+    this._root.innerHTML = `
+      <style>
+        :host { display: block; color: var(--primary-text-color, #1b211f); font-family: var(--ha-font-family-body, system-ui, sans-serif); }
+        ha-card { overflow: hidden; border: 1px solid var(--divider-color, #d9dfdc); }
+        .validation-header, .validation-section-title, .validation-footer { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+        .validation-header { padding: 20px; background: color-mix(in srgb, var(--primary-color, #315b4c) 12%, var(--card-background-color, #fff)); border-bottom: 1px solid var(--divider-color, #d9dfdc); }
+        h2, h3 { margin: 0; }
+        h2 { font-size: 21px; } h3 { font-size: 16px; }
+        .validation-eyebrow { display: block; margin-bottom: 4px; color: var(--secondary-text-color, #66706c); font-size: 10px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+        .validation-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .validation-badges span, .validation-badges strong, .validation-section-title > span { padding: 5px 8px; border: 1px solid currentColor; border-radius: 999px; font-size: 10px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+        .validation-badges span { color: var(--secondary-text-color, #66706c); }
+        .validation-badges strong { color: #a86512; }
+        .validation-badges strong.match { color: #2d7654; }
+        .validation-badges strong.blocked, .validation-badges strong.shared_peak_warning, .validation-badges strong.unexpected_action { color: #a53c3c; }
+        .validation-lock { display: grid; grid-template-columns: 1fr auto; gap: 5px 12px; padding: 15px 20px; border-bottom: 1px solid var(--divider-color, #d9dfdc); }
+        .validation-lock strong, .validation-lock code { color: #2d7654; font-size: 12px; }
+        .validation-lock p { grid-column: 1 / -1; margin: 0; color: var(--secondary-text-color, #66706c); font-size: 11px; line-height: 1.5; }
+        .validation-section { padding: 18px 20px; border-bottom: 1px solid var(--divider-color, #d9dfdc); }
+        .validation-section-title > span { color: var(--secondary-text-color, #66706c); }
+        .validation-section.warning { background: color-mix(in srgb, #a86512 8%, var(--card-background-color, #fff)); }
+        .validation-section.warning .validation-section-title > span { color: #a53c3c; }
+        .validation-grid { display: grid; margin-top: 13px; border: 1px solid var(--divider-color, #d9dfdc); border-radius: 9px; overflow: hidden; }
+        .validation-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .validation-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .validation-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .validation-metric { min-width: 0; padding: 12px 13px; border-right: 1px solid var(--divider-color, #d9dfdc); border-bottom: 1px solid var(--divider-color, #d9dfdc); }
+        .validation-metric span, .validation-metric small { display: block; color: var(--secondary-text-color, #66706c); font-size: 10px; }
+        .validation-metric strong { display: block; margin-top: 5px; font-size: 15px; overflow-wrap: anywhere; }
+        .validation-metric small { margin-top: 4px; line-height: 1.35; }
+        .validation-notice { margin: 11px 0 0; color: var(--secondary-text-color, #66706c); font-size: 11px; }
+        .validation-footer { padding: 13px 20px; color: var(--secondary-text-color, #66706c); font-size: 10px; }
+        @media (max-width: 700px) {
+          .validation-header, .validation-section-title, .validation-footer { flex-direction: column; }
+          .validation-badges { align-items: flex-start; }
+          .validation-grid.four, .validation-grid.three, .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .validation-section { padding: 15px; }
+        }
+        @media (max-width: 430px) { .validation-grid.four, .validation-grid.three, .validation-grid.two, .summary-grid { grid-template-columns: 1fr; } }
+      </style>
+      ${renderValidationCard(this._config, buildValidationSnapshot(this._hass, this._config))}`;
+  }
+}
+
 function formatControlTime(value) {
   const timestamp = externalDateMs(value);
   if (!Number.isFinite(timestamp)) return "—";
@@ -2244,6 +2892,10 @@ if (globalThis.customElements && !globalThis.customElements.get(CONTROL_CARD_TAG
   globalThis.customElements.define("dynamic-energy-control-config-card", DynamicEnergyControlConfigCard);
 }
 
+if (globalThis.customElements && !globalThis.customElements.get(VALIDATION_CARD_TAG)) {
+  globalThis.customElements.define("dynamic-energy-validation-card", DynamicEnergyValidationCard);
+}
+
 if (globalThis.window) {
   globalThis.window.customCards = globalThis.window.customCards || [];
   if (!globalThis.window.customCards.some((card) => card.type === CARD_TAG)) {
@@ -2260,6 +2912,15 @@ if (globalThis.window) {
       type: "dynamic-energy-control-config-card",
       name: "Dynamic Energy Control Config",
       description: "Beheert uitsluitend namespaced ARMED_BLOCKED-automatisaties; geen actuatorwrites.",
+      preview: true,
+      documentationURL: "https://github.com/ju1ced/dynamic-energy-dashboard",
+    });
+  }
+  if (!globalThis.window.customCards.some((card) => card.type === VALIDATION_CARD_TAG)) {
+    globalThis.window.customCards.push({
+      type: "dynamic-energy-validation-card",
+      name: "Dynamic Energy Validation",
+      description: "Read-only vergelijking van shadow-plan, werkelijk gedrag en gedeelde netruimte.",
       preview: true,
       documentationURL: "https://github.com/ju1ced/dynamic-energy-dashboard",
     });

@@ -59,6 +59,31 @@ class HacsLovelacePackageTests(unittest.TestCase):
         self.assertIn("live actuator execution is not authorized", source)
         self.assertIn('actions: [{ stop: BLOCKED_STOP, error: false }]', source)
 
+    def test_validation_card_is_registered_and_contains_no_write_api(self):
+        source = (ROOT / "dist" / "dynamic-energy-dashboard.js").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn(
+            'customElements.define("dynamic-energy-validation-card"', source
+        )
+        self.assertIn('type: "dynamic-energy-validation-card"', source)
+        validation = source.split(
+            "export class DynamicEnergyValidationCard", 1
+        )[1].split("function formatControlTime", 1)[0]
+        for token in ("callService(", ".callWS(", "hass.callApi(", "data-action="):
+            with self.subTest(token=token):
+                self.assertNotIn(token, validation)
+
+    def test_browser_fixture_includes_the_validation_card(self):
+        fixture = (ROOT / "tests" / "browser" / "hacs-card-fixture.html").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn('<dynamic-energy-validation-card id="validation-card"', fixture)
+        self.assertIn("DynamicEnergyValidationCard", fixture)
+        self.assertIn('validation_summary_entity: "sensor.validation_summary"', fixture)
+
     def test_card_renders_prospective_price_timeline_from_plan_entity(self):
         source = (ROOT / "dist" / "dynamic-energy-dashboard.js").read_text(
             encoding="utf-8"
@@ -96,12 +121,12 @@ class HacsLovelacePackageTests(unittest.TestCase):
         self.assertIn("https://support.smappee.com/hc/en-gb/articles/4900468508692", readme)
         self.assertIn("performs no sma- or smappee-setting change", readme.lower())
 
-    def test_package_version_matches_the_alpha_4_release(self):
+    def test_package_version_matches_the_alpha_5_candidate(self):
         package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(package["version"], "0.3.0-alpha.4")
+        self.assertEqual(package["version"], "0.3.0-alpha.5")
         self.assertTrue(
-            (ROOT / "docs" / "releases" / "v0.3.0-alpha.4-checklist.md").is_file()
+            (ROOT / "docs" / "releases" / "v0.3.0-alpha.5-checklist.md").is_file()
         )
 
     def test_readme_documents_only_supported_frontend_price_inputs(self):
