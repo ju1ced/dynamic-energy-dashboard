@@ -32,16 +32,19 @@
     <div class="fixture-meta"><strong>HACS Lovelace browser fixture</strong><span id="fixture-mode">live-plan</span></div>
     <dynamic-energy-shadow-card id="card"></dynamic-energy-shadow-card>
     <dynamic-energy-control-config-card id="control-card" style="display:block;margin-top:18px"></dynamic-energy-control-config-card>
+    <dynamic-energy-validation-card id="validation-card" style="display:block;margin-top:18px"></dynamic-energy-validation-card>
     <section id="editor-contract"><h2>Visual editor schema</h2><div id="editor-fields"></div></section>
   </main>
   <script type="module">
     import {
       DynamicEnergyControlConfigCard,
       DynamicEnergyShadowCard,
+      DynamicEnergyValidationCard,
     } from "/dist/dynamic-energy-dashboard.js";
 
     const card = document.getElementById("card");
     const controlCard = document.getElementById("control-card");
+    const validationCard = document.getElementById("validation-card");
     const baseConfig = {
       title: "Live shadow-sturing",
       grid_power_entity: "sensor.grid_power",
@@ -132,6 +135,20 @@
             discharge_kwh: 0,
           }],
         }),
+        "sensor.validation_summary": makeState(now.toISOString().slice(0, 10), null, updated, {
+          local_date: now.toISOString().slice(0, 10),
+          coverage_percent: 97.5,
+          battery_charge_cheap_kwh: 4.2,
+          battery_discharge_expensive_kwh: 2.1,
+          ev_charge_cheap_kwh: 7.4,
+          ev_cheap_share_percent: 82,
+          max_grid_import_kw: 6.2,
+          collision_intervals: 1,
+          matched_intervals: 67,
+          deviation_intervals: 4,
+          actual_cost_eur: 5.84,
+          shadow_cost_eur: 5.31,
+        }),
       };
     }
 
@@ -193,6 +210,32 @@
       controlCard.hass = controlHass(mode === "stale-plan");
     };
     window.fixtureControlEditorFieldCount = DynamicEnergyControlConfigCard.getConfigForm().schema.length;
+    validationCard.setConfig({
+      title: "Gedragsvalidatie",
+      plan_entity: "sensor.shadow_plan",
+      grid_power_entity: "sensor.grid_power",
+      grid_import_positive: true,
+      battery_power_entity: "sensor.battery_power",
+      battery_charge_positive: true,
+      ev_power_entity: "sensor.ev_power",
+      house_power_entity: "sensor.house_power",
+      pv_power_entity: "sensor.pv_power",
+      heat_pump_power_entity: "sensor.heat_pump_power",
+      validation_summary_entity: "sensor.validation_summary",
+      import_price_entity: "sensor.import_price",
+      export_price_entity: "sensor.export_price",
+      integration_price_attribute: "data",
+      price_stale_after_minutes: 20,
+      peak_limit_kw: 7,
+      smappee_capacity_threshold_kw: 5.5,
+      activity_threshold_kw: 0.2,
+      data_stale_after_minutes: 10,
+      plan_stale_after_hours: 30,
+      summary_stale_after_hours: 36,
+      pilot_status: "COMBINED_OBSERVATION",
+    });
+    validationCard.hass = { states: liveStates(false, false) };
+    window.fixtureValidationEditorFieldCount = DynamicEnergyValidationCard.getConfigForm().schema.length;
     window.setFixtureMode("live-plan");
   </script>
 </body>

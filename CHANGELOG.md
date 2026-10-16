@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0-alpha.5 — 2026-10-16
+
+- Add a separate actuator-read-only validation card for current-quarter
+  expected-versus-observed battery behavior.
+- Show measured EV, PV and heat-pump context plus clearly labelled measured or
+  derived house power without inferring a vendor-internal reason.
+- Detect simultaneous battery/EV charging and effective shared-limit
+  exceedances using the stricter dashboard or Smappee capacity threshold.
+- Add current price-zone context while preserving current-quarter source
+  precedence over longer future-only feeds.
+- Support a bounded and internally cross-validated optional daily evidence
+  summary without inventing zero values for missing or invalid history.
+- Keep pilot status fail-closed, `execution_allowed: false` and the validation
+  card free of Home Assistant, SMA, Smappee, battery and EV write actions.
+
 ## 0.3.0-alpha.4 — 2026-10-15
 
 - Let the control panel read fresh EPEX/Ecopower price entities independently
