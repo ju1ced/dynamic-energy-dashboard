@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   buildSnapshot,
+  DynamicEnergyShadowCard,
   getCurrentPlanInterval,
   getEntityPriceIntervals,
   getUpcomingPriceIntervals,
@@ -27,6 +28,39 @@ function hostilePrimitive() {
     toString() { throw new Error("hostile string"); },
   };
 }
+
+test("shadow card ignores Home Assistant updates unrelated to its configured entities", () => {
+  const card = new DynamicEnergyShadowCard();
+  let renderCount = 0;
+  card._render = () => { renderCount += 1; };
+  card.setConfig({
+    grid_power_entity: "sensor.grid",
+    pv_power_entity: "sensor.pv",
+    battery_power_entity: "sensor.battery",
+    battery_soc_entity: "sensor.soc",
+    plan_entity: "sensor.plan",
+  });
+  const relevantStates = {
+    "sensor.grid": state(1200, "W"),
+    "sensor.pv": state(800, "W"),
+    "sensor.battery": state(0, "W"),
+    "sensor.soc": state(58, "%"),
+    "sensor.plan": state("planned", null),
+  };
+
+  card.hass = { states: { ...relevantStates, "sensor.unrelated": state(1, "") } };
+  card.hass = { states: { ...relevantStates, "sensor.unrelated": state(2, "") } };
+
+  assert.equal(renderCount, 2);
+
+  card.hass = {
+    states: {
+      ...relevantStates,
+      "sensor.grid": state(1400, "W"),
+    },
+  };
+  assert.equal(renderCount, 3);
+});
 
 test("power values are normalized to kW", () => {
   assert.equal(toKilowatts(state(2500, "W")), 2.5);

@@ -15,8 +15,10 @@ can create or switch only its own automations between `OFF` and
 `ARMED_BLOCKED`. It cannot select `LIVE`, and generated automations stop before
 any SMA, Smappee, battery or EV-charger action.
 
-Alpha `0.3.0-alpha.5` adds the separate validation card. It has no buttons or
-write API and keeps `execution_allowed: false` regardless of pilot status.
+Alpha `0.3.0-alpha.6` stabilizes the shadow card during frequent Home Assistant
+updates and adds the rollout contract for a separate third `Validatie` view. The
+validation card has no buttons or write API and keeps `execution_allowed: false`
+regardless of pilot status.
 
 ![Dynamic Energy Shadow Dashboard preview](images/dynamic-energy-shadow-card.png)
 
@@ -37,6 +39,15 @@ write API and keeps `execution_allowed: false` regardless of pilot status.
 - visual editor for entity mapping and thresholds;
 - responsive light/dark Home Assistant styling;
 - no runtime dependencies.
+
+Alpha `0.3.0-alpha.6` also adds:
+
+- render suppression for Home Assistant updates unrelated to the shadow card's
+  configured entities;
+- preservation of price-strip position and navigation focus when a relevant
+  update does require a render;
+- a separately deployed third `Validatie` dashboard view using only read-only
+  telemetry, plan and price inputs.
 
 Alpha `0.3.0-alpha.4` also adds:
 
@@ -99,7 +110,7 @@ artifact. No publication is performed automatically by this repository.
 The alpha control card requires Home Assistant `2024.10.0` or newer because its
 generated automations use the current plural automation syntax.
 
-For the alpha cards, explicitly select the `0.3.0-alpha.5` prerelease in
+For the alpha cards, explicitly select the `0.3.0-alpha.6` prerelease in
 HACS. Do not replace a stable read-only installation with the alpha unless the
 Home Assistant configuration-write boundary below is understood.
 
@@ -433,4 +444,4 @@ npm run check:hacs
 The HACS artifact is `dist/dynamic-energy-dashboard.js`.
 
 Release validation for the alpha is documented in
-`docs/releases/v0.3.0-alpha.3-checklist.md`.
+`docs/releases/v0.3.0-alpha.6-checklist.md`.
