@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "classification": "VERIFIED_READ_ONLY_EXPORT_SUMMARY",
+  "source": "Fluvius quarter-hour electricity export",
+  "period_start_local": "2023-10-01T00:00:00+02:00",
+  "period_end_local": "2026-10-01T00:00:00+02:00",
+  "period_count": 3,
+  "total_interval_count": 105216,
+  "read_interval_count": 104906,
+  "estimated_interval_count": 304,
+  "unavailable_interval_count": 6,
+  "total_import_kwh": 25742.521,
+  "total_export_kwh": 3729.505,
+  "periods": [
+    {
+      "period_start": "2023-10-01",
+      "period_end": "2024-10-01",
+      "interval_count": 35136,
+      "read_interval_count": 34932,
+      "estimated_interval_count": 198,
+      "unavailable_interval_count": 6,
+      "import_kwh": 7820.473,
+      "export_kwh": 1471.811
+    },
+    {
+      "period_start": "2024-10-01",
+      "period_end": "2025-10-01",
+      "interval_count": 35040,
+      "read_interval_count": 34939,
+      "estimated_interval_count": 101,
+      "unavailable_interval_count": 0,
+      "import_kwh": 8411.868,
+      "export_kwh": 1268.425
+    },
+    {
+      "period_start": "2025-10-01",
+      "period_end": "2026-10-01",
+      "interval_count": 35040,
+      "read_interval_count": 35035,
+      "estimated_interval_count": 5,
+      "unavailable_interval_count": 0,
+      "import_kwh": 9510.18,
+      "export_kwh": 989.269
+    }
+  ],
+  "excluded_export_tail": {
+    "period_start": "2026-10-01T00:00:00+02:00",
+    "period_end": "2026-10-02T00:00:00+02:00",
+    "interval_count": 96,
+    "reason": "all intervals had unavailable blank volumes at analysis time"
+  },
+  "quality": {
+    "sequence_complete": true,
+    "unavailable_intervals_filled": false,
+    "estimated_intervals_retained": true
+  },
+  "privacy": {
+    "identifiers_included": false,
+    "raw_interval_series_included": false
+  }
+}

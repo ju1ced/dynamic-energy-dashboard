@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "tariff_id": "ECOPOWER_MONTHLY_HA_2026",
+  "source": "Home Assistant monthly Ecopower energy-cost input numbers",
+  "classification": "OWNER_CONFIRMED_AUTHORITATIVE_FOR_2026_HISTORICAL_MONTHS",
+  "currency": "EUR",
+  "unit": "kWh",
+  "values": {
+    "2026-01": 0.2841,
+    "2026-02": 0.2716,
+    "2026-03": 0.2770,
+    "2026-04": 0.2702,
+    "2026-05": 0.2773,
+    "2026-06": 0.2894,
+    "2026-07": 0.2859,
+    "2026-08": 0.2970,
+    "2026-09": 0.3125,
+    "2026-10": 0.2773,
+    "2026-11": 0.2773,
+    "2026-12": 0.2773
+  },
+  "usage": {
+    "historical_through": "2026-09-30",
+    "authority": "Use Home Assistant monthly values for the 2026 historical baseline; DSMR is a cross-check where it differs",
+    "future_months_are_not_historical_actuals": true,
+    "component_scope_requires_confirmation": true,
+    "vat_inclusion_requires_confirmation": true
+  },
+  "safety": {
+    "home_assistant_writes": false
+  }
+}

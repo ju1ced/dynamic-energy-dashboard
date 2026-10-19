@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "classification": "OWNER_PROVIDED_INDICATIVE_AVERAGE",
+  "reference_import_eur_per_kwh_incl_vat": 0.2770,
+  "description": "Indicatieve gemiddelde historische afnameprijs voor vergelijking met toekomstige Ecopower Day-Ahead-prijssignalen.",
+  "comparison_limit": "De referentie is een gemiddelde indicatie en geen component-complete kwartierfactuur. Ecopower-nettarieven, capaciteitstarief, abonnement en heffingen blijven afzonderlijk.",
+  "owner_confirmed_on": "2026-10-06"
+}

@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "timezone": "Europe/Brussels",
+  "period_start_local": "2025-06-01T00:00:00+02:00",
+  "period_end_local": "2026-06-01T00:00:00+02:00",
+  "period_start_utc": "2025-05-31T22:00:00+00:00",
+  "period_end_utc": "2026-05-31T22:00:00+00:00",
+  "row_count": 70080,
+  "interval_count": 35040,
+  "sequence_complete": true,
+  "all_intervals_have_import_and_export": true,
+  "clock_transition_interval_count": 2,
+  "read_interval_count": 34941,
+  "estimated_interval_count": 99,
+  "read_interval_percentage": 99.717466,
+  "estimated_interval_percentage": 0.282534,
+  "totals_kwh": {
+    "export": 1160.728,
+    "import": 9161.589
+  },
+  "monthly_totals_kwh": {
+    "2025-06": {
+      "export": 164.07,
+      "import": 260.559
+    },
+    "2025-07": {
+      "export": 310.489,
+      "import": 151.8
+    },
+    "2025-08": {
+      "export": 136.101,
+      "import": 273.652
+    },
+    "2025-09": {
+      "export": 44.079,
+      "import": 455.549
+    },
+    "2025-10": {
+      "export": 1.228,
+      "import": 935.617
+    },
+    "2025-11": {
+      "export": 0.37,
+      "import": 1242.317
+    },
+    "2025-12": {
+      "export": 0.292,
+      "import": 1584.098
+    },
+    "2026-01": {
+      "export": 0.254,
+      "import": 1676.146
+    },
+    "2026-02": {
+      "export": 2.939,
+      "import": 1153.657
+    },
+    "2026-03": {
+      "export": 94.878,
+      "import": 930.087
+    },
+    "2026-04": {
+      "export": 259.326,
+      "import": 239.306
+    },
+    "2026-05": {
+      "export": 146.702,
+      "import": 258.801
+    }
+  },
+  "register_row_counts": {
+    "Afname Dag": 15600,
+    "Afname Nacht": 19440,
+    "Injectie Dag": 15600,
+    "Injectie Nacht": 19440
+  },
+  "validation_status_row_counts": {
+    "Geschat": 198,
+    "Uitgelezen": 69882
+  },
+  "validation_status_interval_counts": {
+    "Geschat": 99,
+    "Uitgelezen": 34941
+  },
+  "identifiers_consistent": {
+    "ean": true,
+    "meter": true
+  },
+  "issues": []
+}

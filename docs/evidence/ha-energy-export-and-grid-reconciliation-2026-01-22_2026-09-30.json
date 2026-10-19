@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "classification": "VERIFIED",
+  "requested_period": {
+    "start_utc": "2026-01-22T00:00:00Z",
+    "end_utc": "2026-09-30T00:00:00Z"
+  },
+  "five_minute_export": {
+    "retrieved_at": "2026-09-30T07:42:54.307166+00:00",
+    "expected_source_count_per_stream": 72288,
+    "available_source_count_per_stream": 1989,
+    "missing_source_count_per_stream": 70299,
+    "usable_quarter_count_per_stream": 662,
+    "first_usable_quarter_utc": "2026-09-23T02:30:00Z",
+    "last_usable_quarter_utc": "2026-09-29T23:45:00Z",
+    "retention_finding": "Historical five-minute statistics are unavailable before the recent retention window; missing buckets are null and are not filled."
+  },
+  "hourly_export": {
+    "retrieved_at": "2026-09-30T08:02:42.524466+00:00",
+    "requested_hour_count": 6023,
+    "streams": {
+      "grid_import": {
+        "missing_hour_count": 3,
+        "usable_hour_count": 6020,
+        "total_kwh": 4563.099
+      },
+      "grid_export": {
+        "missing_hour_count": 3,
+        "usable_hour_count": 6020,
+        "total_kwh": 986.861
+      },
+      "pv_generation": {
+        "missing_hour_count": 6,
+        "usable_hour_count": 6009,
+        "counter_decrease_count": 4,
+        "counter_recovery_after_drop_count": 4,
+        "reported_change_mismatch_count": 101,
+        "total_kwh": 8362.522
+      },
+      "battery_charge": {
+        "missing_hour_count": 190,
+        "usable_hour_count": 5833,
+        "total_kwh": 2654.531
+      },
+      "battery_discharge": {
+        "missing_hour_count": 190,
+        "usable_hour_count": 5833,
+        "total_kwh": 2266.245
+      },
+      "ev_charge": {
+        "missing_hour_count": 4518,
+        "usable_hour_count": 1505,
+        "total_kwh": 574.66
+      }
+    }
+  },
+  "grid_reconciliation": {
+    "overlap_start_utc": "2026-01-22T00:00:00Z",
+    "overlap_end_utc": "2026-05-31T22:00:00Z",
+    "expected_hour_count": 3118,
+    "comparable_hour_count": 3118,
+    "read_fluvius_hour_count": 3116,
+    "estimated_fluvius_hour_count": 2,
+    "ha_unusable_hour_count": 0,
+    "fluvius_incomplete_hour_count": 0,
+    "all_comparable": {
+      "import": {
+        "ha_total_kwh": 3091.552,
+        "fluvius_total_kwh": 3091.556,
+        "difference_kwh": -0.004,
+        "difference_percentage_of_fluvius": -0.000129
+      },
+      "export": {
+        "ha_total_kwh": 503.942,
+        "fluvius_total_kwh": 503.942,
+        "difference_kwh": 0.0,
+        "difference_percentage_of_fluvius": 0.0
+      }
+    },
+    "read_only": {
+      "import": {
+        "ha_total_kwh": 3091.508,
+        "fluvius_total_kwh": 3091.511,
+        "difference_kwh": -0.003,
+        "difference_percentage_of_fluvius": -0.000097
+      },
+      "export": {
+        "ha_total_kwh": 503.931,
+        "fluvius_total_kwh": 503.931,
+        "difference_kwh": 0.0,
+        "difference_percentage_of_fluvius": 0.0
+      }
+    }
+  },
+  "privacy": {
+    "entity_ids_included": false,
+    "installation_identifiers_included": false,
+    "raw_interval_series_included": false
+  }
+}

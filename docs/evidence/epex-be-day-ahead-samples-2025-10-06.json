@@ -1,0 +1,32 @@
+{
+  "source": "EPEX SPOT official market-results table",
+  "source_url": "https://www.epexspot.com/en/market-results?auction=MRC&data_mode=table&delivery_date=2025-10-06&market_area=BE&modality=Auction&product=15&sub_modality=DayAhead",
+  "accessed": "2026-09-30",
+  "delivery_date": "2025-10-06",
+  "market_area": "BE",
+  "product_minutes": 15,
+  "unit": "EUR/MWh",
+  "selection_method": "Five deterministic four-quarter blocks: positions 1-4, 17-20, 37-40, 73-76 and 93-96 in the official table.",
+  "samples": [
+    {"start_local": "2025-10-06T00:00:00+02:00", "price_eur_per_mwh": 33.0},
+    {"start_local": "2025-10-06T00:15:00+02:00", "price_eur_per_mwh": 26.11},
+    {"start_local": "2025-10-06T00:30:00+02:00", "price_eur_per_mwh": 16.77},
+    {"start_local": "2025-10-06T00:45:00+02:00", "price_eur_per_mwh": 15.55},
+    {"start_local": "2025-10-06T04:00:00+02:00", "price_eur_per_mwh": 12.12},
+    {"start_local": "2025-10-06T04:15:00+02:00", "price_eur_per_mwh": 19.05},
+    {"start_local": "2025-10-06T04:30:00+02:00", "price_eur_per_mwh": 18.93},
+    {"start_local": "2025-10-06T04:45:00+02:00", "price_eur_per_mwh": 21.3},
+    {"start_local": "2025-10-06T09:00:00+02:00", "price_eur_per_mwh": 136.23},
+    {"start_local": "2025-10-06T09:15:00+02:00", "price_eur_per_mwh": 119.77},
+    {"start_local": "2025-10-06T09:30:00+02:00", "price_eur_per_mwh": 115.35},
+    {"start_local": "2025-10-06T09:45:00+02:00", "price_eur_per_mwh": 103.01},
+    {"start_local": "2025-10-06T18:00:00+02:00", "price_eur_per_mwh": 99.98},
+    {"start_local": "2025-10-06T18:15:00+02:00", "price_eur_per_mwh": 111.74},
+    {"start_local": "2025-10-06T18:30:00+02:00", "price_eur_per_mwh": 140.16},
+    {"start_local": "2025-10-06T18:45:00+02:00", "price_eur_per_mwh": 176.45},
+    {"start_local": "2025-10-06T23:00:00+02:00", "price_eur_per_mwh": 112.33},
+    {"start_local": "2025-10-06T23:15:00+02:00", "price_eur_per_mwh": 100.79},
+    {"start_local": "2025-10-06T23:30:00+02:00", "price_eur_per_mwh": 102.6},
+    {"start_local": "2025-10-06T23:45:00+02:00", "price_eur_per_mwh": 96.6}
+  ]
+}

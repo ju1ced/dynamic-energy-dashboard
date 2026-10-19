@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Dashboard voor energieanalyse, dry-run sturing en vergrendelde controlconfiguratie.">
+  <title>Dynamic Energy Monitor</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Dashboardnavigatie">
+      <div class="sidebar-tabs" aria-label="Werkruimte">
+        <span class="sidebar-tab active">Monitor</span>
+        <span class="sidebar-tab">Data</span>
+      </div>
+      <div class="project-block">
+        <p class="eyebrow">ENERGIEPROJECT</p>
+        <div class="project-row active">
+          <span class="status-dot"></span>
+          <span class="project-name">Dynamic Energy Dashboard</span>
+        </div>
+      </div>
+      <nav class="nav-list" aria-label="Hoofdsecties">
+        <button class="nav-item active" data-view="overview"><span>01</span>Overzicht</button>
+        <button class="nav-item" data-view="financial"><span>02</span>Financieel</button>
+        <button class="nav-item" data-view="prices"><span>03</span>Prijzen</button>
+        <button class="nav-item" data-view="energy"><span>04</span>Energie</button>
+        <button class="nav-item" data-view="quality"><span>05</span>Datakwaliteit</button>
+        <button class="nav-item" data-view="battery"><span>06</span>Batterij</button>
+        <button class="nav-item" data-view="multiyear"><span>07</span>Meerjarig</button>
+        <button class="nav-item" data-view="scenarios"><span>08</span>Scenario's</button>
+        <button class="nav-item" data-view="steering"><span>09</span>Sturing</button>
+        <button class="nav-item" data-view="decisions"><span>10</span>Beslissingen</button>
+        <button class="nav-item" data-view="configuration"><span>11</span>Configuratie</button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="text-size-control">
+        <div class="text-size-header">
+          <span>Tekstgrootte</span>
+          <output id="text-scale-label">100%</output>
+        </div>
+        <div class="text-size-buttons" role="group" aria-label="Tekstgrootte aanpassen">
+          <button type="button" data-ui-scale="1" aria-pressed="true" title="Standaard tekstgrootte">A</button>
+          <button type="button" data-ui-scale="1.12" aria-pressed="false" title="Grotere tekst">A+</button>
+          <button type="button" data-ui-scale="1.25" aria-pressed="false" title="Grootste tekst">A++</button>
+        </div>
+      </div>
+      <div class="sidebar-note">
+        <span class="lock-mark">DRY</span>
+        <div><strong>Dry-run control</strong><small>Actief blijft vergrendeld</small></div>
+      </div>
+      <button class="sidebar-button" id="refresh-data">Data herladen</button>
+    </aside>
+
+    <div class="app-main">
+      <header class="topbar">
+        <button class="icon-button menu-button" id="menu-button" aria-label="Navigatie openen" aria-expanded="false">☰</button>
+        <div class="topbar-title">
+          <strong>Dynamic Energy Monitor</strong>
+          <span id="view-label">Overzicht</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="operating-mode" role="group" aria-label="Werkingsmodus">
+            <button type="button" data-operating-mode="monitor" aria-pressed="true">Monitor</button>
+            <button type="button" data-operating-mode="simulation" aria-pressed="false">Simulatie</button>
+            <button type="button" data-operating-mode="active" aria-pressed="false" aria-describedby="operating-mode-status">Actief <span aria-hidden="true">🔒</span></button>
+          </div>
+          <span class="top-pill mode-status" id="operating-mode-status">MONITOR</span>
+          <span class="top-pill verified">VERIFIED DATA</span>
+          <span class="top-pill readonly">NO LIVE WRITES</span>
+          <span class="top-pill compact" id="top-period">—</span>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="work-pane primary-pane" aria-live="polite">
+          <div class="pane-header">
+            <div>
+              <span class="pane-kicker">ANALYSE</span>
+              <h1 id="page-title">Overzicht</h1>
+            </div>
+            <div class="pane-meta"><span class="live-dot"></span><span id="data-status">data laden</span></div>
+          </div>
+          <div class="pane-content" id="primary-content">
+            <div class="loading-state"><span></span><p>Gevalideerde dataset laden…</p></div>
+          </div>
+        </section>
+
+        <aside class="work-pane context-pane" aria-label="Context en methodiek">
+          <div class="pane-header">
+            <div>
+              <span class="pane-kicker">CONTEXT</span>
+              <h2>Conclusies & methodiek</h2>
+            </div>
+            <span class="context-badge">P2-003</span>
+          </div>
+          <div class="pane-content" id="context-content">
+            <div class="loading-state"><span></span><p>Context laden…</p></div>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <div class="scrim" id="scrim"></div>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

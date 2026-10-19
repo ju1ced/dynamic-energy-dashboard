@@ -1,0 +1,19 @@
+[Unit]
+Description=Dynamic Energy Dashboard (read-only)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/projects/dynamic-energy-dashboard-hermes
+EnvironmentFile=-/projects/dynamic-energy-dashboard-hermes/.env
+ExecStartPre=/usr/bin/python3 /projects/dynamic-energy-dashboard-hermes/scripts/build_dashboard_data.py
+ExecStart=/usr/bin/python3 /projects/dynamic-energy-dashboard-hermes/scripts/serve_dashboard.py --host 0.0.0.0 --port 4173
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+UMask=0077
+
+[Install]
+WantedBy=default.target
