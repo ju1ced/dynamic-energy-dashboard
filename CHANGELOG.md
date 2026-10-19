@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Remove the standalone web dashboard (port 4173), its server and data builders,
+  the systemd units and the Home Assistant REST sensor example. The advisory EV
+  plan now lives in the `dynamic-energy-ha` integration
+  (https://github.com/ju1ced/dynamic-energy-ha) and the Home Assistant dashboard.
+- Day-Ahead price output and the capture default now use `data/raw/day-ahead-prices.json`.
+
 ## 0.3.0-alpha.11 — 2026-10-19
 
 - Add an optional battery heartbeat entity for the read-only validation card.

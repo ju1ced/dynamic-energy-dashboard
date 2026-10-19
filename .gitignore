@@ -15,7 +15,6 @@ data/raw/
 
 # Generated local dashboard data and browser evidence can expose household
 # patterns even when installation identifiers are removed.
-web-dashboard/data/dashboard-data.json
 browser-evidence/
 
 # Python bytecode is generated during tests and local analysis.
