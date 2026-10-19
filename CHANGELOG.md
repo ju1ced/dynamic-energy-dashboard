@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0-alpha.10 — 2026-10-19
+
+- Add a read-only Home Assistant dashboard view that compares Ecopower Dynamische
+  and Groene Burgerstroom (current and next-hour prices, injection, costs,
+  monthly peak, tariff-card versions and two quarter-hour price charts) using
+  the `BE electricity prices` entities. Import it from
+  `deploy/home-assistant/dashboard-vergelijking-view.json`.
+- The view contains no actions and writes nothing.
+
 ## 0.3.0-alpha.9 — 2026-10-19
 
 - Read `today` and `tomorrow` price attributes of the `BE electricity prices`

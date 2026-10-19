@@ -1,0 +1,348 @@
+{
+  "title": "Vergelijking",
+  "path": "vergelijking",
+  "icon": "mdi:scale-balance",
+  "type": "sections",
+  "max_columns": 4,
+  "sections": [
+    {
+      "type": "grid",
+      "column_span": 4,
+      "cards": [
+        {
+          "type": "heading",
+          "heading": "Dynamisch tegenover Groene Burgerstroom",
+          "heading_style": "title",
+          "icon": "mdi:scale-balance"
+        },
+        {
+          "type": "markdown",
+          "content": "Read-only vergelijking op basis van de Ecopower-entiteiten van de integratie *BE electricity prices*. Alle prijzen zijn all-in (energie + netwerk + taxen, incl. btw). Deze tab stuurt niets aan.",
+          "grid_options": {
+            "columns": "full"
+          }
+        }
+      ]
+    },
+    {
+      "type": "grid",
+      "cards": [
+        {
+          "type": "heading",
+          "heading": "Afnameprijs nu",
+          "heading_style": "subtitle",
+          "icon": "mdi:transmission-tower-import"
+        },
+        {
+          "type": "tile",
+          "entity": "sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_huidige_prijs",
+          "name": "Dynamisch",
+          "grid_options": {
+            "columns": 6,
+            "rows": 2
+          },
+          "icon": "mdi:flash"
+        },
+        {
+          "type": "tile",
+          "entity": "sensor.ecopower_ecopower_groene_burgerstroom_flanders_huidige_prijs",
+          "name": "Groene Burgerstroom",
+          "grid_options": {
+            "columns": 6,
+            "rows": 2
+          },
+          "icon": "mdi:leaf"
+        },
+        {
+          "type": "tile",
+          "entity": "sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_prijs_volgend_uur",
+          "name": "Dynamisch · volgend uur",
+          "grid_options": {
+            "columns": 6,
+            "rows": 2
+          }
+        },
+        {
+          "type": "tile",
+          "entity": "sensor.ecopower_ecopower_groene_burgerstroom_flanders_prijs_volgend_uur",
+          "name": "Groene · volgend uur",
+          "grid_options": {
+            "columns": 6,
+            "rows": 2
+          }
+        }
+      ]
+    },
+    {
+      "type": "grid",
+      "cards": [
+        {
+          "type": "heading",
+          "heading": "Injectieprijs nu",
+          "heading_style": "subtitle",
+          "icon": "mdi:transmission-tower-export"
+        },
+        {
+          "type": "tile",
+          "entity": "sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_injectieprijs",
+          "name": "Dynamisch",
+          "grid_options": {
+            "columns": 6,
+            "rows": 2
+          },
+          "icon": "mdi:flash"
+        },
+        {
+          "type": "tile",
+          "entity": "sensor.ecopower_ecopower_groene_burgerstroom_flanders_injectieprijs",
+          "name": "Groene Burgerstroom",
+          "grid_options": {
+            "columns": 6,
+            "rows": 2
+          },
+          "icon": "mdi:leaf"
+        },
+        {
+          "type": "markdown",
+          "content": "**Vandaag gemiddeld (all-in)**  \nDynamisch: {{ states('sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_gemiddelde_vandaag')|float(0)|round(3) }} €/kWh · Groene Burgerstroom: {{ states('sensor.ecopower_ecopower_groene_burgerstroom_flanders_gemiddelde_vandaag')|float(0)|round(3) }} €/kWh  \n{% set d = states('sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_gemiddelde_vandaag')|float(0) - states('sensor.ecopower_ecopower_groene_burgerstroom_flanders_gemiddelde_vandaag')|float(0) %}Dynamisch is vandaag gemiddeld **{{ (d|abs*100)|round(1) }} c€/kWh {{ 'duurder' if d > 0 else 'goedkoper' }}** dan Groene Burgerstroom.\n\n**Goedkoopste kwartier vandaag:** {{ states('sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_minimum_vandaag')|float(0)|round(3) }} · **duurste:** {{ states('sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_maximum_vandaag')|float(0)|round(3) }} €/kWh  \n{% if is_state('binary_sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_prijzen_voor_morgen_beschikbaar','on') %}Prijzen voor morgen zijn binnen.{% else %}Prijzen voor morgen volgen (meestal rond 13u).{% endif %}  \nTariefkaart Ecopower: dynamisch {{ state_attr('sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_huidige_prijs','snapshot_publication') }} · Groene Burgerstroom {{ state_attr('sensor.ecopower_ecopower_groene_burgerstroom_flanders_huidige_prijs','snapshot_publication') }}",
+          "grid_options": {
+            "columns": "full"
+          }
+        }
+      ]
+    },
+    {
+      "type": "grid",
+      "cards": [
+        {
+          "type": "heading",
+          "heading": "Kosten",
+          "heading_style": "subtitle",
+          "icon": "mdi:cash"
+        },
+        {
+          "type": "tile",
+          "entity": "sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_kost_deze_maand",
+          "name": "Dynamisch · deze maand",
+          "grid_options": {
+            "columns": 6,
+            "rows": 2
+          }
+        },
+        {
+          "type": "tile",
+          "entity": "sensor.ecopower_ecopower_groene_burgerstroom_flanders_kost_deze_maand",
+          "name": "Groene · deze maand",
+          "grid_options": {
+            "columns": 6,
+            "rows": 2
+          }
+        },
+        {
+          "type": "tile",
+          "entity": "sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_kost_dit_jaar",
+          "name": "Dynamisch · dit jaar",
+          "grid_options": {
+            "columns": 6,
+            "rows": 2
+          }
+        },
+        {
+          "type": "tile",
+          "entity": "sensor.ecopower_ecopower_groene_burgerstroom_flanders_kost_dit_jaar",
+          "name": "Groene · dit jaar",
+          "grid_options": {
+            "columns": 6,
+            "rows": 2
+          }
+        }
+      ]
+    },
+    {
+      "type": "grid",
+      "cards": [
+        {
+          "type": "heading",
+          "heading": "Capaciteit",
+          "heading_style": "subtitle",
+          "icon": "mdi:gauge"
+        },
+        {
+          "type": "gauge",
+          "entity": "sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_maandelijkse_vermogenspiek",
+          "name": "Maandpiek (kW)",
+          "min": 0,
+          "max": 10,
+          "segments": [
+            {
+              "from": 0,
+              "color": "#43a047"
+            },
+            {
+              "from": 5,
+              "color": "#ffa600"
+            },
+            {
+              "from": 7,
+              "color": "#db4437"
+            }
+          ],
+          "grid_options": {
+            "columns": 12,
+            "rows": 3
+          }
+        },
+        {
+          "type": "markdown",
+          "content": "**Maandpiek** telt mee in de capaciteitskost. De grens van 7 kW is de gezamenlijke importlimiet die ook de dry-run planner gebruikt.",
+          "grid_options": {
+            "columns": 12,
+            "rows": 2
+          }
+        }
+      ]
+    },
+    {
+      "type": "grid",
+      "column_span": 4,
+      "cards": [
+        {
+          "type": "heading",
+          "heading": "Prijsverloop vandaag en morgen",
+          "heading_style": "title",
+          "icon": "mdi:chart-line"
+        },
+        {
+          "type": "custom:apexcharts-card",
+          "header": {
+            "show": true,
+            "title": "Afnameprijs (€/kWh, all-in)",
+            "show_states": true,
+            "colorize_states": true
+          },
+          "graph_span": "48h",
+          "span": {
+            "start": "day"
+          },
+          "now": {
+            "show": true,
+            "label": "nu"
+          },
+          "yaxis": [
+            {
+              "decimals": 3,
+              "min": 0
+            }
+          ],
+          "apex_config": {
+            "stroke": {
+              "width": 2
+            },
+            "legend": {
+              "show": true
+            },
+            "tooltip": {
+              "x": {
+                "format": "ddd HH:mm"
+              }
+            },
+            "chart": {
+              "height": 300
+            }
+          },
+          "series": [
+            {
+              "entity": "sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_huidige_prijs",
+              "name": "Dynamisch",
+              "type": "line",
+              "curve": "stepline",
+              "stroke_width": 2,
+              "data_generator": "const a=(entity.attributes.today||[]).concat(entity.attributes.tomorrow||[]); return a.map(r=>[new Date(r.start).getTime(), r.all_in]);",
+              "extend_to": false,
+              "float_precision": 3
+            },
+            {
+              "entity": "sensor.ecopower_ecopower_groene_burgerstroom_flanders_huidige_prijs",
+              "name": "Groene Burgerstroom",
+              "type": "line",
+              "curve": "stepline",
+              "stroke_width": 2,
+              "data_generator": "const a=(entity.attributes.today||[]).concat(entity.attributes.tomorrow||[]); return a.map(r=>[new Date(r.start).getTime(), r.all_in]);",
+              "extend_to": false,
+              "float_precision": 3
+            }
+          ],
+          "grid_options": {
+            "columns": "full",
+            "rows": "auto"
+          }
+        },
+        {
+          "type": "custom:apexcharts-card",
+          "header": {
+            "show": true,
+            "title": "Injectieprijs (€/kWh)",
+            "show_states": true,
+            "colorize_states": true
+          },
+          "graph_span": "48h",
+          "span": {
+            "start": "day"
+          },
+          "now": {
+            "show": true,
+            "label": "nu"
+          },
+          "yaxis": [
+            {
+              "decimals": 3,
+              "min": 0
+            }
+          ],
+          "apex_config": {
+            "stroke": {
+              "width": 2
+            },
+            "legend": {
+              "show": true
+            },
+            "tooltip": {
+              "x": {
+                "format": "ddd HH:mm"
+              }
+            },
+            "chart": {
+              "height": 300
+            }
+          },
+          "series": [
+            {
+              "entity": "sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_injectieprijs",
+              "name": "Dynamisch",
+              "type": "line",
+              "curve": "stepline",
+              "stroke_width": 2,
+              "data_generator": "const a=(entity.attributes.today||[]).concat(entity.attributes.tomorrow||[]); return a.map(r=>[new Date(r.start).getTime(), r.injection]);",
+              "extend_to": false,
+              "float_precision": 3
+            },
+            {
+              "entity": "sensor.ecopower_ecopower_groene_burgerstroom_flanders_injectieprijs",
+              "name": "Groene Burgerstroom",
+              "type": "line",
+              "curve": "stepline",
+              "stroke_width": 2,
+              "data_generator": "const a=(entity.attributes.today||[]).concat(entity.attributes.tomorrow||[]); return a.map(r=>[new Date(r.start).getTime(), r.injection]);",
+              "extend_to": false,
+              "float_precision": 3
+            }
+          ],
+          "grid_options": {
+            "columns": "full",
+            "rows": "auto"
+          }
+        }
+      ]
+    }
+  ]
+}

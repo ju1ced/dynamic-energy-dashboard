@@ -166,6 +166,16 @@ export_price_entity: sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_i
 integration_price_attribute: today,tomorrow
 ```
 
+### Comparison view for Ecopower contracts
+
+`deploy/home-assistant/dashboard-vergelijking-view.json` is a read-only
+dashboard view that compares Ecopower Dynamische and Groene Burgerstroom with the
+`BE electricity prices` integration: current and next-hour prices, injection,
+costs, monthly peak, tariff-card versions and two quarter-hour price charts
+(`apexcharts-card` required). Paste it as a new view in the raw configuration
+editor of a dashboard and replace the entity IDs if yours differ. The view has no
+actions and writes nothing.
+
 Recommended setup when those integrations are already available:
 
 1. Install and configure `EPEX Spot Data` for Belgium through HACS.
