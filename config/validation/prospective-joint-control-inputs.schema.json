@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Prospective joint battery and EV dry-run control inputs",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["snapshot_generation_id", "observed_at", "battery"],
+  "properties": {
+    "snapshot_generation_id": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "battery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "soc_percent",
+        "minimum_soc_percent",
+        "maximum_soc_percent",
+        "usable_capacity_kwh",
+        "max_charge_power_kw",
+        "max_discharge_power_kw",
+        "controller_owner",
+        "observed_at"
+      ],
+      "properties": {
+        "soc_percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "minimum_soc_percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "maximum_soc_percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "usable_capacity_kwh": {"type": "number", "exclusiveMinimum": 0},
+        "max_charge_power_kw": {"type": "number", "minimum": 0},
+        "max_discharge_power_kw": {"type": "number", "minimum": 0},
+        "controller_owner": {"const": "SMA"},
+        "observed_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "ev": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "connected",
+        "soc_percent",
+        "target_soc_percent",
+        "usable_capacity_kwh",
+        "departure_utc",
+        "max_charge_power_kw",
+        "controller_owner",
+        "observed_at"
+      ],
+      "properties": {
+        "connected": {"type": "boolean"},
+        "soc_percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "target_soc_percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "usable_capacity_kwh": {"type": "number", "exclusiveMinimum": 0},
+        "departure_utc": {"type": "string", "format": "date-time"},
+        "max_charge_power_kw": {"type": "number", "minimum": 0},
+        "controller_owner": {"const": "SMAPPEE"},
+        "observed_at": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

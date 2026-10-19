@@ -21,6 +21,7 @@ browser-evidence/
 # Python bytecode is generated during tests and local analysis.
 __pycache__/
 *.py[cod]
+.venv/
 
 # Worktree-specific project notification routing.
 PROJECT.local.md

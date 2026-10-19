@@ -1,0 +1,269 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://ecopower.be/groene-stroom/prijs-nieuw",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 2,
+      "url": "https://ecopower.be/groene-stroom/dynamische-burgerstroom",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 3,
+      "url": "https://ecopower.be/groene-stroom/bijzondere-voorwaarden-dynamische-burgerstroom",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 4,
+      "url": "https://www.fluvius.be/nl/factuur-en-tarieven/kwartierwaarden",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 5,
+      "url": "https://www.sma.de/en/products/energy-management/sunny-home-manager",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 6,
+      "url": "https://manuals.sma.de/HM-20/en-US/7415011979.html",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 7,
+      "url": "https://manuals.sma.de/SBSxx-10/en-US/391139595.html",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 8,
+      "url": "https://manuals.sma.de/SBSxx-10/en-US/1129302539.html",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 9,
+      "url": "https://www.home-assistant.io/docs/energy/faq",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 10,
+      "url": "https://www.home-assistant.io/integrations/sma",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 11,
+      "url": "https://www.home-assistant.io/integrations/recorder",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 12,
+      "url": "https://www.home-assistant.io/integrations/integration",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 13,
+      "url": "https://www.home-assistant.io/integrations/forecast_solar",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 14,
+      "url": "https://www.kia.com/content/dam/kwcms/kme/nl/nl/assets/contents/utility/price-list/Kia-Netherlands-EV6-prijslijst.pdf?2025=",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 15,
+      "url": "https://connect.kia.com/nl/customer-support/feature-guides",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 16,
+      "url": "https://connect.kia.com/nl/customer-support/smart-charge-faq",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 17,
+      "url": "https://openchargealliance.org/protocols/open-charge-point-protocol",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 18,
+      "url": "https://www.home-assistant.io/integrations/modbus",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 19,
+      "url": "https://files.sma.de/downloads/SBS-Batteries-TI-en-28.pdf",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 20,
+      "url": "https://www.lgessbattery.com/ImageServlet?imageType=PRODUCT&imgPath=20220701171417442%5B20220701171417442%5D.pdf",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 21,
+      "url": "https://www.sma-benelux.com/producten/apps-digitale-producten/sunny-portal-ennexos",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 22,
+      "url": "https://www.sma.de/en/products/apps-software/sunny-portal/energy-planner-maximizer",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 23,
+      "url": "https://www.sma-benelux.com/producten/energiebeheer/sma-premium",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 24,
+      "url": "https://web.archive.org/web/20260516015747/https://www.sma-benelux.com/producten/energiebeheer/sma-premium",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 25,
+      "url": "https://www.sma.de/en/products/energy-management/energy-maximizer",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 26,
+      "url": "https://manuals.sma.de/SMA-Premium/nl-NL/16915921419.html",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 27,
+      "url": "https://manuals.sma.de/HM-20-ennexOS/en-US/12563269899.html",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 28,
+      "url": "https://cdn.nimbu.io/s/4tn7vz5/channelentries/ma28q8f/files/1790570062186/20260801_dbs_tariefkaart.pdf?7l4n7vq=",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 29,
+      "url": "https://manuals.sma.de/HM-20-ennexOS/nl-NL/11412423819.html",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 30,
+      "url": "https://www.smappee.com/app/uploads/2022/05/smappee_ev_wall_home_technical_datasheet-en.pdf",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 31,
+      "url": "https://www.smappee.com/app/uploads/2023/05/EW-EN-G-2023-1.2.pdf",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 32,
+      "url": "https://www.home-assistant.io/integrations/smappee",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 33,
+      "url": "https://github.com/myny-git/smappee_ev",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 34,
+      "url": "https://support.smappee.com/hc/en-gb/articles/4402413229844-EV-Wall-Home",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 35,
+      "url": "https://support.smappee.com/hc/en-gb/articles/5721996814612-Smappee-EV-Line-charging-speeds",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 36,
+      "url": "https://support.smappee.com/hc/en-gb/articles/4900468508692-How-to-configure-charging-modes-and-schedules-for-Smappee-EV-Line",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 37,
+      "url": "https://support.smappee.com/hc/en-gb/articles/4406735969940-The-Smappee-Smart-Charging-Functionality",
+      "title": "",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 38,
+      "url": "https://cdn.nimbu.io/s/4tn7vz5/channelentries/spiilz4/files/1788271546519/202608_gbs_tariefkaart.pdf?w01uqtn=&dl=1",
+      "title": "Ecopower Groene Burgerstroom - tariefkaart augustus 2026",
+      "accessed": "2026-09-28"
+    },
+    {
+      "id": 39,
+      "url": "https://transparencyplatform.zendesk.com/hc/en-us/articles/15692855254548-Sitemap-for-RESTful-API-integration",
+      "title": "ENTSO-E Transparency Platform RESTful API sitemap",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 40,
+      "url": "https://transparencyplatform.zendesk.com/hc/en-us/articles/12845911031188-Web-API-Documentation",
+      "title": "ENTSO-E Web API documentation",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 41,
+      "url": "https://www.entsoe.eu/news/2025/09/30/entso-e-welcomes-the-go-live-of-the-15-minute-market-time-unit-mtu-in-the-single-day-ahead-coupling-sdac",
+      "title": "ENTSO-E welcomes 15-minute MTU in SDAC",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 42,
+      "url": "https://www.nemo-committee.eu/assets/files/250930-nemo-committee-press-release-15-minute-mtu-sdac-go-live.pdf",
+      "title": "NEMO Committee 15-minute MTU SDAC go-live press release",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 43,
+      "url": "https://transparencyplatform.zendesk.com/hc/en-us/articles/30262342482961-CurveType-A01-vs-CurveType-A03",
+      "title": "ENTSO-E Transparency Platform: CurveType A01 versus A03",
+      "accessed": "2026-09-30"
+    },
+    {
+      "id": 44,
+      "url": "https://www.epexspot.com/en/market-results?auction=MRC&data_mode=table&delivery_date=2025-10-06&market_area=BE&modality=Auction&product=15&sub_modality=DayAhead",
+      "title": "EPEX SPOT Belgian Day-Ahead market results for 2025-10-06",
+      "accessed": "2026-09-30"
+    }
+  ]
+}

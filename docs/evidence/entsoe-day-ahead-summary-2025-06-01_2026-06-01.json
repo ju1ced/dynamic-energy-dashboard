@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "ticket": "P2-004",
+  "period_start_local": "2025-06-01T00:00:00+02:00",
+  "period_end_local": "2026-06-01T00:00:00+02:00",
+  "period_start_utc": "2025-05-31T22:00:00+00:00",
+  "period_end_utc": "2026-05-31T22:00:00+00:00",
+  "provider": "ENTSO-E Transparency Platform Web API",
+  "document_type": "A44",
+  "process_type": "A01",
+  "market_area_eic": "10YBE----------2",
+  "retrieved_at": "2026-09-30T10:36:44.175526+00:00",
+  "response_sha256": "cf91e1555dc0d4008d86aa61abaf38299dfe331f874b846b66479451cb92900c",
+  "target_resolution_minutes": 15,
+  "expected_quarter_count": 35040,
+  "available_quarter_count": 35040,
+  "missing_quarter_count": 0,
+  "duplicate_quarter_count": 0,
+  "sequence_complete": true,
+  "quarter_counts_by_source_resolution_minutes": {
+    "15": 23424,
+    "60": 11616
+  },
+  "first_full_native_quarter_delivery_local": "2025-10-01T00:00:00+02:00",
+  "variable_sized_block_quarter_count": 502,
+  "minimum_price_eur_per_mwh": -499.29,
+  "maximum_price_eur_per_mwh": 517.57,
+  "negative_price_quarter_count": 1861,
+  "market_issue_time_available": false,
+  "raw_and_full_normalized_files_git_ignored": true,
+  "security_token_stored": false
+}

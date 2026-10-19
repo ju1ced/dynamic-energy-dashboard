@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "ticket": "P2-002",
+  "classification": "VERIFIED_OFFLINE_BACKTEST",
+  "scenario": "A_dynamic_contract_unchanged_behavior",
+  "tariff_version": "ECOPOWER_DBS_2026-08-01",
+  "period_start_local": "2025-06-01T00:00:00+02:00",
+  "period_end_local": "2026-06-01T00:00:00+02:00",
+  "period_start_utc": "2025-05-31T22:00:00+00:00",
+  "period_end_utc": "2026-05-31T22:00:00+00:00",
+  "quality": {
+    "energy_interval_count": 35040,
+    "price_coverage_interval_count": 35040,
+    "estimated_interval_count": 99,
+    "missing_price_interval_count": 0,
+    "sequence_complete": true
+  },
+  "energy": {
+    "import_kwh": 9161.589,
+    "export_kwh": 1160.728
+  },
+  "dynamic_supplier": {
+    "import_energy_eur_excl_vat": 880.561392374,
+    "export_value_eur_excl_vat": 2.683756491,
+    "green_certificates_eur_excl_vat": 100.777479,
+    "combined_heat_power_eur_excl_vat": 35.91342888,
+    "subscription_eur_excl_vat": 60.0,
+    "supplier_net_eur_excl_vat": 1074.568543763,
+    "weighted_import_energy_rate_eur_per_kwh": 0.096114483,
+    "weighted_export_rate_eur_per_kwh": 0.002312132
+  },
+  "historical_supplier_baseline": {
+    "energy_eur_excl_vat": 1192.08,
+    "green_certificates_eur_excl_vat": 100.78,
+    "combined_heat_power_eur_excl_vat": 35.91,
+    "injection_credit_eur_excl_vat": -23.21,
+    "supplier_net_eur_excl_vat": 1305.56
+  },
+  "invoice_comparison": {
+    "unchanged_components_eur_excl_vat": 1384.83,
+    "baseline_total_eur_excl_vat": 2690.39,
+    "baseline_vat_eur": 162.82,
+    "baseline_total_eur_incl_vat": 2853.21,
+    "dynamic_total_eur_excl_vat": 2459.398543763,
+    "dynamic_vat_eur": 147.724938015,
+    "dynamic_total_eur_incl_vat": 2607.123481778,
+    "difference_eur_excl_vat": -230.991456237,
+    "difference_eur_incl_vat": -246.086518222
+  },
+  "price_exposure": {
+    "negative_import_rate_interval_count": 761,
+    "negative_export_rate_interval_count": 4085,
+    "export_during_negative_export_rate_kwh": 582.356
+  },
+  "estimated_interval_sensitivity": {
+    "estimated_interval_count": 99,
+    "difference_eur_excl_vat": 0.199316177
+  },
+  "monthly_supplier_difference_eur_excl_vat": {
+    "2025-06": 2.397647941,
+    "2025-07": -3.993343209,
+    "2025-08": -6.461479898,
+    "2025-09": -15.996517685,
+    "2025-10": -39.881577506,
+    "2025-11": -38.692900925,
+    "2025-12": -56.546239588,
+    "2026-01": -42.188006845,
+    "2026-02": -35.116008132,
+    "2026-03": -18.04684088,
+    "2026-04": 13.764879216,
+    "2026-05": 9.768931275
+  },
+  "model": {
+    "retrospective_tariff_application": true,
+    "unchanged_physical_behavior": true,
+    "unchanged_grid_and_tax_components_from_invoice": true,
+    "estimated_fluvius_intervals_retained": true,
+    "silent_price_fill": false
+  },
+  "privacy": {
+    "raw_interval_series_included": false,
+    "identifiers_included": false
+  }
+}

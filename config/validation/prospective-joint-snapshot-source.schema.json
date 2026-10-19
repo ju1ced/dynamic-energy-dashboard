@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Private read-only source mapping for prospective joint snapshots",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["max_age_minutes", "entities", "battery", "ev"],
+  "properties": {
+    "max_age_minutes": {"type": "number", "minimum": 1, "maximum": 60},
+    "entities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "battery_soc",
+        "battery_device_available",
+        "ev_soc",
+        "ev_device_available",
+        "ev_connected",
+        "ev_target_soc",
+        "ev_departure_utc",
+        "battery_manual_override",
+        "battery_local_fallback",
+        "battery_acknowledgement_timed_out",
+        "ev_manual_override",
+        "ev_local_fallback",
+        "ev_acknowledgement_timed_out"
+      ],
+      "properties": {
+        "battery_soc": {"type": "string", "minLength": 1},
+        "battery_device_available": {"type": "string", "minLength": 1},
+        "ev_soc": {"type": "string", "minLength": 1},
+        "ev_device_available": {"type": "string", "minLength": 1},
+        "ev_connected": {"type": "string", "minLength": 1},
+        "ev_target_soc": {"type": "string", "minLength": 1},
+        "ev_departure_utc": {"type": "string", "minLength": 1},
+        "battery_manual_override": {"type": "string", "minLength": 1},
+        "battery_local_fallback": {"type": "string", "minLength": 1},
+        "battery_acknowledgement_timed_out": {"type": "string", "minLength": 1},
+        "ev_manual_override": {"type": "string", "minLength": 1},
+        "ev_local_fallback": {"type": "string", "minLength": 1},
+        "ev_acknowledgement_timed_out": {"type": "string", "minLength": 1}
+      }
+    },
+    "battery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimum_soc_percent",
+        "maximum_soc_percent",
+        "usable_capacity_kwh",
+        "max_charge_power_kw",
+        "max_discharge_power_kw"
+      ],
+      "properties": {
+        "minimum_soc_percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "maximum_soc_percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "usable_capacity_kwh": {"type": "number", "exclusiveMinimum": 0},
+        "max_charge_power_kw": {"type": "number", "minimum": 0},
+        "max_discharge_power_kw": {"type": "number", "minimum": 0}
+      }
+    },
+    "ev": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["usable_capacity_kwh", "max_charge_power_kw"],
+      "properties": {
+        "usable_capacity_kwh": {"type": "number", "exclusiveMinimum": 0},
+        "max_charge_power_kw": {"type": "number", "minimum": 0}
+      }
+    }
+  }
+}

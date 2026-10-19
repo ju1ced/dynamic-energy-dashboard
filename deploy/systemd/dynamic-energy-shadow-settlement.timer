@@ -1,0 +1,11 @@
+[Unit]
+Description=Settle previous prospective shadow day at 00:45 Europe/Brussels
+
+[Timer]
+OnCalendar=*-*-* 00:45:00 Europe/Brussels
+Persistent=true
+AccuracySec=1min
+Unit=dynamic-energy-shadow-settlement.service
+
+[Install]
+WantedBy=timers.target

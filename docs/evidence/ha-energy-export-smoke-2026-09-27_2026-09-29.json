@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "source": "privacy-safe summary of read-only Home Assistant long-term statistics export",
+  "period_start_utc": "2026-09-27T00:00:00+00:00",
+  "period_end_utc": "2026-09-29T00:00:00+00:00",
+  "target_resolution_minutes": 15,
+  "quarter_count_per_series": 192,
+  "series": {
+    "grid_import": {
+      "total_kwh": 81.989,
+      "missing_5minute_count": 0,
+      "duplicate_5minute_count": 0,
+      "counter_decrease_count": 0,
+      "reported_change_mismatch_count": 0
+    },
+    "grid_export": {
+      "total_kwh": 0.038,
+      "missing_5minute_count": 0,
+      "duplicate_5minute_count": 0,
+      "counter_decrease_count": 0,
+      "reported_change_mismatch_count": 0
+    },
+    "pv_generation": {
+      "total_kwh": 41.127,
+      "missing_5minute_count": 0,
+      "duplicate_5minute_count": 0,
+      "counter_decrease_count": 0,
+      "reported_change_mismatch_count": 1
+    },
+    "battery_charge": {
+      "total_kwh": 12.734,
+      "missing_5minute_count": 0,
+      "duplicate_5minute_count": 0,
+      "counter_decrease_count": 0,
+      "reported_change_mismatch_count": 0
+    },
+    "battery_discharge": {
+      "total_kwh": 10.688,
+      "missing_5minute_count": 0,
+      "duplicate_5minute_count": 0,
+      "counter_decrease_count": 0,
+      "reported_change_mismatch_count": 0
+    },
+    "ev_charge": {
+      "total_kwh": 51.551,
+      "missing_5minute_count": 0,
+      "duplicate_5minute_count": 0,
+      "counter_decrease_count": 0,
+      "reported_change_mismatch_count": 0
+    }
+  },
+  "privacy": {
+    "contains_entity_ids": false,
+    "contains_device_serials": false,
+    "contains_network_addresses": false,
+    "raw_export_gitignored": true
+  }
+}

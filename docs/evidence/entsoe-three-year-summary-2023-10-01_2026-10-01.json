@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "period_local": {
+    "start": "2023-10-01T00:00:00+02:00",
+    "end": "2026-10-01T00:00:00+02:00",
+    "end_exclusive": true
+  },
+  "period_utc": {
+    "start": "2023-09-30T22:00:00+00:00",
+    "end": "2026-09-30T22:00:00+00:00",
+    "end_exclusive": true
+  },
+  "market_area_eic": "10YBE----------2",
+  "target_resolution_minutes": 15,
+  "years": [
+    {
+      "period": "2023-10-01_2024-10-01",
+      "quarters": 35136,
+      "unique_quarters": 35136,
+      "missing": 0,
+      "duplicates": 0,
+      "collapsed_identical_duplicates": 0,
+      "sequence_complete": true,
+      "negative_quarters": 1836,
+      "min_eur_per_mwh": -140.0,
+      "max_eur_per_mwh": 268.94,
+      "mean_eur_per_mwh": 66.575381,
+      "source_resolution_quarters": {
+        "60": 35136
+      },
+      "variable_block_quarters": 192,
+      "first_start_utc": "2023-09-30T22:00:00+00:00",
+      "last_end_utc": "2024-09-30T22:00:00+00:00",
+      "response_sha256": "f109ae84769bdf74c5bf191681c24e30f0e9b93b2406b7db136e586ab883691d"
+    },
+    {
+      "period": "2024-10-01_2025-10-01",
+      "quarters": 35040,
+      "unique_quarters": 35040,
+      "missing": 0,
+      "duplicates": 0,
+      "collapsed_identical_duplicates": 0,
+      "sequence_complete": true,
+      "negative_quarters": 2032,
+      "min_eur_per_mwh": -462.33,
+      "max_eur_per_mwh": 565.46,
+      "mean_eur_per_mwh": 86.369879,
+      "source_resolution_quarters": {
+        "60": 34944,
+        "15": 96
+      },
+      "variable_block_quarters": 344,
+      "first_start_utc": "2024-09-30T22:00:00+00:00",
+      "last_end_utc": "2025-09-30T22:00:00+00:00",
+      "response_sha256": "e2b20d48b39bc564c3df36940f2b38631fcc4ffb1acfc704accc8e79e0c48b23"
+    },
+    {
+      "period": "2025-10-01_2026-10-01",
+      "quarters": 35040,
+      "unique_quarters": 35040,
+      "missing": 0,
+      "duplicates": 0,
+      "collapsed_identical_duplicates": 5088,
+      "sequence_complete": true,
+      "negative_quarters": 1344,
+      "min_eur_per_mwh": -499.29,
+      "max_eur_per_mwh": 1038.25,
+      "mean_eur_per_mwh": 100.935298,
+      "source_resolution_quarters": {
+        "15": 35040
+      },
+      "variable_block_quarters": 478,
+      "first_start_utc": "2025-09-30T22:00:00+00:00",
+      "last_end_utc": "2026-09-30T22:00:00+00:00",
+      "response_sha256": "d479988571e99b5a2ccde9b7d2aaf5f7c7ac22917b7abc3f71e4c02f0a25e592"
+    }
+  ],
+  "totals": {
+    "quarters": 105216,
+    "unique_quarters": 105216,
+    "missing": 0,
+    "duplicates": 0,
+    "collapsed_identical_duplicates": 5088,
+    "negative_quarters": 5212,
+    "min_eur_per_mwh": -499.29,
+    "max_eur_per_mwh": 1038.25,
+    "mean_eur_per_mwh": 84.610382
+  },
+  "consistency_check_existing_2025_06_to_2026_06": {
+    "overlap_quarters": 35040,
+    "price_mismatches": 0,
+    "first_mismatches": []
+  },
+  "classification": "VERIFIED"
+}

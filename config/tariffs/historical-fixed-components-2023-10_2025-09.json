@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "classification": "READ_ONLY_HISTORICAL_FIXED_COMPONENT_CONFIG",
+  "scope_start_month": "2023-10",
+  "scope_end_month_exclusive": "2025-10",
+  "grid_operator": "Fluvius West",
+  "vat_rate": 0.06,
+  "monthly_peak_overrides_kw": {
+    "2024-04": 5.031
+  },
+  "monthly_peak_override_evidence": {
+    "2024-04": "OWNER_CONFIRMED_2026-10-05_MONTHLY_PEAK_REPORTED_AS_FLUVIUS"
+  },
+  "periods": [
+    {
+      "start_month": "2023-10",
+      "end_month_exclusive": "2024-01",
+      "data_management_eur_per_year_incl_vat": 14.5326,
+      "capacity_eur_per_kw_year_incl_vat": 41.0823,
+      "supplier_fixed_eur_per_year_incl_vat": 90.0,
+      "supplier_fixed_evidence_status": "UNVERIFIED_CONTRACT_APPLICABILITY",
+      "energy_fund_eur_per_month": 0.0,
+      "energy_fund_evidence_status": "DOMICILIATION_EVIDENCE_REQUIRED",
+      "source": "TotalEnergies eMobility tariff card December 2023, Fluvius West row, prices incl. 6% VAT; contract applicability remains unverified"
+    },
+    {
+      "start_month": "2024-01",
+      "end_month_exclusive": "2024-03",
+      "data_management_eur_per_year_incl_vat": 13.9496,
+      "capacity_eur_per_kw_year_incl_vat": 44.305157822,
+      "supplier_fixed_eur_per_year_incl_vat": 90.0,
+      "supplier_fixed_evidence_status": "UNVERIFIED_CONTRACT_APPLICABILITY",
+      "energy_fund_eur_per_month": 0.0,
+      "energy_fund_evidence_status": "DOMICILIATION_EVIDENCE_REQUIRED",
+      "source": "Ecopower tariff card January 2024 regulated rates plus TotalEnergies eMobility supplier fee"
+    },
+    {
+      "start_month": "2024-03",
+      "end_month_exclusive": "2025-01",
+      "data_management_eur_per_year_incl_vat": 13.9496,
+      "capacity_eur_per_kw_year_incl_vat": 44.305157822,
+      "supplier_fixed_eur_per_year_incl_vat": 0.0,
+      "supplier_fixed_evidence_status": "NOT_APPLICABLE_ECOPOWER_NO_FIXED_SUPPLIER_FEE",
+      "energy_fund_eur_per_month": 0.0,
+      "energy_fund_evidence_status": "DOMICILIATION_EVIDENCE_REQUIRED",
+      "source": "Ecopower tariff card January 2024, official rates excl. VAT converted at 6%"
+    },
+    {
+      "start_month": "2025-01",
+      "end_month_exclusive": "2025-10",
+      "data_management_eur_per_year_incl_vat": 18.5606,
+      "capacity_eur_per_kw_year_incl_vat": 60.3458,
+      "supplier_fixed_eur_per_year_incl_vat": 0.0,
+      "supplier_fixed_evidence_status": "NOT_APPLICABLE_ECOPOWER_NO_FIXED_SUPPLIER_FEE",
+      "energy_fund_eur_per_month": 0.0,
+      "energy_fund_evidence_status": "DOMICILIATION_EVIDENCE_REQUIRED",
+      "source": "Ecopower tariff card January 2025, official rates excl. VAT converted at 6%"
+    }
+  ],
+  "sources": [
+    {
+      "path": "data/raw/totalenergies-official-tariff-cards/2023_12_EMOBILITY_ELECTRICITY_VL_NL.pdf",
+      "sha256": "971855c1847c5aa8eb075dd699995e4e2e6042ff33f289d124adc6c4bc93445b"
+    },
+    {
+      "path": "data/raw/ecopower-official-tariff-cards/202401_gbs_tariefkaart2.pdf",
+      "sha256": "8abfe713f5a6ae2dc1743f80797434b47ac9a7246581cfa7a78c8b2667f911ef"
+    },
+    {
+      "path": "data/raw/ecopower-official-tariff-cards/202501_gbs_tariefkaart.pdf",
+      "sha256": "9c0c8644c2a25a40f23d74ced4f9cda8fa60277a6802254ba43af0d8135a0d7e"
+    }
+  ],
+  "safety": {
+    "read_only": true,
+    "contract_change_allowed": false,
+    "physical_writes_allowed": false
+  }
+}

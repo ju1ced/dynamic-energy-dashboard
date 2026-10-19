@@ -1,0 +1,29 @@
+# Example only. Do not apply without explicit Home Assistant configuration approval.
+# Use an authenticated HTTPS reverse proxy. Do not expose this sensor through
+# unauthenticated cleartext HTTP. A direct LAN URL is acceptable only on an
+# explicitly isolated and trusted network.
+rest:
+  - resource: "https://<AUTHENTICATED_DASHBOARD_HOST>/data/shadow-plan.json"
+    scan_interval: 300
+    timeout: 10
+    sensor:
+      - name: "Dynamic Energy Shadow Feed"
+        unique_id: dynamic_energy_shadow_feed
+        value_template: "{{ value_json.state }}"
+        json_attributes:
+          - mode
+          - classification
+          - physical_writes
+          - home_assistant_writes
+          - target_date
+          - target_start_utc
+          - target_end_utc
+          - generated_at
+          - selected_policy_id
+          - reason
+          - schedule
+          - price_source
+          - price_tariff_version
+          - price_reference_eur_per_kwh
+          - prices
+          - price_aggregates

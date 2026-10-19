@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "mode": "READ_ONLY_SHADOW_VALIDATION_COHORT",
+  "classification": "PROSPECTIVE_MULTI_DAY_EVIDENCE_NO_CONTROL",
+  "physical_writes": false,
+  "home_assistant_writes": false,
+  "sma_writes": false,
+  "smappee_writes": false,
+  "status": "IN_PROGRESS",
+  "required_day_count": 12,
+  "qualifying_day_count": 5,
+  "remaining_day_count": 7,
+  "captured_plan_count": 14,
+  "settlement_summary_count": 13,
+  "qualifying_dates": [
+    "2026-10-08",
+    "2026-10-11",
+    "2026-10-12",
+    "2026-10-15",
+    "2026-10-18"
+  ],
+  "pending_days": [
+    {
+      "target_date": "2026-10-19",
+      "reason": "SETTLEMENT_PENDING"
+    }
+  ],
+  "rejected_days": [
+    {
+      "target_date": "2026-10-06",
+      "quality_flags": [
+        "PLAN_GENERATED_AFTER_TARGET_START"
+      ]
+    },
+    {
+      "target_date": "2026-10-07",
+      "quality_flags": [
+        "SOURCE_CAPTURE_NOT_ACCEPTED",
+        "SOURCE_PLAN_NOT_PLANNED"
+      ]
+    },
+    {
+      "target_date": "2026-10-09",
+      "quality_flags": [
+        "SOURCE_SETTLEMENT_NOT_ACCEPTED",
+        "SOURCE_SETTLEMENT_NOT_SETTLED",
+        "pv_generation:reported_change_mismatch"
+      ]
+    },
+    {
+      "target_date": "2026-10-10",
+      "quality_flags": [
+        "SOURCE_CAPTURE_NOT_ACCEPTED",
+        "SOURCE_PLAN_NOT_PLANNED"
+      ]
+    },
+    {
+      "target_date": "2026-10-13",
+      "quality_flags": [
+        "SOURCE_SETTLEMENT_NOT_ACCEPTED",
+        "SOURCE_SETTLEMENT_NOT_SETTLED",
+        "pv_generation:counter_decrease",
+        "pv_generation:counter_recovery_after_drop",
+        "pv_generation:missing_change_value",
+        "pv_generation:missing_energy_value"
+      ]
+    },
+    {
+      "target_date": "2026-10-14",
+      "quality_flags": [
+        "SOURCE_SETTLEMENT_NOT_ACCEPTED",
+        "SOURCE_SETTLEMENT_NOT_SETTLED",
+        "pv_generation:reported_change_mismatch"
+      ]
+    },
+    {
+      "target_date": "2026-10-16",
+      "quality_flags": [
+        "SOURCE_SETTLEMENT_NOT_ACCEPTED",
+        "SOURCE_SETTLEMENT_NOT_SETTLED",
+        "ev_charge:missing_5minute_bucket",
+        "ev_charge:missing_change_value",
+        "ev_charge:missing_energy_value",
+        "pv_generation:reported_change_mismatch"
+      ]
+    },
+    {
+      "target_date": "2026-10-17",
+      "quality_flags": [
+        "SOURCE_CAPTURE_NOT_ACCEPTED",
+        "SOURCE_PLAN_NOT_PLANNED"
+      ]
+    }
+  ],
+  "strata": {
+    "winter_weekday": {
+      "required_day_count": 2,
+      "qualifying_day_count": 0,
+      "remaining_day_count": 2,
+      "qualifying_dates": []
+    },
+    "summer_high_pv_weekday": {
+      "required_day_count": 2,
+      "qualifying_day_count": 0,
+      "remaining_day_count": 2,
+      "qualifying_dates": []
+    },
+    "weekend": {
+      "required_day_count": 2,
+      "qualifying_day_count": 2,
+      "remaining_day_count": 0,
+      "qualifying_dates": [
+        "2026-10-11",
+        "2026-10-18"
+      ]
+    },
+    "negative_price_day": {
+      "required_day_count": 2,
+      "qualifying_day_count": 0,
+      "remaining_day_count": 2,
+      "qualifying_dates": []
+    },
+    "high_load_ev_day": {
+      "required_day_count": 2,
+      "qualifying_day_count": 2,
+      "remaining_day_count": 0,
+      "qualifying_dates": [
+        "2026-10-08",
+        "2026-10-15"
+      ]
+    },
+    "ordinary_shoulder_weekday": {
+      "required_day_count": 2,
+      "qualifying_day_count": 1,
+      "remaining_day_count": 1,
+      "qualifying_dates": [
+        "2026-10-12"
+      ]
+    }
+  },
+  "forecast_error_mean": {
+    "load_mae_kwh": 0.17188669195479514,
+    "pv_mae_kwh": 0.11616552083333331,
+    "base_net_mae_kwh": 0.22650049334610825
+  },
+  "policy_aggregates": {
+    "cap_10_kw": {
+      "day_count": 5,
+      "forecast_cost_eur": 20.052158231,
+      "forecast_saving_eur": 5.221197428,
+      "executed_cost_eur": 37.922220167,
+      "executed_saving_eur": 1.5869990779999998,
+      "baseline_actual_cost_eur": 39.509219245000004
+    },
+    "cap_7_kw": {
+      "day_count": 5,
+      "forecast_cost_eur": 20.052158231,
+      "forecast_saving_eur": 5.221197428,
+      "executed_cost_eur": 37.852469145,
+      "executed_saving_eur": 1.6567500999999996,
+      "baseline_actual_cost_eur": 39.509219245000004
+    },
+    "cap_8_kw": {
+      "day_count": 5,
+      "forecast_cost_eur": 20.052158231,
+      "forecast_saving_eur": 5.221197428,
+      "executed_cost_eur": 37.851257743999994,
+      "executed_saving_eur": 1.657961501,
+      "baseline_actual_cost_eur": 39.509219245000004
+    },
+    "peak_neutral": {
+      "day_count": 5,
+      "forecast_cost_eur": 20.052158231,
+      "forecast_saving_eur": 5.221197428,
+      "executed_cost_eur": 37.859737603999996,
+      "executed_saving_eur": 1.649481641,
+      "baseline_actual_cost_eur": 39.509219245000004
+    }
+  },
+  "privacy": {
+    "quarter_household_profile_included": false,
+    "device_identifiers_included": false
+  }
+}

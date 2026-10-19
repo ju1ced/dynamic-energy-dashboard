@@ -1,0 +1,11 @@
+[Unit]
+Description=Capture next-day prospective shadow plan at 23:45 Europe/Brussels
+
+[Timer]
+OnCalendar=*-*-* 23:45:00 Europe/Brussels
+Persistent=true
+AccuracySec=30s
+Unit=dynamic-energy-shadow-capture.service
+
+[Install]
+WantedBy=timers.target

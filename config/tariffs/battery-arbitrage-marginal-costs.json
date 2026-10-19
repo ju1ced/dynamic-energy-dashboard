@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "version": "BATTERY_ARBITRAGE_MARGINAL_COSTS_2025-06_2026-05",
+  "currency": "EUR",
+  "import_variable_components_excl_vat_eur_per_kwh": {
+    "grid_withdrawal_tariff_derived_from_invoice": 0.0670713491,
+    "special_excise_derived_from_invoice": 0.0474797652
+  },
+  "vat_rate_import": 0.06,
+  "capacity_tariff_eur_per_kw_year_excl_vat": 57.10,
+  "capacity_tariff_method": "signed monthly peak delta using hourly-average import power; approximation of quarter-hour billing peak",
+  "day_ahead_peak_allowance_kw": 1.0,
+  "perfect_foresight_peak_allowance_candidates_kw": [
+    0.0,
+    0.5,
+    1.0,
+    2.0,
+    3.0,
+    5.0
+  ],
+  "excluded_from_marginal_dispatch": [
+    "subscription",
+    "data_management",
+    "energy_contribution",
+    "energy_fund"
+  ],
+  "degradation_sensitivity_eur_per_discharged_kwh": [
+    0.0,
+    0.03,
+    0.06,
+    0.10
+  ],
+  "central_degradation_eur_per_discharged_kwh": 0.06,
+  "additional_capacity_kwh": [
+    5.0,
+    10.0,
+    14.24
+  ],
+  "additional_capacity_power_assumption": "existing 5 kW battery inverter limit remains unchanged"
+}

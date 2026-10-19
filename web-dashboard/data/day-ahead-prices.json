@@ -1,0 +1,2053 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-06T22:11:57.031533+00:00",
+  "mode": "READ_ONLY",
+  "classification": "INDICATIVE_PRICE_SIGNAL_NOT_INVOICE",
+  "physical_writes": false,
+  "home_assistant_writes": false,
+  "source": {
+    "provider": "ENTSO-E Transparency Platform Web API",
+    "retrieved_at": "2026-10-06T22:11:56.957240+00:00",
+    "requested_start": "2026-09-01T22:00:00+00:00",
+    "requested_end": "2026-10-08T22:00:00+00:00",
+    "timezone": "Europe/Brussels"
+  },
+  "tariff_version": "ECOPOWER_DBS_2026-08-01",
+  "formula": {
+    "import": "((market_EUR_per_MWh * 0.00102) + 0.004 + GSC + WKK) * (1 + VAT)",
+    "subscription_eur_per_month_excl_vat": 5.0,
+    "excluded_from_interval_comparison": [
+      "network tariffs",
+      "capacity tariff",
+      "excise and energy fund",
+      "monthly subscription allocation"
+    ]
+  },
+  "reference": {
+    "eur_per_kwh_incl_vat": 0.277,
+    "classification": "OWNER_PROVIDED_INDICATIVE_AVERAGE",
+    "comparison_limit": "De referentie is een gemiddelde indicatie en geen component-complete kwartierfactuur. Ecopower-nettarieven, capaciteitstarief, abonnement en heffingen blijven afzonderlijk."
+  },
+  "coverage": {
+    "start_local": "2026-09-02T00:00:00+02:00",
+    "end_local": "2026-10-07T23:45:00+02:00",
+    "interval_count": 3456,
+    "upcoming_interval_count": 95
+  },
+  "quality": {
+    "status": "PARTIAL",
+    "stale": false,
+    "missing_quarter_count": 0,
+    "duplicate_quarter_count": 0,
+    "sequence_complete": true,
+    "requested_window_complete": false,
+    "requested_window_missing_quarter_count": 96
+  },
+  "upcoming_intervals": [
+    {
+      "start_utc": "2026-10-06T22:15:00+00:00",
+      "end_utc": "2026-10-06T22:30:00+00:00",
+      "start_local": "2026-10-07T00:15:00+02:00",
+      "market_price_eur_per_mwh": 201.53,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.237949,
+      "ecopower_export_eur_per_kwh": 0.182499,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.039051,
+      "difference_vs_reference_percent": -14.098,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-06T22:30:00+00:00",
+      "end_utc": "2026-10-06T22:45:00+00:00",
+      "start_local": "2026-10-07T00:30:00+02:00",
+      "market_price_eur_per_mwh": 187.61,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.222899,
+      "ecopower_export_eur_per_kwh": 0.168858,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.054101,
+      "difference_vs_reference_percent": -19.531,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-06T22:45:00+00:00",
+      "end_utc": "2026-10-06T23:00:00+00:00",
+      "start_local": "2026-10-07T00:45:00+02:00",
+      "market_price_eur_per_mwh": 185.35,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.220456,
+      "ecopower_export_eur_per_kwh": 0.166643,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.056544,
+      "difference_vs_reference_percent": -20.413,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-06T23:00:00+00:00",
+      "end_utc": "2026-10-06T23:15:00+00:00",
+      "start_local": "2026-10-07T01:00:00+02:00",
+      "market_price_eur_per_mwh": 190.0,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.225483,
+      "ecopower_export_eur_per_kwh": 0.1712,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.051517,
+      "difference_vs_reference_percent": -18.598,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-06T23:15:00+00:00",
+      "end_utc": "2026-10-06T23:30:00+00:00",
+      "start_local": "2026-10-07T01:15:00+02:00",
+      "market_price_eur_per_mwh": 185.64,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.220769,
+      "ecopower_export_eur_per_kwh": 0.166927,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.056231,
+      "difference_vs_reference_percent": -20.3,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-06T23:30:00+00:00",
+      "end_utc": "2026-10-06T23:45:00+00:00",
+      "start_local": "2026-10-07T01:30:00+02:00",
+      "market_price_eur_per_mwh": 183.17,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.218099,
+      "ecopower_export_eur_per_kwh": 0.164507,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.058901,
+      "difference_vs_reference_percent": -21.264,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-06T23:45:00+00:00",
+      "end_utc": "2026-10-07T00:00:00+00:00",
+      "start_local": "2026-10-07T01:45:00+02:00",
+      "market_price_eur_per_mwh": 179.13,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.213731,
+      "ecopower_export_eur_per_kwh": 0.160547,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.063269,
+      "difference_vs_reference_percent": -22.841,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T00:00:00+00:00",
+      "end_utc": "2026-10-07T00:15:00+00:00",
+      "start_local": "2026-10-07T02:00:00+02:00",
+      "market_price_eur_per_mwh": 180.38,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.215082,
+      "ecopower_export_eur_per_kwh": 0.161772,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.061918,
+      "difference_vs_reference_percent": -22.353,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T00:15:00+00:00",
+      "end_utc": "2026-10-07T00:30:00+00:00",
+      "start_local": "2026-10-07T02:15:00+02:00",
+      "market_price_eur_per_mwh": 177.91,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.212411,
+      "ecopower_export_eur_per_kwh": 0.159352,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.064589,
+      "difference_vs_reference_percent": -23.317,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T00:30:00+00:00",
+      "end_utc": "2026-10-07T00:45:00+00:00",
+      "start_local": "2026-10-07T02:30:00+02:00",
+      "market_price_eur_per_mwh": 175.65,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.209968,
+      "ecopower_export_eur_per_kwh": 0.157137,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.067032,
+      "difference_vs_reference_percent": -24.199,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T00:45:00+00:00",
+      "end_utc": "2026-10-07T01:00:00+00:00",
+      "start_local": "2026-10-07T02:45:00+02:00",
+      "market_price_eur_per_mwh": 174.68,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.208919,
+      "ecopower_export_eur_per_kwh": 0.156186,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.068081,
+      "difference_vs_reference_percent": -24.578,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T01:00:00+00:00",
+      "end_utc": "2026-10-07T01:15:00+00:00",
+      "start_local": "2026-10-07T03:00:00+02:00",
+      "market_price_eur_per_mwh": 177.4,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.21186,
+      "ecopower_export_eur_per_kwh": 0.158852,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.06514,
+      "difference_vs_reference_percent": -23.516,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T01:15:00+00:00",
+      "end_utc": "2026-10-07T01:30:00+00:00",
+      "start_local": "2026-10-07T03:15:00+02:00",
+      "market_price_eur_per_mwh": 179.15,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.213752,
+      "ecopower_export_eur_per_kwh": 0.160567,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.063248,
+      "difference_vs_reference_percent": -22.833,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T01:30:00+00:00",
+      "end_utc": "2026-10-07T01:45:00+00:00",
+      "start_local": "2026-10-07T03:30:00+02:00",
+      "market_price_eur_per_mwh": 176.79,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.211201,
+      "ecopower_export_eur_per_kwh": 0.158254,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.065799,
+      "difference_vs_reference_percent": -23.754,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T01:45:00+00:00",
+      "end_utc": "2026-10-07T02:00:00+00:00",
+      "start_local": "2026-10-07T03:45:00+02:00",
+      "market_price_eur_per_mwh": 176.67,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.211071,
+      "ecopower_export_eur_per_kwh": 0.158137,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.065929,
+      "difference_vs_reference_percent": -23.801,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T02:00:00+00:00",
+      "end_utc": "2026-10-07T02:15:00+00:00",
+      "start_local": "2026-10-07T04:00:00+02:00",
+      "market_price_eur_per_mwh": 178.31,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.212844,
+      "ecopower_export_eur_per_kwh": 0.159744,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.064156,
+      "difference_vs_reference_percent": -23.161,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T02:15:00+00:00",
+      "end_utc": "2026-10-07T02:30:00+00:00",
+      "start_local": "2026-10-07T04:15:00+02:00",
+      "market_price_eur_per_mwh": 177.39,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.211849,
+      "ecopower_export_eur_per_kwh": 0.158842,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.065151,
+      "difference_vs_reference_percent": -23.52,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T02:30:00+00:00",
+      "end_utc": "2026-10-07T02:45:00+00:00",
+      "start_local": "2026-10-07T04:30:00+02:00",
+      "market_price_eur_per_mwh": 177.05,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.211482,
+      "ecopower_export_eur_per_kwh": 0.158509,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.065518,
+      "difference_vs_reference_percent": -23.653,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T02:45:00+00:00",
+      "end_utc": "2026-10-07T03:00:00+00:00",
+      "start_local": "2026-10-07T04:45:00+02:00",
+      "market_price_eur_per_mwh": 182.32,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.21718,
+      "ecopower_export_eur_per_kwh": 0.163674,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.05982,
+      "difference_vs_reference_percent": -21.596,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T03:00:00+00:00",
+      "end_utc": "2026-10-07T03:15:00+00:00",
+      "start_local": "2026-10-07T05:00:00+02:00",
+      "market_price_eur_per_mwh": 173.88,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.208054,
+      "ecopower_export_eur_per_kwh": 0.155402,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.068946,
+      "difference_vs_reference_percent": -24.89,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T03:15:00+00:00",
+      "end_utc": "2026-10-07T03:30:00+00:00",
+      "start_local": "2026-10-07T05:15:00+02:00",
+      "market_price_eur_per_mwh": 176.2,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.210563,
+      "ecopower_export_eur_per_kwh": 0.157676,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.066437,
+      "difference_vs_reference_percent": -23.985,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T03:30:00+00:00",
+      "end_utc": "2026-10-07T03:45:00+00:00",
+      "start_local": "2026-10-07T05:30:00+02:00",
+      "market_price_eur_per_mwh": 184.52,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.219558,
+      "ecopower_export_eur_per_kwh": 0.16583,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.057442,
+      "difference_vs_reference_percent": -20.737,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T03:45:00+00:00",
+      "end_utc": "2026-10-07T04:00:00+00:00",
+      "start_local": "2026-10-07T05:45:00+02:00",
+      "market_price_eur_per_mwh": 197.24,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.233311,
+      "ecopower_export_eur_per_kwh": 0.178295,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.043689,
+      "difference_vs_reference_percent": -15.772,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T04:00:00+00:00",
+      "end_utc": "2026-10-07T04:15:00+00:00",
+      "start_local": "2026-10-07T06:00:00+02:00",
+      "market_price_eur_per_mwh": 196.0,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.23197,
+      "ecopower_export_eur_per_kwh": 0.17708,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.04503,
+      "difference_vs_reference_percent": -16.256,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T04:15:00+00:00",
+      "end_utc": "2026-10-07T04:30:00+00:00",
+      "start_local": "2026-10-07T06:15:00+02:00",
+      "market_price_eur_per_mwh": 217.01,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.254686,
+      "ecopower_export_eur_per_kwh": 0.19767,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.022314,
+      "difference_vs_reference_percent": -8.055,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T04:30:00+00:00",
+      "end_utc": "2026-10-07T04:45:00+00:00",
+      "start_local": "2026-10-07T06:30:00+02:00",
+      "market_price_eur_per_mwh": 229.68,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.268385,
+      "ecopower_export_eur_per_kwh": 0.210086,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.008615,
+      "difference_vs_reference_percent": -3.11,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T04:45:00+00:00",
+      "end_utc": "2026-10-07T05:00:00+00:00",
+      "start_local": "2026-10-07T06:45:00+02:00",
+      "market_price_eur_per_mwh": 246.3,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.286355,
+      "ecopower_export_eur_per_kwh": 0.226374,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.009355,
+      "difference_vs_reference_percent": 3.377,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T05:00:00+00:00",
+      "end_utc": "2026-10-07T05:15:00+00:00",
+      "start_local": "2026-10-07T07:00:00+02:00",
+      "market_price_eur_per_mwh": 246.25,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.286301,
+      "ecopower_export_eur_per_kwh": 0.226325,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.009301,
+      "difference_vs_reference_percent": 3.358,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T05:15:00+00:00",
+      "end_utc": "2026-10-07T05:30:00+00:00",
+      "start_local": "2026-10-07T07:15:00+02:00",
+      "market_price_eur_per_mwh": 257.43,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.298389,
+      "ecopower_export_eur_per_kwh": 0.237281,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.021389,
+      "difference_vs_reference_percent": 7.721,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T05:30:00+00:00",
+      "end_utc": "2026-10-07T05:45:00+00:00",
+      "start_local": "2026-10-07T07:30:00+02:00",
+      "market_price_eur_per_mwh": 261.79,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.303103,
+      "ecopower_export_eur_per_kwh": 0.241554,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.026103,
+      "difference_vs_reference_percent": 9.423,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T05:45:00+00:00",
+      "end_utc": "2026-10-07T06:00:00+00:00",
+      "start_local": "2026-10-07T07:45:00+02:00",
+      "market_price_eur_per_mwh": 256.0,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.296842,
+      "ecopower_export_eur_per_kwh": 0.23588,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.019842,
+      "difference_vs_reference_percent": 7.163,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T06:00:00+00:00",
+      "end_utc": "2026-10-07T06:15:00+00:00",
+      "start_local": "2026-10-07T08:00:00+02:00",
+      "market_price_eur_per_mwh": 280.42,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.323245,
+      "ecopower_export_eur_per_kwh": 0.259812,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.046245,
+      "difference_vs_reference_percent": 16.695,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T06:15:00+00:00",
+      "end_utc": "2026-10-07T06:30:00+00:00",
+      "start_local": "2026-10-07T08:15:00+02:00",
+      "market_price_eur_per_mwh": 264.88,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.306443,
+      "ecopower_export_eur_per_kwh": 0.244582,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.029443,
+      "difference_vs_reference_percent": 10.629,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T06:30:00+00:00",
+      "end_utc": "2026-10-07T06:45:00+00:00",
+      "start_local": "2026-10-07T08:30:00+02:00",
+      "market_price_eur_per_mwh": 244.02,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.28389,
+      "ecopower_export_eur_per_kwh": 0.22414,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.00689,
+      "difference_vs_reference_percent": 2.487,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T06:45:00+00:00",
+      "end_utc": "2026-10-07T07:00:00+00:00",
+      "start_local": "2026-10-07T08:45:00+02:00",
+      "market_price_eur_per_mwh": 224.97,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.263293,
+      "ecopower_export_eur_per_kwh": 0.205471,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.013707,
+      "difference_vs_reference_percent": -4.948,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T07:00:00+00:00",
+      "end_utc": "2026-10-07T07:15:00+00:00",
+      "start_local": "2026-10-07T09:00:00+02:00",
+      "market_price_eur_per_mwh": 259.37,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.300486,
+      "ecopower_export_eur_per_kwh": 0.239183,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.023486,
+      "difference_vs_reference_percent": 8.479,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T07:15:00+00:00",
+      "end_utc": "2026-10-07T07:30:00+00:00",
+      "start_local": "2026-10-07T09:15:00+02:00",
+      "market_price_eur_per_mwh": 235.4,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.27457,
+      "ecopower_export_eur_per_kwh": 0.215692,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.00243,
+      "difference_vs_reference_percent": -0.877,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T07:30:00+00:00",
+      "end_utc": "2026-10-07T07:45:00+00:00",
+      "start_local": "2026-10-07T09:30:00+02:00",
+      "market_price_eur_per_mwh": 217.78,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.255519,
+      "ecopower_export_eur_per_kwh": 0.198424,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.021481,
+      "difference_vs_reference_percent": -7.755,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T07:45:00+00:00",
+      "end_utc": "2026-10-07T08:00:00+00:00",
+      "start_local": "2026-10-07T09:45:00+02:00",
+      "market_price_eur_per_mwh": 184.54,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.21958,
+      "ecopower_export_eur_per_kwh": 0.165849,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.05742,
+      "difference_vs_reference_percent": -20.729,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T08:00:00+00:00",
+      "end_utc": "2026-10-07T08:15:00+00:00",
+      "start_local": "2026-10-07T10:00:00+02:00",
+      "market_price_eur_per_mwh": 212.01,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.24928,
+      "ecopower_export_eur_per_kwh": 0.19277,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.02772,
+      "difference_vs_reference_percent": -10.007,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T08:15:00+00:00",
+      "end_utc": "2026-10-07T08:30:00+00:00",
+      "start_local": "2026-10-07T10:15:00+02:00",
+      "market_price_eur_per_mwh": 193.76,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.229549,
+      "ecopower_export_eur_per_kwh": 0.174885,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.047451,
+      "difference_vs_reference_percent": -17.131,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T08:30:00+00:00",
+      "end_utc": "2026-10-07T08:45:00+00:00",
+      "start_local": "2026-10-07T10:30:00+02:00",
+      "market_price_eur_per_mwh": 182.33,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.21719,
+      "ecopower_export_eur_per_kwh": 0.163683,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.05981,
+      "difference_vs_reference_percent": -21.592,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T08:45:00+00:00",
+      "end_utc": "2026-10-07T09:00:00+00:00",
+      "start_local": "2026-10-07T10:45:00+02:00",
+      "market_price_eur_per_mwh": 171.9,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.205913,
+      "ecopower_export_eur_per_kwh": 0.153462,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.071087,
+      "difference_vs_reference_percent": -25.663,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T09:00:00+00:00",
+      "end_utc": "2026-10-07T09:15:00+00:00",
+      "start_local": "2026-10-07T11:00:00+02:00",
+      "market_price_eur_per_mwh": 174.16,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.208357,
+      "ecopower_export_eur_per_kwh": 0.155677,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.068643,
+      "difference_vs_reference_percent": -24.781,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T09:15:00+00:00",
+      "end_utc": "2026-10-07T09:30:00+00:00",
+      "start_local": "2026-10-07T11:15:00+02:00",
+      "market_price_eur_per_mwh": 168.0,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.201697,
+      "ecopower_export_eur_per_kwh": 0.14964,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.075303,
+      "difference_vs_reference_percent": -27.185,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T09:30:00+00:00",
+      "end_utc": "2026-10-07T09:45:00+00:00",
+      "start_local": "2026-10-07T11:30:00+02:00",
+      "market_price_eur_per_mwh": 160.61,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.193707,
+      "ecopower_export_eur_per_kwh": 0.142398,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.083293,
+      "difference_vs_reference_percent": -30.07,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T09:45:00+00:00",
+      "end_utc": "2026-10-07T10:00:00+00:00",
+      "start_local": "2026-10-07T11:45:00+02:00",
+      "market_price_eur_per_mwh": 163.28,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.196594,
+      "ecopower_export_eur_per_kwh": 0.145014,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.080406,
+      "difference_vs_reference_percent": -29.028,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T10:00:00+00:00",
+      "end_utc": "2026-10-07T10:15:00+00:00",
+      "start_local": "2026-10-07T12:00:00+02:00",
+      "market_price_eur_per_mwh": 170.0,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.203859,
+      "ecopower_export_eur_per_kwh": 0.1516,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.073141,
+      "difference_vs_reference_percent": -26.405,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T10:15:00+00:00",
+      "end_utc": "2026-10-07T10:30:00+00:00",
+      "start_local": "2026-10-07T12:15:00+02:00",
+      "market_price_eur_per_mwh": 157.76,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.190625,
+      "ecopower_export_eur_per_kwh": 0.139605,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.086375,
+      "difference_vs_reference_percent": -31.182,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T10:30:00+00:00",
+      "end_utc": "2026-10-07T10:45:00+00:00",
+      "start_local": "2026-10-07T12:30:00+02:00",
+      "market_price_eur_per_mwh": 155.73,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.18843,
+      "ecopower_export_eur_per_kwh": 0.137615,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.08857,
+      "difference_vs_reference_percent": -31.975,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T10:45:00+00:00",
+      "end_utc": "2026-10-07T11:00:00+00:00",
+      "start_local": "2026-10-07T12:45:00+02:00",
+      "market_price_eur_per_mwh": 143.86,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.175597,
+      "ecopower_export_eur_per_kwh": 0.125983,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.101403,
+      "difference_vs_reference_percent": -36.608,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T11:00:00+00:00",
+      "end_utc": "2026-10-07T11:15:00+00:00",
+      "start_local": "2026-10-07T13:00:00+02:00",
+      "market_price_eur_per_mwh": 150.99,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.183306,
+      "ecopower_export_eur_per_kwh": 0.13297,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.093694,
+      "difference_vs_reference_percent": -33.825,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T11:15:00+00:00",
+      "end_utc": "2026-10-07T11:30:00+00:00",
+      "start_local": "2026-10-07T13:15:00+02:00",
+      "market_price_eur_per_mwh": 141.93,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.17351,
+      "ecopower_export_eur_per_kwh": 0.124091,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.10349,
+      "difference_vs_reference_percent": -37.361,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T11:30:00+00:00",
+      "end_utc": "2026-10-07T11:45:00+00:00",
+      "start_local": "2026-10-07T13:30:00+02:00",
+      "market_price_eur_per_mwh": 150.0,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.182235,
+      "ecopower_export_eur_per_kwh": 0.132,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.094765,
+      "difference_vs_reference_percent": -34.211,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T11:45:00+00:00",
+      "end_utc": "2026-10-07T12:00:00+00:00",
+      "start_local": "2026-10-07T13:45:00+02:00",
+      "market_price_eur_per_mwh": 154.0,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.18656,
+      "ecopower_export_eur_per_kwh": 0.13592,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.09044,
+      "difference_vs_reference_percent": -32.65,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T12:00:00+00:00",
+      "end_utc": "2026-10-07T12:15:00+00:00",
+      "start_local": "2026-10-07T14:00:00+02:00",
+      "market_price_eur_per_mwh": 160.0,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.193047,
+      "ecopower_export_eur_per_kwh": 0.1418,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.083953,
+      "difference_vs_reference_percent": -30.308,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T12:15:00+00:00",
+      "end_utc": "2026-10-07T12:30:00+00:00",
+      "start_local": "2026-10-07T14:15:00+02:00",
+      "market_price_eur_per_mwh": 158.64,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.191577,
+      "ecopower_export_eur_per_kwh": 0.140467,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.085423,
+      "difference_vs_reference_percent": -30.839,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T12:30:00+00:00",
+      "end_utc": "2026-10-07T12:45:00+00:00",
+      "start_local": "2026-10-07T14:30:00+02:00",
+      "market_price_eur_per_mwh": 156.63,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.189404,
+      "ecopower_export_eur_per_kwh": 0.138497,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.087596,
+      "difference_vs_reference_percent": -31.623,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T12:45:00+00:00",
+      "end_utc": "2026-10-07T13:00:00+00:00",
+      "start_local": "2026-10-07T14:45:00+02:00",
+      "market_price_eur_per_mwh": 155.01,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.187652,
+      "ecopower_export_eur_per_kwh": 0.13691,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.089348,
+      "difference_vs_reference_percent": -32.256,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T13:00:00+00:00",
+      "end_utc": "2026-10-07T13:15:00+00:00",
+      "start_local": "2026-10-07T15:00:00+02:00",
+      "market_price_eur_per_mwh": 143.9,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.17564,
+      "ecopower_export_eur_per_kwh": 0.126022,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.10136,
+      "difference_vs_reference_percent": -36.592,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T13:15:00+00:00",
+      "end_utc": "2026-10-07T13:30:00+00:00",
+      "start_local": "2026-10-07T15:15:00+02:00",
+      "market_price_eur_per_mwh": 153.24,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.185738,
+      "ecopower_export_eur_per_kwh": 0.135175,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.091262,
+      "difference_vs_reference_percent": -32.946,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T13:30:00+00:00",
+      "end_utc": "2026-10-07T13:45:00+00:00",
+      "start_local": "2026-10-07T15:30:00+02:00",
+      "market_price_eur_per_mwh": 160.02,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.193069,
+      "ecopower_export_eur_per_kwh": 0.14182,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.083931,
+      "difference_vs_reference_percent": -30.3,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T13:45:00+00:00",
+      "end_utc": "2026-10-07T14:00:00+00:00",
+      "start_local": "2026-10-07T15:45:00+02:00",
+      "market_price_eur_per_mwh": 179.02,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.213612,
+      "ecopower_export_eur_per_kwh": 0.16044,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.063388,
+      "difference_vs_reference_percent": -22.884,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T14:00:00+00:00",
+      "end_utc": "2026-10-07T14:15:00+00:00",
+      "start_local": "2026-10-07T16:00:00+02:00",
+      "market_price_eur_per_mwh": 158.05,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.190939,
+      "ecopower_export_eur_per_kwh": 0.139889,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.086061,
+      "difference_vs_reference_percent": -31.069,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T14:15:00+00:00",
+      "end_utc": "2026-10-07T14:30:00+00:00",
+      "start_local": "2026-10-07T16:15:00+02:00",
+      "market_price_eur_per_mwh": 174.16,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.208357,
+      "ecopower_export_eur_per_kwh": 0.155677,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.068643,
+      "difference_vs_reference_percent": -24.781,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T14:30:00+00:00",
+      "end_utc": "2026-10-07T14:45:00+00:00",
+      "start_local": "2026-10-07T16:30:00+02:00",
+      "market_price_eur_per_mwh": 187.86,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.223169,
+      "ecopower_export_eur_per_kwh": 0.169103,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.053831,
+      "difference_vs_reference_percent": -19.433,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T14:45:00+00:00",
+      "end_utc": "2026-10-07T15:00:00+00:00",
+      "start_local": "2026-10-07T16:45:00+02:00",
+      "market_price_eur_per_mwh": 201.79,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.238231,
+      "ecopower_export_eur_per_kwh": 0.182754,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.038769,
+      "difference_vs_reference_percent": -13.996,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T15:00:00+00:00",
+      "end_utc": "2026-10-07T15:15:00+00:00",
+      "start_local": "2026-10-07T17:00:00+02:00",
+      "market_price_eur_per_mwh": 193.96,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.229765,
+      "ecopower_export_eur_per_kwh": 0.175081,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.047235,
+      "difference_vs_reference_percent": -17.052,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T15:15:00+00:00",
+      "end_utc": "2026-10-07T15:30:00+00:00",
+      "start_local": "2026-10-07T17:15:00+02:00",
+      "market_price_eur_per_mwh": 216.56,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.2542,
+      "ecopower_export_eur_per_kwh": 0.197229,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.0228,
+      "difference_vs_reference_percent": -8.231,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T15:30:00+00:00",
+      "end_utc": "2026-10-07T15:45:00+00:00",
+      "start_local": "2026-10-07T17:30:00+02:00",
+      "market_price_eur_per_mwh": 238.26,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.277662,
+      "ecopower_export_eur_per_kwh": 0.218495,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.000662,
+      "difference_vs_reference_percent": 0.239,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T15:45:00+00:00",
+      "end_utc": "2026-10-07T16:00:00+00:00",
+      "start_local": "2026-10-07T17:45:00+02:00",
+      "market_price_eur_per_mwh": 248.15,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.288355,
+      "ecopower_export_eur_per_kwh": 0.228187,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.011355,
+      "difference_vs_reference_percent": 4.099,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T16:00:00+00:00",
+      "end_utc": "2026-10-07T16:15:00+00:00",
+      "start_local": "2026-10-07T18:00:00+02:00",
+      "market_price_eur_per_mwh": 233.19,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.27218,
+      "ecopower_export_eur_per_kwh": 0.213526,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.00482,
+      "difference_vs_reference_percent": -1.74,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T16:15:00+00:00",
+      "end_utc": "2026-10-07T16:30:00+00:00",
+      "start_local": "2026-10-07T18:15:00+02:00",
+      "market_price_eur_per_mwh": 247.22,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.287349,
+      "ecopower_export_eur_per_kwh": 0.227276,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.010349,
+      "difference_vs_reference_percent": 3.736,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T16:30:00+00:00",
+      "end_utc": "2026-10-07T16:45:00+00:00",
+      "start_local": "2026-10-07T18:30:00+02:00",
+      "market_price_eur_per_mwh": 254.52,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.295242,
+      "ecopower_export_eur_per_kwh": 0.23443,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.018242,
+      "difference_vs_reference_percent": 6.586,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T16:45:00+00:00",
+      "end_utc": "2026-10-07T17:00:00+00:00",
+      "start_local": "2026-10-07T18:45:00+02:00",
+      "market_price_eur_per_mwh": 254.23,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.294929,
+      "ecopower_export_eur_per_kwh": 0.234145,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.017929,
+      "difference_vs_reference_percent": 6.472,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T17:00:00+00:00",
+      "end_utc": "2026-10-07T17:15:00+00:00",
+      "start_local": "2026-10-07T19:00:00+02:00",
+      "market_price_eur_per_mwh": 255.04,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.295804,
+      "ecopower_export_eur_per_kwh": 0.234939,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.018804,
+      "difference_vs_reference_percent": 6.789,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T17:15:00+00:00",
+      "end_utc": "2026-10-07T17:30:00+00:00",
+      "start_local": "2026-10-07T19:15:00+02:00",
+      "market_price_eur_per_mwh": 241.43,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.281089,
+      "ecopower_export_eur_per_kwh": 0.221601,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": 0.004089,
+      "difference_vs_reference_percent": 1.476,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T17:30:00+00:00",
+      "end_utc": "2026-10-07T17:45:00+00:00",
+      "start_local": "2026-10-07T19:30:00+02:00",
+      "market_price_eur_per_mwh": 235.98,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.275197,
+      "ecopower_export_eur_per_kwh": 0.21626,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.001803,
+      "difference_vs_reference_percent": -0.651,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T17:45:00+00:00",
+      "end_utc": "2026-10-07T18:00:00+00:00",
+      "start_local": "2026-10-07T19:45:00+02:00",
+      "market_price_eur_per_mwh": 228.0,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.266569,
+      "ecopower_export_eur_per_kwh": 0.20844,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.010431,
+      "difference_vs_reference_percent": -3.766,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T18:00:00+00:00",
+      "end_utc": "2026-10-07T18:15:00+00:00",
+      "start_local": "2026-10-07T20:00:00+02:00",
+      "market_price_eur_per_mwh": 225.17,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.263509,
+      "ecopower_export_eur_per_kwh": 0.205667,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.013491,
+      "difference_vs_reference_percent": -4.87,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T18:15:00+00:00",
+      "end_utc": "2026-10-07T18:30:00+00:00",
+      "start_local": "2026-10-07T20:15:00+02:00",
+      "market_price_eur_per_mwh": 213.81,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.251227,
+      "ecopower_export_eur_per_kwh": 0.194534,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.025773,
+      "difference_vs_reference_percent": -9.304,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T18:30:00+00:00",
+      "end_utc": "2026-10-07T18:45:00+00:00",
+      "start_local": "2026-10-07T20:30:00+02:00",
+      "market_price_eur_per_mwh": 205.22,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.241939,
+      "ecopower_export_eur_per_kwh": 0.186116,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.035061,
+      "difference_vs_reference_percent": -12.657,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T18:45:00+00:00",
+      "end_utc": "2026-10-07T19:00:00+00:00",
+      "start_local": "2026-10-07T20:45:00+02:00",
+      "market_price_eur_per_mwh": 184.32,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.219342,
+      "ecopower_export_eur_per_kwh": 0.165634,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.057658,
+      "difference_vs_reference_percent": -20.815,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T19:00:00+00:00",
+      "end_utc": "2026-10-07T19:15:00+00:00",
+      "start_local": "2026-10-07T21:00:00+02:00",
+      "market_price_eur_per_mwh": 195.32,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.231235,
+      "ecopower_export_eur_per_kwh": 0.176414,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.045765,
+      "difference_vs_reference_percent": -16.522,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T19:15:00+00:00",
+      "end_utc": "2026-10-07T19:30:00+00:00",
+      "start_local": "2026-10-07T21:15:00+02:00",
+      "market_price_eur_per_mwh": 175.18,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.20946,
+      "ecopower_export_eur_per_kwh": 0.156676,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.06754,
+      "difference_vs_reference_percent": -24.383,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T19:30:00+00:00",
+      "end_utc": "2026-10-07T19:45:00+00:00",
+      "start_local": "2026-10-07T21:30:00+02:00",
+      "market_price_eur_per_mwh": 171.27,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.205232,
+      "ecopower_export_eur_per_kwh": 0.152845,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.071768,
+      "difference_vs_reference_percent": -25.909,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T19:45:00+00:00",
+      "end_utc": "2026-10-07T20:00:00+00:00",
+      "start_local": "2026-10-07T21:45:00+02:00",
+      "market_price_eur_per_mwh": 168.88,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.202648,
+      "ecopower_export_eur_per_kwh": 0.150502,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.074352,
+      "difference_vs_reference_percent": -26.842,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T20:00:00+00:00",
+      "end_utc": "2026-10-07T20:15:00+00:00",
+      "start_local": "2026-10-07T22:00:00+02:00",
+      "market_price_eur_per_mwh": 182.0,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.216834,
+      "ecopower_export_eur_per_kwh": 0.16336,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.060166,
+      "difference_vs_reference_percent": -21.721,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T20:15:00+00:00",
+      "end_utc": "2026-10-07T20:30:00+00:00",
+      "start_local": "2026-10-07T22:15:00+02:00",
+      "market_price_eur_per_mwh": 180.73,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.21546,
+      "ecopower_export_eur_per_kwh": 0.162115,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.06154,
+      "difference_vs_reference_percent": -22.216,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T20:30:00+00:00",
+      "end_utc": "2026-10-07T20:45:00+00:00",
+      "start_local": "2026-10-07T22:30:00+02:00",
+      "market_price_eur_per_mwh": 177.17,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.211611,
+      "ecopower_export_eur_per_kwh": 0.158627,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.065389,
+      "difference_vs_reference_percent": -23.606,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T20:45:00+00:00",
+      "end_utc": "2026-10-07T21:00:00+00:00",
+      "start_local": "2026-10-07T22:45:00+02:00",
+      "market_price_eur_per_mwh": 163.68,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.197026,
+      "ecopower_export_eur_per_kwh": 0.145406,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.079974,
+      "difference_vs_reference_percent": -28.871,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T21:00:00+00:00",
+      "end_utc": "2026-10-07T21:15:00+00:00",
+      "start_local": "2026-10-07T23:00:00+02:00",
+      "market_price_eur_per_mwh": 161.05,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.194182,
+      "ecopower_export_eur_per_kwh": 0.142829,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.082818,
+      "difference_vs_reference_percent": -29.898,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T21:15:00+00:00",
+      "end_utc": "2026-10-07T21:30:00+00:00",
+      "start_local": "2026-10-07T23:15:00+02:00",
+      "market_price_eur_per_mwh": 152.57,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.185014,
+      "ecopower_export_eur_per_kwh": 0.134519,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.091986,
+      "difference_vs_reference_percent": -33.208,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T21:30:00+00:00",
+      "end_utc": "2026-10-07T21:45:00+00:00",
+      "start_local": "2026-10-07T23:30:00+02:00",
+      "market_price_eur_per_mwh": 150.32,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.182581,
+      "ecopower_export_eur_per_kwh": 0.132314,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.094419,
+      "difference_vs_reference_percent": -34.086,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    },
+    {
+      "start_utc": "2026-10-07T21:45:00+00:00",
+      "end_utc": "2026-10-07T22:00:00+00:00",
+      "start_local": "2026-10-07T23:45:00+02:00",
+      "market_price_eur_per_mwh": 136.88,
+      "ecopower_import_eur_per_kwh_incl_vat": 0.16805,
+      "ecopower_export_eur_per_kwh": 0.119142,
+      "reference_eur_per_kwh_incl_vat": 0.277,
+      "difference_vs_reference_eur_per_kwh": -0.10895,
+      "difference_vs_reference_percent": -39.332,
+      "source_resolution_minutes": 15,
+      "quality_flags": [
+        "collapsed_identical_duplicate"
+      ]
+    }
+  ],
+  "aggregates": {
+    "daily": [
+      {
+        "period": "2026-09-02",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.206216,
+        "minimum_eur_per_kwh_incl_vat": 0.132932,
+        "maximum_eur_per_kwh_incl_vat": 0.288604,
+        "difference_vs_reference_eur_per_kwh": -0.070784,
+        "difference_vs_reference_percent": -25.554,
+        "below_reference_interval_count": 90,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-03",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.176183,
+        "minimum_eur_per_kwh_incl_vat": 0.058816,
+        "maximum_eur_per_kwh_incl_vat": 0.284841,
+        "difference_vs_reference_eur_per_kwh": -0.100817,
+        "difference_vs_reference_percent": -36.396,
+        "below_reference_interval_count": 95,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-04",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.144073,
+        "minimum_eur_per_kwh_incl_vat": 0.041614,
+        "maximum_eur_per_kwh_incl_vat": 0.230176,
+        "difference_vs_reference_eur_per_kwh": -0.132927,
+        "difference_vs_reference_percent": -47.988,
+        "below_reference_interval_count": 96,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-05",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.116741,
+        "minimum_eur_per_kwh_incl_vat": 0.019785,
+        "maximum_eur_per_kwh_incl_vat": 0.29575,
+        "difference_vs_reference_eur_per_kwh": -0.160259,
+        "difference_vs_reference_percent": -57.855,
+        "below_reference_interval_count": 94,
+        "negative_market_interval_count": 1
+      },
+      {
+        "period": "2026-09-06",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.144428,
+        "minimum_eur_per_kwh_incl_vat": 0.019947,
+        "maximum_eur_per_kwh_incl_vat": 0.280051,
+        "difference_vs_reference_eur_per_kwh": -0.132572,
+        "difference_vs_reference_percent": -47.86,
+        "below_reference_interval_count": 95,
+        "negative_market_interval_count": 5
+      },
+      {
+        "period": "2026-09-07",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.198975,
+        "minimum_eur_per_kwh_incl_vat": 0.097058,
+        "maximum_eur_per_kwh_incl_vat": 0.297178,
+        "difference_vs_reference_eur_per_kwh": -0.078025,
+        "difference_vs_reference_percent": -28.168,
+        "below_reference_interval_count": 91,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-08",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.207956,
+        "minimum_eur_per_kwh_incl_vat": 0.100734,
+        "maximum_eur_per_kwh_incl_vat": 0.305492,
+        "difference_vs_reference_eur_per_kwh": -0.069044,
+        "difference_vs_reference_percent": -24.926,
+        "below_reference_interval_count": 90,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-09",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.184326,
+        "minimum_eur_per_kwh_incl_vat": 0.081792,
+        "maximum_eur_per_kwh_incl_vat": 0.260082,
+        "difference_vs_reference_eur_per_kwh": -0.092674,
+        "difference_vs_reference_percent": -33.456,
+        "below_reference_interval_count": 96,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-10",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.239059,
+        "minimum_eur_per_kwh_incl_vat": 0.122229,
+        "maximum_eur_per_kwh_incl_vat": 0.624446,
+        "difference_vs_reference_eur_per_kwh": -0.037941,
+        "difference_vs_reference_percent": -13.697,
+        "below_reference_interval_count": 80,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-11",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.235973,
+        "minimum_eur_per_kwh_incl_vat": 0.175218,
+        "maximum_eur_per_kwh_incl_vat": 0.352048,
+        "difference_vs_reference_eur_per_kwh": -0.041027,
+        "difference_vs_reference_percent": -14.811,
+        "below_reference_interval_count": 83,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-12",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.169905,
+        "minimum_eur_per_kwh_incl_vat": 0.019807,
+        "maximum_eur_per_kwh_incl_vat": 0.249789,
+        "difference_vs_reference_eur_per_kwh": -0.107095,
+        "difference_vs_reference_percent": -38.663,
+        "below_reference_interval_count": 96,
+        "negative_market_interval_count": 5
+      },
+      {
+        "period": "2026-09-13",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.226257,
+        "minimum_eur_per_kwh_incl_vat": 0.189014,
+        "maximum_eur_per_kwh_incl_vat": 0.2795,
+        "difference_vs_reference_eur_per_kwh": -0.050743,
+        "difference_vs_reference_percent": -18.319,
+        "below_reference_interval_count": 95,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-14",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.271184,
+        "minimum_eur_per_kwh_incl_vat": 0.184398,
+        "maximum_eur_per_kwh_incl_vat": 0.531711,
+        "difference_vs_reference_eur_per_kwh": -0.005816,
+        "difference_vs_reference_percent": -2.1,
+        "below_reference_interval_count": 63,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-15",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.215274,
+        "minimum_eur_per_kwh_incl_vat": 0.058622,
+        "maximum_eur_per_kwh_incl_vat": 0.325375,
+        "difference_vs_reference_eur_per_kwh": -0.061726,
+        "difference_vs_reference_percent": -22.284,
+        "below_reference_interval_count": 79,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-16",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.217563,
+        "minimum_eur_per_kwh_incl_vat": 0.117947,
+        "maximum_eur_per_kwh_incl_vat": 0.311709,
+        "difference_vs_reference_eur_per_kwh": -0.059437,
+        "difference_vs_reference_percent": -21.457,
+        "below_reference_interval_count": 83,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-17",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.184721,
+        "minimum_eur_per_kwh_incl_vat": 0.051788,
+        "maximum_eur_per_kwh_incl_vat": 0.282408,
+        "difference_vs_reference_eur_per_kwh": -0.092279,
+        "difference_vs_reference_percent": -33.314,
+        "below_reference_interval_count": 95,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-18",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.156159,
+        "minimum_eur_per_kwh_incl_vat": 0.020466,
+        "maximum_eur_per_kwh_incl_vat": 0.267769,
+        "difference_vs_reference_eur_per_kwh": -0.120841,
+        "difference_vs_reference_percent": -43.625,
+        "below_reference_interval_count": 96,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-19",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.072072,
+        "minimum_eur_per_kwh_incl_vat": 0.018487,
+        "maximum_eur_per_kwh_incl_vat": 0.181651,
+        "difference_vs_reference_eur_per_kwh": -0.204928,
+        "difference_vs_reference_percent": -73.981,
+        "below_reference_interval_count": 96,
+        "negative_market_interval_count": 17
+      },
+      {
+        "period": "2026-09-20",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.093731,
+        "minimum_eur_per_kwh_incl_vat": 0.01906,
+        "maximum_eur_per_kwh_incl_vat": 0.335387,
+        "difference_vs_reference_eur_per_kwh": -0.183269,
+        "difference_vs_reference_percent": -66.162,
+        "below_reference_interval_count": 82,
+        "negative_market_interval_count": 21
+      },
+      {
+        "period": "2026-09-21",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.196038,
+        "minimum_eur_per_kwh_incl_vat": 0.04356,
+        "maximum_eur_per_kwh_incl_vat": 0.319223,
+        "difference_vs_reference_eur_per_kwh": -0.080962,
+        "difference_vs_reference_percent": -29.228,
+        "below_reference_interval_count": 82,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-22",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.248387,
+        "minimum_eur_per_kwh_incl_vat": 0.127959,
+        "maximum_eur_per_kwh_incl_vat": 0.552535,
+        "difference_vs_reference_eur_per_kwh": -0.028613,
+        "difference_vs_reference_percent": -10.329,
+        "below_reference_interval_count": 68,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-23",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.204294,
+        "minimum_eur_per_kwh_incl_vat": 0.062071,
+        "maximum_eur_per_kwh_incl_vat": 0.32996,
+        "difference_vs_reference_eur_per_kwh": -0.072706,
+        "difference_vs_reference_percent": -26.248,
+        "below_reference_interval_count": 80,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-24",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.204048,
+        "minimum_eur_per_kwh_incl_vat": 0.05248,
+        "maximum_eur_per_kwh_incl_vat": 0.331689,
+        "difference_vs_reference_eur_per_kwh": -0.072952,
+        "difference_vs_reference_percent": -26.336,
+        "below_reference_interval_count": 82,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-25",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.20568,
+        "minimum_eur_per_kwh_incl_vat": 0.046739,
+        "maximum_eur_per_kwh_incl_vat": 0.338101,
+        "difference_vs_reference_eur_per_kwh": -0.07132,
+        "difference_vs_reference_percent": -25.747,
+        "below_reference_interval_count": 82,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-26",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.185331,
+        "minimum_eur_per_kwh_incl_vat": 0.031289,
+        "maximum_eur_per_kwh_incl_vat": 0.291523,
+        "difference_vs_reference_eur_per_kwh": -0.091669,
+        "difference_vs_reference_percent": -33.093,
+        "below_reference_interval_count": 93,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-27",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.145939,
+        "minimum_eur_per_kwh_incl_vat": 0.017947,
+        "maximum_eur_per_kwh_incl_vat": 0.246253,
+        "difference_vs_reference_eur_per_kwh": -0.131061,
+        "difference_vs_reference_percent": -47.314,
+        "below_reference_interval_count": 96,
+        "negative_market_interval_count": 5
+      },
+      {
+        "period": "2026-09-28",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.240031,
+        "minimum_eur_per_kwh_incl_vat": 0.178765,
+        "maximum_eur_per_kwh_incl_vat": 0.442372,
+        "difference_vs_reference_eur_per_kwh": -0.036969,
+        "difference_vs_reference_percent": -13.346,
+        "below_reference_interval_count": 74,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-29",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.203704,
+        "minimum_eur_per_kwh_incl_vat": 0.09042,
+        "maximum_eur_per_kwh_incl_vat": 0.297502,
+        "difference_vs_reference_eur_per_kwh": -0.073296,
+        "difference_vs_reference_percent": -26.461,
+        "below_reference_interval_count": 88,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-09-30",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.19573,
+        "minimum_eur_per_kwh_incl_vat": 0.114541,
+        "maximum_eur_per_kwh_incl_vat": 0.302984,
+        "difference_vs_reference_eur_per_kwh": -0.08127,
+        "difference_vs_reference_percent": -29.339,
+        "below_reference_interval_count": 87,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-10-01",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.237351,
+        "minimum_eur_per_kwh_incl_vat": 0.181911,
+        "maximum_eur_per_kwh_incl_vat": 0.360395,
+        "difference_vs_reference_eur_per_kwh": -0.039649,
+        "difference_vs_reference_percent": -14.314,
+        "below_reference_interval_count": 77,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-10-02",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.235005,
+        "minimum_eur_per_kwh_incl_vat": 0.163195,
+        "maximum_eur_per_kwh_incl_vat": 0.366753,
+        "difference_vs_reference_eur_per_kwh": -0.041995,
+        "difference_vs_reference_percent": -15.161,
+        "below_reference_interval_count": 72,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-10-03",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.205922,
+        "minimum_eur_per_kwh_incl_vat": 0.089187,
+        "maximum_eur_per_kwh_incl_vat": 0.282852,
+        "difference_vs_reference_eur_per_kwh": -0.071078,
+        "difference_vs_reference_percent": -25.66,
+        "below_reference_interval_count": 93,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-10-04",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.203133,
+        "minimum_eur_per_kwh_incl_vat": 0.069358,
+        "maximum_eur_per_kwh_incl_vat": 0.284938,
+        "difference_vs_reference_eur_per_kwh": -0.073867,
+        "difference_vs_reference_percent": -26.667,
+        "below_reference_interval_count": 94,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-10-05",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.206379,
+        "minimum_eur_per_kwh_incl_vat": 0.063346,
+        "maximum_eur_per_kwh_incl_vat": 0.313385,
+        "difference_vs_reference_eur_per_kwh": -0.070621,
+        "difference_vs_reference_percent": -25.495,
+        "below_reference_interval_count": 86,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-10-06",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.241391,
+        "minimum_eur_per_kwh_incl_vat": 0.161909,
+        "maximum_eur_per_kwh_incl_vat": 0.459022,
+        "difference_vs_reference_eur_per_kwh": -0.035609,
+        "difference_vs_reference_percent": -12.855,
+        "below_reference_interval_count": 72,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-10-07",
+        "interval_count": 96,
+        "expected_interval_count": 96,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.228842,
+        "minimum_eur_per_kwh_incl_vat": 0.16805,
+        "maximum_eur_per_kwh_incl_vat": 0.323245,
+        "difference_vs_reference_eur_per_kwh": -0.048158,
+        "difference_vs_reference_percent": -17.385,
+        "below_reference_interval_count": 80,
+        "negative_market_interval_count": 0
+      }
+    ],
+    "weekly": [
+      {
+        "period": "2026-W36",
+        "interval_count": 480,
+        "expected_interval_count": 672,
+        "partial_period": true,
+        "average_eur_per_kwh_incl_vat": 0.157528,
+        "minimum_eur_per_kwh_incl_vat": 0.019785,
+        "maximum_eur_per_kwh_incl_vat": 0.29575,
+        "difference_vs_reference_eur_per_kwh": -0.119472,
+        "difference_vs_reference_percent": -43.131,
+        "below_reference_interval_count": 470,
+        "negative_market_interval_count": 6
+      },
+      {
+        "period": "2026-W37",
+        "interval_count": 672,
+        "expected_interval_count": 672,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.208922,
+        "minimum_eur_per_kwh_incl_vat": 0.019807,
+        "maximum_eur_per_kwh_incl_vat": 0.624446,
+        "difference_vs_reference_eur_per_kwh": -0.068078,
+        "difference_vs_reference_percent": -24.577,
+        "below_reference_interval_count": 631,
+        "negative_market_interval_count": 5
+      },
+      {
+        "period": "2026-W38",
+        "interval_count": 672,
+        "expected_interval_count": 672,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.172958,
+        "minimum_eur_per_kwh_incl_vat": 0.018487,
+        "maximum_eur_per_kwh_incl_vat": 0.531711,
+        "difference_vs_reference_eur_per_kwh": -0.104042,
+        "difference_vs_reference_percent": -37.56,
+        "below_reference_interval_count": 594,
+        "negative_market_interval_count": 38
+      },
+      {
+        "period": "2026-W39",
+        "interval_count": 672,
+        "expected_interval_count": 672,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.198531,
+        "minimum_eur_per_kwh_incl_vat": 0.017947,
+        "maximum_eur_per_kwh_incl_vat": 0.552535,
+        "difference_vs_reference_eur_per_kwh": -0.078469,
+        "difference_vs_reference_percent": -28.328,
+        "below_reference_interval_count": 583,
+        "negative_market_interval_count": 5
+      },
+      {
+        "period": "2026-W40",
+        "interval_count": 672,
+        "expected_interval_count": 672,
+        "partial_period": false,
+        "average_eur_per_kwh_incl_vat": 0.217268,
+        "minimum_eur_per_kwh_incl_vat": 0.069358,
+        "maximum_eur_per_kwh_incl_vat": 0.442372,
+        "difference_vs_reference_eur_per_kwh": -0.059732,
+        "difference_vs_reference_percent": -21.564,
+        "below_reference_interval_count": 585,
+        "negative_market_interval_count": 0
+      },
+      {
+        "period": "2026-W41",
+        "interval_count": 288,
+        "expected_interval_count": 672,
+        "partial_period": true,
+        "average_eur_per_kwh_incl_vat": 0.225538,
+        "minimum_eur_per_kwh_incl_vat": 0.063346,
+        "maximum_eur_per_kwh_incl_vat": 0.459022,
+        "difference_vs_reference_eur_per_kwh": -0.051462,
+        "difference_vs_reference_percent": -18.578,
+        "below_reference_interval_count": 238,
+        "negative_market_interval_count": 0
+      }
+    ],
+    "monthly": [
+      {
+        "period": "2026-09",
+        "interval_count": 2784,
+        "expected_interval_count": 2880,
+        "partial_period": true,
+        "average_eur_per_kwh_incl_vat": 0.18931,
+        "minimum_eur_per_kwh_incl_vat": 0.017947,
+        "maximum_eur_per_kwh_incl_vat": 0.624446,
+        "difference_vs_reference_eur_per_kwh": -0.08769,
+        "difference_vs_reference_percent": -31.657,
+        "below_reference_interval_count": 2527,
+        "negative_market_interval_count": 54
+      },
+      {
+        "period": "2026-10",
+        "interval_count": 672,
+        "expected_interval_count": 2980,
+        "partial_period": true,
+        "average_eur_per_kwh_incl_vat": 0.222575,
+        "minimum_eur_per_kwh_incl_vat": 0.063346,
+        "maximum_eur_per_kwh_incl_vat": 0.459022,
+        "difference_vs_reference_eur_per_kwh": -0.054425,
+        "difference_vs_reference_percent": -19.648,
+        "below_reference_interval_count": 574,
+        "negative_market_interval_count": 0
+      }
+    ]
+  }
+}
