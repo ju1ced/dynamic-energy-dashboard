@@ -51,6 +51,7 @@ const SHADOW_RENDER_ENTITY_FIELDS = Object.freeze([
 const VALIDATION_TELEMETRY_ENTITY_FIELDS = Object.freeze([
   "grid_power_entity",
   "battery_power_entity",
+  "battery_freshness_entity",
   "ev_power_entity",
   "house_power_entity",
   "pv_power_entity",
@@ -111,6 +112,7 @@ const DEFAULT_VALIDATION_CONFIG = Object.freeze({
   grid_import_positive: true,
   battery_power_entity: "",
   battery_charge_positive: true,
+  battery_freshness_entity: "",
   ev_power_entity: "",
   house_power_entity: "",
   pv_power_entity: "",
@@ -700,8 +702,28 @@ function hasSupportedPowerUnit(stateObject) {
   ].includes(rawUnit.trim());
 }
 
-function readPower(hass, entityId, now, staleMinutes, positive = true, strictUnits = false) {
-  const reading = readEntity(hass, entityId, now, staleMinutes, true);
+function readPower(
+  hass,
+  entityId,
+  now,
+  staleMinutes,
+  positive = true,
+  strictUnits = false,
+  freshnessEntityId = "",
+) {
+  const originalReading = readEntity(hass, entityId, now, staleMinutes, true);
+  const heartbeat = originalReading.quality === "STALE" && freshnessEntityId
+    ? readEntity(hass, freshnessEntityId, now, staleMinutes, true)
+    : null;
+  const reading = heartbeat?.quality === "GOOD"
+    ? {
+      ...originalReading,
+      quality: "GOOD",
+      ageMinutes: heartbeat.ageMinutes,
+      measurementAgeMinutes: originalReading.ageMinutes,
+      freshnessSource: "HEARTBEAT",
+    }
+    : { ...originalReading, freshnessSource: null };
   if (strictUnits && reading.stateObject && !hasSupportedPowerUnit(reading.stateObject)) {
     return { ...reading, quality: "INVALID", value: null };
   }
@@ -1582,6 +1604,7 @@ export function buildValidationSnapshot(hass, suppliedConfig = {}, now = new Dat
     staleMinutes,
     config.battery_charge_positive !== false,
     true,
+    config.battery_freshness_entity,
   );
   const ev = readPower(hass, config.ev_power_entity, now, staleMinutes, true, true);
   const configuredHouse = readPower(hass, config.house_power_entity, now, staleMinutes, true, true);
@@ -1669,6 +1692,8 @@ export function buildValidationSnapshot(hass, suppliedConfig = {}, now = new Dat
       gridQuality: grid.quality,
       batteryKw: battery.value,
       batteryQuality: battery.quality,
+      batteryFreshnessSource: battery.freshnessSource,
+      batteryMeasurementAgeMinutes: battery.measurementAgeMinutes ?? battery.ageMinutes ?? null,
       evKw: ev.value,
       evQuality: ev.quality,
       houseKw,
@@ -2426,7 +2451,13 @@ export function renderValidationCard(config, snapshot) {
           <div class="validation-section-title"><div><span class="validation-eyebrow">Huidig kwartier</span><h3>Verwacht versus werkelijk</h3></div><span>${escapeHtml(snapshot?.interval?.batteryOutcome || "INSUFFICIENT_DATA")}</span></div>
           <div class="validation-grid four">
             ${validationMetric("Verwacht batterijgedrag", validationActionLabel(snapshot?.interval?.expectedBatteryAction), snapshot?.interval?.planReason || "Geen planreden")}
-            ${validationMetric("Werkelijk batterijgedrag", validationActionLabel(snapshot?.interval?.observedBatteryAction), qualityLabel(snapshot?.live?.batteryQuality || "NOT_CONFIGURED"))}
+            ${validationMetric(
+              "Werkelijk batterijgedrag",
+              validationActionLabel(snapshot?.interval?.observedBatteryAction),
+              snapshot?.live?.batteryFreshnessSource === "HEARTBEAT"
+                ? "actueel via heartbeat"
+                : qualityLabel(snapshot?.live?.batteryQuality || "NOT_CONFIGURED"),
+            )}
             ${validationMetric("Werkelijk EV-gedrag", validationActionLabel(snapshot?.interval?.evAction), qualityLabel(snapshot?.live?.evQuality || "NOT_CONFIGURED"))}
             ${validationMetric("Resultaat", validationStatusLabel(snapshot?.interval?.batteryOutcome), "Geen vendoroorzaak afgeleid")}
           </div>
@@ -2497,6 +2528,7 @@ export class DynamicEnergyValidationCard extends HTMLElementBase {
         { name: "grid_import_positive", selector: { boolean: {} } },
         { name: "battery_power_entity", required: true, selector: { entity: {} } },
         { name: "battery_charge_positive", selector: { boolean: {} } },
+        { name: "battery_freshness_entity", selector: { entity: {} } },
         { name: "ev_power_entity", required: true, selector: { entity: {} } },
         { name: "house_power_entity", selector: { entity: {} } },
         { name: "pv_power_entity", selector: { entity: {} } },
@@ -2521,6 +2553,7 @@ export class DynamicEnergyValidationCard extends HTMLElementBase {
         grid_import_positive: "Positief netvermogen betekent afname",
         battery_power_entity: "Batterijvermogen",
         battery_charge_positive: "Positief batterijvermogen betekent laden",
+        battery_freshness_entity: "Batterij-heartbeat (optioneel)",
         ev_power_entity: "EV-laadvermogen",
         house_power_entity: "Huisvermogen (optioneel)",
         pv_power_entity: "PV-vermogen (optioneel)",

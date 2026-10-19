@@ -15,11 +15,15 @@ can create or switch only its own automations between `OFF` and
 `ARMED_BLOCKED`. It cannot select `LIVE`, and generated automations stop before
 any SMA, Smappee, battery or EV-charger action.
 
-Alpha `0.3.0-alpha.7` keeps quarter prices visible across the complete configured
-price-freshness window and uses Home Assistant's `last_reported` timestamp for
-unchanged measurements. The third `Validatie` view therefore keeps actively
-reported zero battery/PV values and derived house power available without
-weakening the read-only or fail-closed boundary.
+Alpha `0.3.0-alpha.11` retains the alpha.7 quarter-price and telemetry fixes and
+adds an optional battery heartbeat for integrations whose unchanged numeric
+battery sensor is not re-reported. The heartbeat proves only that the configured
+source is current; it never supplies or changes the measured battery value.
+The heartbeat entity's state is not interpreted: any state other than
+`unavailable` or `unknown` that Home Assistant updated recently counts as fresh,
+including values such as `Fault` or `offline`. Choose a sensor that becomes
+`unavailable` when the battery source is down, and do not point it at a status
+sensor that keeps reporting while the battery reading is unreliable.
 
 The validation card refreshes only its configured live telemetry through
 read-only Home Assistant entity `GET` requests once per minute. Plans, prices and
@@ -116,7 +120,7 @@ artifact. No publication is performed automatically by this repository.
 The alpha control card requires Home Assistant `2024.10.0` or newer because its
 generated automations use the current plural automation syntax.
 
-For the alpha cards, explicitly select the `0.3.0-alpha.7` prerelease in
+For the alpha cards, explicitly select the `0.3.0-alpha.11` prerelease in
 HACS. Do not replace a stable read-only installation with the alpha unless the
 Home Assistant configuration-write boundary below is understood.
 
@@ -251,6 +255,7 @@ grid_power_entity: sensor.grid_power
 grid_import_positive: true
 battery_power_entity: sensor.battery_power
 battery_charge_positive: true
+battery_freshness_entity: sensor.battery_status
 ev_power_entity: sensor.ev_power
 house_power_entity: sensor.house_power
 pv_power_entity: sensor.pv_power
@@ -476,4 +481,4 @@ npm run check:hacs
 The HACS artifact is `dist/dynamic-energy-dashboard.js`.
 
 Release validation for the alpha is documented in
-`docs/releases/v0.3.0-alpha.7-checklist.md`.
+`docs/releases/v0.3.0-alpha.11-checklist.md`.
