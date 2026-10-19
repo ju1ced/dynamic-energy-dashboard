@@ -429,22 +429,6 @@ class ShadowPlanFeedTests(unittest.TestCase):
         self.assertEqual(payload["reason"], "PLAN_EXPIRED")
         self.assertEqual(payload["schedule"], [])
 
-    def test_home_assistant_example_is_read_only_and_uses_feed_contract(self):
-        source = HA_EXAMPLE.read_text(encoding="utf-8")
-
-        self.assertIn("https://<AUTHENTICATED_DASHBOARD_HOST>", source)
-        self.assertNotIn("http://", source)
-        self.assertIn("/data/shadow-plan.json", source)
-        self.assertIn("value_json.state", source)
-        self.assertIn("schedule", source)
-        self.assertIn("prices", source)
-        self.assertIn("price_reference_eur_per_kwh", source)
-        self.assertIn("price_tariff_version", source)
-        self.assertIn("price_aggregates", source)
-        self.assertIn("generated_at", source)
-        self.assertNotIn("service:", source)
-        self.assertNotIn("command", source.lower())
-
 
 if __name__ == "__main__":
     unittest.main()

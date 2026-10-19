@@ -922,7 +922,7 @@ def main() -> int:
     parser.add_argument(
         "--price-feed",
         type=Path,
-        default=Path("web-dashboard/data/day-ahead-prices.json"),
+        default=Path("data/raw/day-ahead-prices.json"),
     )
     parser.add_argument(
         "--entity-config",

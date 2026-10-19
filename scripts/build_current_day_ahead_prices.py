@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ZONE = ZoneInfo("Europe/Brussels")
 DEFAULT_TARIFF = ROOT / "config" / "tariffs" / "ecopower-dbs-2026-08-01.json"
 DEFAULT_REFERENCE = ROOT / "config" / "tariffs" / "shadow-price-reference.json"
-DEFAULT_OUTPUT = ROOT / "web-dashboard" / "data" / "day-ahead-prices.json"
+DEFAULT_OUTPUT = ROOT / "data" / "raw" / "day-ahead-prices.json"
 DEFAULT_RAW_OUTPUT = ROOT / "data" / "raw" / "entsoe-current-day-ahead-prices.json"
 
 
