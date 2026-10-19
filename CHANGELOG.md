@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.0-alpha.7 — 2026-10-19
+
+- Keep Home Assistant quarter-price timelines available for their independent
+  20-minute freshness window instead of applying the stricter live-telemetry
+  threshold.
+- Refresh configured validation telemetry with read-only Home Assistant entity
+  GETs and prefer `last_reported` for those live measurements, so unchanged but
+  actively reported zero values remain valid.
+- Keep plan, price and daily-summary freshness tied to content-change timestamps;
+  re-reporting unchanged content cannot revive a stale plan or summary.
+- Restore useful read-only validation output for battery, PV and derived house
+  power without relaxing numeric, unit or fail-closed plan validation.
+- Preserve `execution_allowed: false` and all physical-write prohibitions.
+
 ## 0.3.0-alpha.6 — 2026-10-16
 
 - Ignore Home Assistant updates that do not affect any entity configured on the

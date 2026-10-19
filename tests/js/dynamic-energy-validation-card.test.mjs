@@ -4,6 +4,8 @@ import assert from "node:assert/strict";
 import {
   buildValidationSnapshot,
   DynamicEnergyValidationCard,
+  fetchValidationTelemetry,
+  hassWithValidationTelemetry,
   renderValidationCard,
 } from "../../dist/dynamic-energy-dashboard.js";
 
@@ -107,6 +109,78 @@ test("validation snapshot derives house load when no measured house entity is co
 
   const html = renderValidationCard(CONFIG, snapshot);
   assert.match(html, /Huisvermogen[\s\S]*3,9 kW[\s\S]*afgeleid uit net, PV en batterij/);
+});
+
+test("validation telemetry refresh uses read-only entity GETs for unchanged measurements", async () => {
+  const calls = [];
+  const refreshed = await fetchValidationTelemetry({
+    callApi: async (method, path) => {
+      calls.push([method, path]);
+      const entityId = decodeURIComponent(path.replace("states/", ""));
+      return {
+        ...state(0, "W"),
+        entity_id: entityId,
+        last_reported: "2026-10-16T08:04:50Z",
+      };
+    },
+  }, {
+    grid_power_entity: "sensor.grid",
+    battery_power_entity: "sensor.battery",
+    ev_power_entity: "sensor.ev",
+  });
+
+  assert.deepEqual(calls, [
+    ["GET", "states/sensor.grid"],
+    ["GET", "states/sensor.battery"],
+    ["GET", "states/sensor.ev"],
+  ]);
+  assert.equal(refreshed["sensor.battery"].last_reported, "2026-10-16T08:04:50Z");
+});
+
+test("validation card caches refreshed telemetry returned by Home Assistant", async () => {
+  const card = new DynamicEnergyValidationCard();
+  card._config = {
+    ...CONFIG,
+    grid_power_entity: "sensor.grid",
+    battery_power_entity: "",
+    ev_power_entity: "",
+    house_power_entity: "",
+    pv_power_entity: "",
+    heat_pump_power_entity: "",
+  };
+  card._hass = {
+    callApi: async () => ({
+      ...state(0, "W"),
+      entity_id: "sensor.grid",
+      last_reported: "2026-10-16T08:04:55Z",
+    }),
+  };
+
+  await card._refreshTelemetry(true);
+
+  assert.equal(card._telemetryStates["sensor.grid"].last_reported, "2026-10-16T08:04:55Z");
+});
+
+test("future-dated cached telemetry cannot replace newer live telemetry", () => {
+  const nowMs = Date.now();
+  const live = {
+    ...state(5000, "W"),
+    last_updated: new Date(nowMs - 5_000).toISOString(),
+    last_changed: new Date(nowMs - 5_000).toISOString(),
+  };
+  const cached = {
+    ...state(0, "W"),
+    last_reported: new Date(nowMs + 3_600_000).toISOString(),
+    last_updated: new Date(nowMs - 3_600_000).toISOString(),
+    last_changed: new Date(nowMs - 3_600_000).toISOString(),
+  };
+
+  const merged = hassWithValidationTelemetry(
+    { states: { "sensor.grid": live } },
+    { "sensor.grid": cached },
+  );
+
+  assert.equal(merged.states["sensor.grid"].state, "5000");
 });
 
 test("validation snapshot reads a bounded daily scorecard without turning missing history into a zero", () => {

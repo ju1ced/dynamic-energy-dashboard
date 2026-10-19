@@ -7,6 +7,7 @@ const DEFAULT_CONFIG = Object.freeze({
   price_reference_eur_per_kwh: 0.277,
   peak_limit_kw: 7,
   stale_after_minutes: 10,
+  price_stale_after_minutes: 20,
   plan_stale_after_hours: 30,
   deviation_warning_kw: 0.5,
   grid_import_positive: true,
@@ -47,6 +48,15 @@ const SHADOW_RENDER_ENTITY_FIELDS = Object.freeze([
   "export_price_entity",
   "plan_entity",
 ]);
+const VALIDATION_TELEMETRY_ENTITY_FIELDS = Object.freeze([
+  "grid_power_entity",
+  "battery_power_entity",
+  "ev_power_entity",
+  "house_power_entity",
+  "pv_power_entity",
+  "heat_pump_power_entity",
+]);
+const VALIDATION_TELEMETRY_REFRESH_MS = 60_000;
 
 const CONTROL_CARD_TAG = "dynamic-energy-control-config-card";
 const VALIDATION_CARD_TAG = "dynamic-energy-validation-card";
@@ -628,7 +638,13 @@ export function toEuroPerKwh(stateObject) {
   return value;
 }
 
-export function readEntity(hass, entityId, now = new Date(), staleMinutes = 10) {
+export function readEntity(
+  hass,
+  entityId,
+  now = new Date(),
+  staleMinutes = 10,
+  preferLastReported = false,
+) {
   if (!entityId) {
     return { entityId: null, stateObject: null, value: null, quality: "NOT_CONFIGURED" };
   }
@@ -647,12 +663,20 @@ export function readEntity(hass, entityId, now = new Date(), staleMinutes = 10) 
   if (["unknown", "unavailable", "none", "null", ""].includes(rawState)) {
     return { entityId, stateObject, value: null, quality: "UNAVAILABLE" };
   }
-  const timestamp = firstExternalValue(stateObject, ["last_updated", "last_changed"]);
-  const updatedMs = externalDateMs(timestamp);
   const nowMs = now instanceof Date ? now.getTime() : NaN;
-  const ageMinutes = (nowMs - updatedMs) / 60000;
-  const validTimestamp = Number.isFinite(updatedMs) && Number.isFinite(ageMinutes);
-  const quality = !validTimestamp || ageMinutes < -1
+  const timestampFields = preferLastReported
+    ? ["last_reported", "last_updated", "last_changed"]
+    : ["last_updated", "last_changed"];
+  let ageMinutes = null;
+  for (const field of timestampFields) {
+    const updatedMs = externalDateMs(safeValue(stateObject, field));
+    const candidateAge = (nowMs - updatedMs) / 60000;
+    if (Number.isFinite(updatedMs) && Number.isFinite(candidateAge) && candidateAge >= -1) {
+      ageMinutes = Math.max(0, candidateAge);
+      break;
+    }
+  }
+  const quality = ageMinutes === null
     ? "INVALID"
     : ageMinutes > staleMinutes ? "STALE" : "GOOD";
   const friendlyName = safeValue(safeAttributes(stateObject), "friendly_name");
@@ -661,7 +685,7 @@ export function readEntity(hass, entityId, now = new Date(), staleMinutes = 10) 
     stateObject,
     value: finiteNumber(rawStateValue),
     quality,
-    ageMinutes: validTimestamp ? Math.max(0, ageMinutes) : null,
+    ageMinutes,
     name: typeof friendlyName === "string" ? friendlyName : entityId,
   };
 }
@@ -677,7 +701,7 @@ function hasSupportedPowerUnit(stateObject) {
 }
 
 function readPower(hass, entityId, now, staleMinutes, positive = true, strictUnits = false) {
-  const reading = readEntity(hass, entityId, now, staleMinutes);
+  const reading = readEntity(hass, entityId, now, staleMinutes, true);
   if (strictUnits && reading.stateObject && !hasSupportedPowerUnit(reading.stateObject)) {
     return { ...reading, quality: "INVALID", value: null };
   }
@@ -689,7 +713,7 @@ function readPower(hass, entityId, now, staleMinutes, positive = true, strictUni
 }
 
 function readPercentage(hass, entityId, now, staleMinutes) {
-  const reading = readEntity(hass, entityId, now, staleMinutes);
+  const reading = readEntity(hass, entityId, now, staleMinutes, true);
   const outOfRange = reading.value !== null && (reading.value < 0 || reading.value > 100);
   const quality = (reading.value === null || outOfRange) && ["GOOD", "STALE"].includes(reading.quality)
     ? "INVALID"
@@ -897,6 +921,8 @@ function normaliseAggregates(aggregates) {
 export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
   const config = { ...DEFAULT_CONFIG, ...suppliedConfig };
   const staleMinutes = finiteNumber(config.stale_after_minutes) ?? DEFAULT_CONFIG.stale_after_minutes;
+  const priceStaleMinutes = finiteNumber(config.price_stale_after_minutes)
+    ?? DEFAULT_CONFIG.price_stale_after_minutes;
   const grid = readPower(
     hass,
     config.grid_power_entity,
@@ -916,8 +942,8 @@ export function buildSnapshot(hass, suppliedConfig = {}, now = new Date()) {
   const configuredHouse = readPower(hass, config.house_power_entity, now, staleMinutes, true);
   const ev = readPower(hass, config.ev_power_entity, now, staleMinutes, true);
   const heatPump = readPower(hass, config.heat_pump_power_entity, now, staleMinutes, true);
-  const importPrice = readPrice(hass, config.import_price_entity, now, staleMinutes);
-  const exportPrice = readPrice(hass, config.export_price_entity, now, staleMinutes);
+  const importPrice = readPrice(hass, config.import_price_entity, now, priceStaleMinutes);
+  const exportPrice = readPrice(hass, config.export_price_entity, now, priceStaleMinutes);
 
   const gridKw = grid.value;
   const pvKw = pv.value === null ? null : Math.max(0, pv.value);
@@ -1368,6 +1394,49 @@ function validationSummary(reading) {
     shadowCostEur,
     costDeltaEur: Math.round((actualCostEur - shadowCostEur) * 100) / 100,
   };
+}
+
+export async function fetchValidationTelemetry(hass, suppliedConfig = {}) {
+  if (!hass || typeof hass.callApi !== "function") return {};
+  const config = { ...DEFAULT_VALIDATION_CONFIG, ...suppliedConfig };
+  const entityIds = [...new Set(VALIDATION_TELEMETRY_ENTITY_FIELDS
+    .map((field) => safeValue(config, field))
+    .filter((entityId) => typeof entityId === "string" && entityId.trim() !== ""))];
+  const results = await Promise.allSettled(entityIds.map(async (entityId) => {
+    const stateObject = await hass.callApi("GET", `states/${encodeURIComponent(entityId)}`);
+    return { entityId, stateObject };
+  }));
+  const states = {};
+  for (const result of results) {
+    if (result.status !== "fulfilled") continue;
+    const { entityId, stateObject } = result.value;
+    if (!isPlainObject(stateObject) || safeValue(stateObject, "entity_id") !== entityId) continue;
+    states[entityId] = stateObject;
+  }
+  return states;
+}
+
+function latestStateTimestamp(stateObject, nowMs = Date.now()) {
+  if (!isPlainObject(stateObject)) return -Infinity;
+  const timestamps = [
+    externalDateMs(safeValue(stateObject, "last_reported")),
+    externalDateMs(safeValue(stateObject, "last_updated")),
+    externalDateMs(safeValue(stateObject, "last_changed")),
+  ].filter((timestamp) => Number.isFinite(timestamp) && timestamp <= nowMs + 60_000);
+  return timestamps.length > 0 ? Math.max(...timestamps) : -Infinity;
+}
+
+export function hassWithValidationTelemetry(hass, telemetryStates, nowMs = Date.now()) {
+  if (!hass || !isPlainObject(telemetryStates) || Object.keys(telemetryStates).length === 0) {
+    return hass;
+  }
+  const states = { ...(safeValue(hass, "states") || {}) };
+  for (const [entityId, stateObject] of Object.entries(telemetryStates)) {
+    if (latestStateTimestamp(stateObject, nowMs) >= latestStateTimestamp(states[entityId], nowMs)) {
+      states[entityId] = stateObject;
+    }
+  }
+  return { ...hass, states };
 }
 
 export function buildValidationSnapshot(hass, suppliedConfig = {}, now = new Date()) {
@@ -1894,6 +1963,7 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
         { name: "price_reference_eur_per_kwh", selector: { number: { min: -2, max: 5, step: 0.001, mode: "box", unit_of_measurement: "EUR/kWh" } } },
         { name: "peak_limit_kw", selector: { number: { min: 0.1, max: 30, step: 0.1, mode: "box", unit_of_measurement: "kW" } } },
         { name: "stale_after_minutes", selector: { number: { min: 1, max: 180, step: 1, mode: "box", unit_of_measurement: "min" } } },
+        { name: "price_stale_after_minutes", selector: { number: { min: 1, max: 180, step: 1, mode: "box", unit_of_measurement: "min" } } },
         { name: "plan_stale_after_hours", selector: { number: { min: 1, max: 72, step: 1, mode: "box", unit_of_measurement: "h" } } },
         { name: "deviation_warning_kw", selector: { number: { min: 0.1, max: 10, step: 0.1, mode: "box", unit_of_measurement: "kW" } } },
         { name: "grid_import_positive", selector: { boolean: {} } },
@@ -1917,6 +1987,7 @@ export class DynamicEnergyShadowCard extends HTMLElementBase {
         price_reference_eur_per_kwh: "Indicatieve vergelijkingsprijs",
         peak_limit_kw: "Gezamenlijke netpiekgrens",
         stale_after_minutes: "Live data verouderd na",
+        price_stale_after_minutes: "Prijsdata verouderd na",
         plan_stale_after_hours: "Plan verouderd na",
         deviation_warning_kw: "Waarschuwing bij afwijking",
         grid_import_positive: "Positief netvermogen betekent afname",
@@ -2366,7 +2437,22 @@ export class DynamicEnergyValidationCard extends HTMLElementBase {
     super();
     this._config = { ...DEFAULT_VALIDATION_CONFIG };
     this._hass = null;
+    this._telemetryStates = {};
+    this._telemetryRefreshTimer = null;
+    this._telemetryRefreshInFlight = null;
+    this._lastTelemetryRefreshMs = 0;
     this._root = this.attachShadow ? this.attachShadow({ mode: "open" }) : null;
+  }
+
+  connectedCallback() {
+    this._startTelemetryRefresh();
+  }
+
+  disconnectedCallback() {
+    if (this._telemetryRefreshTimer !== null) {
+      globalThis.clearInterval(this._telemetryRefreshTimer);
+      this._telemetryRefreshTimer = null;
+    }
   }
 
   static getConfigForm() {
@@ -2434,15 +2520,45 @@ export class DynamicEnergyValidationCard extends HTMLElementBase {
     if (!isPlainObject(config)) throw new Error("Ongeldige validatiekaartconfiguratie");
     this._config = { ...DEFAULT_VALIDATION_CONFIG, ...config };
     this._render();
+    this._refreshTelemetry(true);
   }
 
   set hass(hass) {
     this._hass = hass;
     this._render();
+    this._startTelemetryRefresh();
   }
 
   getCardSize() {
     return 7;
+  }
+
+  _startTelemetryRefresh() {
+    if (!this._hass || typeof this._hass.callApi !== "function") return;
+    this._refreshTelemetry();
+    if (this._telemetryRefreshTimer === null && typeof globalThis.setInterval === "function") {
+      this._telemetryRefreshTimer = globalThis.setInterval(
+        () => this._refreshTelemetry(true),
+        VALIDATION_TELEMETRY_REFRESH_MS,
+      );
+    }
+  }
+
+  async _refreshTelemetry(force = false) {
+    if (!this._hass || typeof this._hass.callApi !== "function" || this._telemetryRefreshInFlight) return;
+    if (!force && Date.now() - this._lastTelemetryRefreshMs < VALIDATION_TELEMETRY_REFRESH_MS) return;
+    const request = fetchValidationTelemetry(this._hass, this._config);
+    this._telemetryRefreshInFlight = request;
+    try {
+      const states = await request;
+      this._lastTelemetryRefreshMs = Date.now();
+      if (Object.keys(states).length > 0) {
+        this._telemetryStates = states;
+        this._render();
+      }
+    } finally {
+      if (this._telemetryRefreshInFlight === request) this._telemetryRefreshInFlight = null;
+    }
   }
 
   _render() {
@@ -2488,7 +2604,10 @@ export class DynamicEnergyValidationCard extends HTMLElementBase {
         }
         @media (max-width: 430px) { .validation-grid.four, .validation-grid.three, .validation-grid.two, .summary-grid { grid-template-columns: 1fr; } }
       </style>
-      ${renderValidationCard(this._config, buildValidationSnapshot(this._hass, this._config))}`;
+      ${renderValidationCard(
+        this._config,
+        buildValidationSnapshot(hassWithValidationTelemetry(this._hass, this._telemetryStates), this._config),
+      )}`;
   }
 }
 

@@ -29,6 +29,32 @@ function hostilePrimitive() {
   };
 }
 
+test("telemetry freshness prefers Home Assistant last_reported for unchanged measurements", () => {
+  const reading = readEntity({ states: {
+    "sensor.battery": {
+      ...state(0, "W", "2026-10-19T00:49:22Z"),
+      last_reported: "2026-10-19T08:44:00Z",
+    },
+  } }, "sensor.battery", new Date("2026-10-19T08:44:15Z"), 10, true);
+
+  assert.equal(reading.quality, "GOOD");
+  assert.equal(reading.ageMinutes, 0.25);
+});
+
+test("telemetry freshness falls back when last_reported is invalid or future dated", () => {
+  for (const lastReported of ["not-a-date", "2026-10-19T09:30:00Z"]) {
+    const reading = readEntity({ states: {
+      "sensor.battery": {
+        ...state(0, "W", "2026-10-19T08:43:00Z"),
+        last_reported: lastReported,
+      },
+    } }, "sensor.battery", new Date("2026-10-19T08:44:15Z"), 10, true);
+
+    assert.equal(reading.quality, "GOOD");
+    assert.equal(reading.ageMinutes, 1.25);
+  }
+});
+
 test("shadow card ignores Home Assistant updates unrelated to its configured entities", () => {
   const card = new DynamicEnergyShadowCard();
   let renderCount = 0;
@@ -321,6 +347,38 @@ test("stale price entities do not publish a future timeline", () => {
 
   assert.deepEqual(snapshot.prices.intervals, []);
   assert.equal(snapshot.prices.source, null);
+});
+
+test("quarter prices remain available between ten and twenty minutes after a price update", () => {
+  const now = new Date("2026-10-19T06:44:15Z");
+  const liveUpdated = "2026-10-19T06:44:00Z";
+  const priceUpdated = "2026-10-19T06:30:00Z";
+  const snapshot = buildSnapshot({ states: {
+    "sensor.grid": state(4574, "W", liveUpdated),
+    "sensor.pv": state(0, "W", liveUpdated),
+    "sensor.battery": state(0, "W", liveUpdated),
+    "sensor.soc": state(0, "%", liveUpdated),
+    "sensor.plan": state("PLANNED", null, liveUpdated, { schedule: [] }),
+    "sensor.import": state(0.4316, "EUR/kWh", priceUpdated, {
+      data: [{
+        start_time: "2026-10-19T08:30:00+02:00",
+        end_time: "2026-10-19T08:45:00+02:00",
+        price_per_kwh: 0.4316,
+      }],
+    }),
+  } }, {
+    grid_power_entity: "sensor.grid",
+    pv_power_entity: "sensor.pv",
+    battery_power_entity: "sensor.battery",
+    battery_soc_entity: "sensor.soc",
+    plan_entity: "sensor.plan",
+    import_price_entity: "sensor.import",
+    stale_after_minutes: 10,
+  }, now);
+
+  assert.equal(snapshot.prices.source, "Home Assistant price entities");
+  assert.equal(snapshot.prices.intervals.length, 1);
+  assert.equal(snapshot.live.importPriceEurPerKwh, 0.4316);
 });
 
 test("plan price timeline supplies the current price when no price entity is configured", () => {
@@ -668,6 +726,37 @@ test("a stale shadow plan cannot suppress a fresh integration timeline", () => {
   assert.equal(snapshot.prices.source, "Home Assistant price entities");
   assert.equal(snapshot.prices.intervals[0].importEurPerKwh, 0.12);
   assert.equal(snapshot.live.importPriceEurPerKwh, 0.12);
+});
+
+test("a recently re-reported old plan remains stale and cannot restore an action", () => {
+  const now = new Date("2026-10-19T08:45:00Z");
+  const plan = state("planned", null, "2026-10-16T08:45:00Z", {
+    schedule: [{
+      start: "2026-10-19T08:45:00Z",
+      end: "2026-10-19T09:00:00Z",
+      action: "CHARGE_FROM_GRID",
+      reason: "LOW_PRICE",
+      battery_power_kw: 3,
+    }],
+  });
+  plan.last_reported = "2026-10-19T08:44:55Z";
+  const snapshot = buildSnapshot({ states: {
+    "sensor.grid": state(1, "kW", "2026-10-19T08:44:30Z"),
+    "sensor.pv": state(0, "kW", "2026-10-19T08:44:30Z"),
+    "sensor.battery": state(0, "kW", "2026-10-19T08:44:30Z"),
+    "sensor.soc": state(50, "%", "2026-10-19T08:44:30Z"),
+    "sensor.plan": plan,
+  } }, {
+    grid_power_entity: "sensor.grid",
+    pv_power_entity: "sensor.pv",
+    battery_power_entity: "sensor.battery",
+    battery_soc_entity: "sensor.soc",
+    plan_entity: "sensor.plan",
+    plan_stale_after_hours: 30,
+  }, now);
+
+  assert.equal(snapshot.plan.quality, "STALE");
+  assert.equal(snapshot.plan.action ?? null, null);
 });
 
 test("stale configured current price entities are never displayed", () => {
