@@ -1,6 +1,7 @@
 "use strict";
 
 import { currentDayAheadView } from "./day-ahead-view.js";
+import { buildDayCourseQuery, DEFAULT_EV_ASSUMPTIONS, renderDayCourse } from "./day-course-view.js";
 import {
   ACTIVATION_CAPABILITY,
   createAutomationDraft,
@@ -17,6 +18,8 @@ const state = {
   modeMessage: "",
   automations: [],
   selectedAutomationId: null,
+  dayCourse: { key: null, status: "idle", course: null, error: null },
+  evAssumptions: { ...DEFAULT_EV_ASSUMPTIONS },
 };
 const viewNames = {
   overview: "Overzicht",
@@ -30,6 +33,7 @@ const viewNames = {
   steering: "Sturing",
   decisions: "Beslissingen",
   configuration: "Configuratie",
+  daycourse: "Dagverloop",
 };
 
 const euro = new Intl.NumberFormat("nl-BE", { style: "currency", currency: "EUR", minimumFractionDigits: 2 });
@@ -460,6 +464,14 @@ function renderConfiguration() {
 }
 
 function renderContext(data, currentPrices) {
+  if (state.view === "daycourse") {
+    document.getElementById("context-content").innerHTML = `<div class="context-stack">
+      <section class="context-section"><h3>Hoe lees je dit?</h3><ul><li>Bovenaan: de afnameprijs per kwartier. Rood ligt boven je plafond; daar laadt de EV niet.</li><li>Midden: batterij (groen) en EV (blauw) in kW.</li><li>Onderaan: wat het huis netto van het net haalt. Oranje stippellijn = je importlimiet.</li><li>"Ongestuurd" betekent: de auto laadt direct op vol vermogen bij aankomst.</li></ul></section>
+      <div class="callout warning-callout"><strong>Geen live control</strong><p>Dit is een berekening op het shadow-plan. De Actief-optie blijft vergrendeld en er worden geen apparaten, Home Assistant, SMA of Smappee aangestuurd.</p></div>
+      <section class="context-section"><h3>Let op</h3><p>De batterij volgt het bestaande batterijplan en houdt geen rekening met de EV. Plan en prijzen zijn de nieuwste in de shadow-pipeline; controleer de plandatum in het paneel.</p></section>
+    </div>`;
+    return;
+  }
   const multiYear = state.view === "multiyear";
   const scenarios = state.view === "scenarios";
   const steering = state.view === "steering";
@@ -501,7 +513,7 @@ function renderContext(data, currentPrices) {
   </div>`;
 }
 
-const renderers = { overview: renderOverview, financial: renderFinancial, prices: renderPrices, energy: renderEnergy, quality: renderQuality, battery: renderBattery, multiyear: renderMultiYear, scenarios: renderScenarios, steering: renderSteering, decisions: renderDecisions, configuration: renderConfiguration };
+const renderers = { overview: renderOverview, financial: renderFinancial, prices: renderPrices, energy: renderEnergy, quality: renderQuality, battery: renderBattery, multiyear: renderMultiYear, scenarios: renderScenarios, steering: renderSteering, decisions: renderDecisions, configuration: renderConfiguration, daycourse: renderDayCourseView };
 
 function render() {
   if (!state.data) return;
@@ -513,7 +525,7 @@ function render() {
   document.getElementById("view-label").textContent = viewNames[state.view];
   const longRange = ["multiyear", "scenarios"].includes(state.view);
   const steering = state.view === "steering";
-  const configuration = state.view === "configuration";
+  const configuration = state.view === "configuration" || state.view === "daycourse";
   const prices = state.view === "prices" && state.dayAhead;
   const visiblePeriod = longRange
     ? state.data.multi_year_comparison
@@ -525,9 +537,71 @@ function render() {
     ? renderPrices(state.data, currentPrices)
     : renderers[state.view](state.data);
   renderContext(state.data, currentPrices);
-  if (configuration) bindConfigurationEvents();
+  if (state.view === "configuration") bindConfigurationEvents();
+  if (state.view === "daycourse") bindDayCourseEvents();
   document.querySelectorAll(".nav-item").forEach(button => button.classList.toggle("active", button.dataset.view === state.view));
   closeMenu();
+}
+
+const EV_ASSUMPTIONS_STORAGE_KEY = "dynamic-energy-ev-assumptions-v1";
+
+function loadEvAssumptions() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(EV_ASSUMPTIONS_STORAGE_KEY) || "null");
+    if (stored && typeof stored === "object") {
+      for (const key of Object.keys(DEFAULT_EV_ASSUMPTIONS)) {
+        if (Number.isFinite(stored[key])) state.evAssumptions[key] = stored[key];
+      }
+    }
+  } catch (_) {
+    state.evAssumptions = { ...DEFAULT_EV_ASSUMPTIONS };
+  }
+}
+
+function renderDayCourseView() {
+  const automation = selectedAutomation();
+  if (!automation) {
+    return `<div class="error-state"><strong>Geen automatisatie geselecteerd.</strong><p>Maak er eerst een aan onder Configuratie.</p></div>`;
+  }
+  return renderDayCourse({
+    status: state.dayCourse.status === "idle" ? "loading" : state.dayCourse.status,
+    course: state.dayCourse.course,
+    error: state.dayCourse.error,
+    automation,
+    assumptions: state.evAssumptions,
+  });
+}
+
+async function loadDayCourse() {
+  const automation = selectedAutomation();
+  if (!automation) return;
+  const key = buildDayCourseQuery(automation, state.evAssumptions);
+  if (state.dayCourse.key === key) return;
+  state.dayCourse = { key, status: "loading", course: null, error: null };
+  try {
+    const response = await fetch(`data/day-course.json?${key}`, { cache: "no-store" });
+    const body = await response.json().catch(() => ({ status: "UNAVAILABLE", errors: [`HTTP_${response.status}`] }));
+    if (state.dayCourse.key !== key) return;
+    state.dayCourse = response.ok
+      ? { key, status: "ready", course: body, error: null }
+      : { key, status: "error", course: null, error: body };
+  } catch (error) {
+    if (state.dayCourse.key !== key) return;
+    state.dayCourse = { key, status: "error", course: null, error: { status: "UNAVAILABLE", errors: [String(error.message || error)] } };
+  }
+  if (state.view === "daycourse") render();
+}
+
+function bindDayCourseEvents() {
+  document.querySelectorAll("[data-ev-assumption]").forEach(input => input.addEventListener("change", () => {
+    const value = Number(input.value);
+    if (!input.value.trim() || !Number.isFinite(value)) return;
+    state.evAssumptions[input.dataset.evAssumption] = value;
+    try { localStorage.setItem(EV_ASSUMPTIONS_STORAGE_KEY, JSON.stringify(state.evAssumptions)); } catch (_) { /* optional */ }
+    loadDayCourse();
+    render();
+  }));
+  loadDayCourse();
 }
 
 function renderModeControls() {
@@ -668,6 +742,7 @@ function loadUiScale() {
 }
 
 async function loadData() {
+  state.dayCourse = { key: null, status: "idle", course: null, error: null };
   document.getElementById("data-status").textContent = "data laden";
   try {
     const [dashboardResponse, dayAheadResponse] = await Promise.all([
@@ -705,6 +780,7 @@ document.getElementById("scrim").addEventListener("click", closeMenu);
 window.addEventListener("keydown", event => { if (event.key === "Escape") closeMenu(); });
 
 loadControlPreferences();
+loadEvAssumptions();
 setUiScale(loadUiScale());
 bindModeButtons();
 loadData();

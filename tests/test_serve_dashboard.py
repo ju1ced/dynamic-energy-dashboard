@@ -3,6 +3,7 @@ import json
 import tempfile
 import threading
 import unittest
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from http.server import ThreadingHTTPServer
@@ -174,6 +175,39 @@ class DashboardServerTests(unittest.TestCase):
         self.assertEqual(malformed["state"], "NO_ACTION")
         self.assertEqual(malformed["reason"], "PLAN_UNAVAILABLE")
         self.assertEqual(malformed["schedule"], [])
+
+    def test_day_course_endpoint_validates_parameters_and_reports_unavailable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            dashboard_root = workspace / "dashboard"
+            plan_directory = workspace / "raw"
+            dashboard_root.mkdir()
+            plan_directory.mkdir()
+            price_path = dashboard_root / "day-ahead-prices.json"
+            handler = MODULE.make_handler(dashboard_root, plan_directory, price_path)
+            server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            base_url = f"http://127.0.0.1:{server.server_port}/data/day-course.json"
+            statuses = {}
+            try:
+                for name, query in (
+                    ("invalid", "?max_grid_import_kw=banana"),
+                    ("unavailable", ""),
+                ):
+                    try:
+                        urllib.request.urlopen(base_url + query, timeout=5)
+                    except urllib.error.HTTPError as error:
+                        statuses[name] = (error.code, json.load(error))
+            finally:
+                server.shutdown()
+                server.server_close()
+                thread.join(timeout=5)
+
+        self.assertEqual(statuses["invalid"][0], 400)
+        self.assertEqual(statuses["invalid"][1]["errors"], ["MAX_GRID_IMPORT_KW_INVALID"])
+        self.assertEqual(statuses["unavailable"][0], 503)
+        self.assertEqual(statuses["unavailable"][1]["status"], "PLAN_UNAVAILABLE")
 
 
 if __name__ == "__main__":

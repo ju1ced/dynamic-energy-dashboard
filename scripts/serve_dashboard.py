@@ -8,7 +8,7 @@ import importlib.util
 import json
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 DASHBOARD_ROOT = ROOT / "web-dashboard"
@@ -28,6 +28,18 @@ def _load_shadow_feed_module():
 
 SHADOW_FEED = _load_shadow_feed_module()
 
+
+def _load_day_course_module():
+    path = ROOT / "scripts" / "build_day_course.py"
+    spec = importlib.util.spec_from_file_location("dashboard_day_course", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Could not load day-course helpers")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+DAY_COURSE = _load_day_course_module()
 
 
 class DashboardHandler(SimpleHTTPRequestHandler):
@@ -62,7 +74,24 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 )
             self._send_json(payload)
             return
+        if path == "/data/day-course.json":
+            self._send_day_course(urlsplit(self.path).query)
+            return
         super().do_GET()
+
+    def _send_day_course(self, query_string: str) -> None:
+        query = dict(parse_qsl(query_string, keep_blank_values=True))
+        params, errors = DAY_COURSE.parse_parameters(query)
+        if errors:
+            self._send_json({"status": "INVALID_PARAMETERS", "errors": errors}, 400)
+            return
+        try:
+            report = DAY_COURSE.load_latest_report(self.shadow_plan_directory)
+            payload = DAY_COURSE.build_day_course(report, params)
+        except (OSError, ValueError, KeyError, TypeError):
+            self._send_json({"status": "PLAN_UNAVAILABLE", "errors": ["PLAN_UNAVAILABLE"]}, 503)
+            return
+        self._send_json(payload)
 
     def end_headers(self):
         self.send_header("X-Content-Type-Options", "nosniff")

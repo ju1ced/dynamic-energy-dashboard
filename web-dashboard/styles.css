@@ -524,3 +524,23 @@ td.negative { color: var(--green-dark); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* Dagverloop (dry-run day course) */
+.dc-chart { overflow-x: auto; width: 100%; }
+.dc-chart svg { display: block; min-width: 640px; width: 100%; }
+.dc-price.below { fill: var(--green); opacity: .75; }
+.dc-price.above { fill: var(--red); opacity: .6; }
+.dc-battery.charge { fill: var(--green); }
+.dc-battery.discharge { fill: var(--mint); }
+.dc-ev { fill: var(--blue); }
+.dc-grid.import { fill: var(--ink-2); opacity: .55; }
+.dc-grid.export { fill: var(--mint); }
+.dc-grid.over { fill: var(--red); }
+.dc-hover { fill: transparent; }
+.dc-hover:hover { fill: rgba(41, 53, 47, .08); }
+.dc-axis { fill: #849088; font-family: var(--mono); font-size: 9px; }
+.dc-panel-title { fill: var(--ink-2); font-size: 10px; font-weight: 700; }
+.dc-zero { stroke: #b8c1bb; stroke-width: 1; }
+.dc-ceiling, .dc-limit { stroke: var(--orange); stroke-dasharray: 6 4; stroke-width: 1.5; }
+.dc-departure { stroke: var(--blue); stroke-dasharray: 2 3; stroke-width: 1.5; }
+.plain-list { color: var(--ink-2); font-size: 11px; line-height: 1.6; margin: 0; padding-left: 18px; }
