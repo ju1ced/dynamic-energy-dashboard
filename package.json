@@ -1,6 +1,6 @@
 {
   "name": "dynamic-energy-shadow-dashboard",
-  "version": "0.3.0-alpha.8",
+  "version": "0.3.0-alpha.11",
   "private": true,
   "type": "module",
   "scripts": {

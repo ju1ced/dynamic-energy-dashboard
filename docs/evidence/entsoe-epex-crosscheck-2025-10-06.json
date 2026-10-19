@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "source": "EPEX SPOT official market-results table",
+  "source_url": "https://www.epexspot.com/en/market-results?auction=MRC&data_mode=table&delivery_date=2025-10-06&market_area=BE&modality=Auction&product=15&sub_modality=DayAhead",
+  "delivery_date": "2025-10-06",
+  "sample_count": 20,
+  "match_count": 20,
+  "mismatch_count": 0,
+  "all_match": true,
+  "comparisons": [
+    {
+      "start_local": "2025-10-06T00:00:00+02:00",
+      "official_price_eur_per_mwh": 33.0,
+      "dataset_price_eur_per_mwh": 33.0,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T00:15:00+02:00",
+      "official_price_eur_per_mwh": 26.11,
+      "dataset_price_eur_per_mwh": 26.11,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T00:30:00+02:00",
+      "official_price_eur_per_mwh": 16.77,
+      "dataset_price_eur_per_mwh": 16.77,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T00:45:00+02:00",
+      "official_price_eur_per_mwh": 15.55,
+      "dataset_price_eur_per_mwh": 15.55,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T04:00:00+02:00",
+      "official_price_eur_per_mwh": 12.12,
+      "dataset_price_eur_per_mwh": 12.12,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T04:15:00+02:00",
+      "official_price_eur_per_mwh": 19.05,
+      "dataset_price_eur_per_mwh": 19.05,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T04:30:00+02:00",
+      "official_price_eur_per_mwh": 18.93,
+      "dataset_price_eur_per_mwh": 18.93,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T04:45:00+02:00",
+      "official_price_eur_per_mwh": 21.3,
+      "dataset_price_eur_per_mwh": 21.3,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T09:00:00+02:00",
+      "official_price_eur_per_mwh": 136.23,
+      "dataset_price_eur_per_mwh": 136.23,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T09:15:00+02:00",
+      "official_price_eur_per_mwh": 119.77,
+      "dataset_price_eur_per_mwh": 119.77,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T09:30:00+02:00",
+      "official_price_eur_per_mwh": 115.35,
+      "dataset_price_eur_per_mwh": 115.35,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T09:45:00+02:00",
+      "official_price_eur_per_mwh": 103.01,
+      "dataset_price_eur_per_mwh": 103.01,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T18:00:00+02:00",
+      "official_price_eur_per_mwh": 99.98,
+      "dataset_price_eur_per_mwh": 99.98,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T18:15:00+02:00",
+      "official_price_eur_per_mwh": 111.74,
+      "dataset_price_eur_per_mwh": 111.74,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T18:30:00+02:00",
+      "official_price_eur_per_mwh": 140.16,
+      "dataset_price_eur_per_mwh": 140.16,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T18:45:00+02:00",
+      "official_price_eur_per_mwh": 176.45,
+      "dataset_price_eur_per_mwh": 176.45,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T23:00:00+02:00",
+      "official_price_eur_per_mwh": 112.33,
+      "dataset_price_eur_per_mwh": 112.33,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T23:15:00+02:00",
+      "official_price_eur_per_mwh": 100.79,
+      "dataset_price_eur_per_mwh": 100.79,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T23:30:00+02:00",
+      "official_price_eur_per_mwh": 102.6,
+      "dataset_price_eur_per_mwh": 102.6,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    },
+    {
+      "start_local": "2025-10-06T23:45:00+02:00",
+      "official_price_eur_per_mwh": 96.6,
+      "dataset_price_eur_per_mwh": 96.6,
+      "difference_eur_per_mwh": 0.0,
+      "match": true
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "status": "OWNER_CONFIRMED_WITH_DERIVED_EFFICIENCY_PENDING",
+  "effective_date": "2026-10-01",
+  "scope": "offline_read_only_simulation",
+  "battery": {
+    "usable_capacity_kwh": 14.24,
+    "controller_soc_min_percent": 0,
+    "controller_soc_max_percent": 100,
+    "hidden_physical_buffer_percent_below": 3,
+    "hidden_physical_buffer_percent_above": 3,
+    "max_charge_power_kw": 5.0,
+    "max_discharge_power_kw": 5.0,
+    "charge_efficiency": 0.923974,
+    "discharge_efficiency": 0.923974,
+    "round_trip_efficiency": 0.853727,
+    "efficiency_method": "derived_from_2654.531_kwh_charged_and_2266.245_kwh_discharged_over_5833_matched_hours; symmetric_one_way_split_for_simulation",
+    "efficiency_quality": "DERIVED; validate against matched SOC boundaries when retained SOC history is available"
+  },
+  "dispatch": {
+    "grid_charging_allowed": true,
+    "battery_export_allowed": true,
+    "pv_priority": true,
+    "objective_priority": [
+      "maximize_self_consumption",
+      "minimize_grid_export",
+      "minimize_total_cost_after_losses_and_degradation"
+    ],
+    "capacity_peak_may_increase_when_net_beneficial": true
+  },
+  "economics": {
+    "include_degradation": true,
+    "degradation_cost_eur_per_kwh_throughput": null,
+    "degradation_method": "report_break_even_cost_and_sensitivity_until_owner_cost_or_warranty_model_is_available",
+    "additional_battery_evaluation": {
+      "enabled": true,
+      "method": "marginal_savings_and_break_even_installed_cost",
+      "installed_cost_eur": null,
+      "additional_usable_capacity_kwh": null
+    }
+  },
+  "safety": {
+    "home_assistant_writes": false,
+    "sma_writes": false,
+    "physical_dispatch": false
+  }
+}

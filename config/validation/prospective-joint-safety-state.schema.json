@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Prospective joint battery and EV dry-run safety state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["snapshot_generation_id", "observed_at", "battery", "ev"],
+  "properties": {
+    "snapshot_generation_id": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "battery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "device_available",
+        "controller_owner",
+        "manual_override_active",
+        "local_fallback_active",
+        "acknowledgement_timed_out",
+        "soc_percent"
+      ],
+      "properties": {
+        "device_available": {"type": "boolean"},
+        "controller_owner": {"const": "SMA"},
+        "manual_override_active": {"type": "boolean"},
+        "local_fallback_active": {"type": "boolean"},
+        "acknowledgement_timed_out": {"type": "boolean"},
+        "soc_percent": {"type": "number", "minimum": 0, "maximum": 100}
+      }
+    },
+    "ev": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "device_available",
+        "controller_owner",
+        "manual_override_active",
+        "local_fallback_active",
+        "acknowledgement_timed_out",
+        "connected",
+        "soc_percent"
+      ],
+      "properties": {
+        "device_available": {"type": "boolean"},
+        "controller_owner": {"const": "SMAPPEE"},
+        "manual_override_active": {"type": "boolean"},
+        "local_fallback_active": {"type": "boolean"},
+        "acknowledgement_timed_out": {"type": "boolean"},
+        "connected": {"type": "boolean"},
+        "soc_percent": {"type": "number", "minimum": 0, "maximum": 100}
+      }
+    }
+  }
+}

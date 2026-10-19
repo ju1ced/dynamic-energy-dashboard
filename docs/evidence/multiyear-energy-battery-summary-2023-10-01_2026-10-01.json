@@ -1,0 +1,3362 @@
+{
+  "schema_version": 1,
+  "status": "VERIFIED_WITH_LIMITATIONS",
+  "classification": "READ_ONLY_MULTI_YEAR_COMPARISON",
+  "period_start_local": "2023-10-01T00:00:00+02:00",
+  "period_end_local": "2026-10-01T00:00:00+02:00",
+  "physical_writes": false,
+  "contract_change": false,
+  "quality": {
+    "interval_count": 105216,
+    "usable_interval_count": 105210,
+    "estimated_interval_count": 304,
+    "unavailable_interval_count": 6,
+    "sunny_daily_row_count": 1096,
+    "sunny_missing_day_count": 0,
+    "sunny_intraday_duplicate_local_timestamp_count": 12
+  },
+  "three_year_totals": {
+    "import_kwh": 25742.521,
+    "export_kwh": 3729.505,
+    "net_import_kwh": 22013.016,
+    "negative_market_interval_count": 5212,
+    "retrospective_dynamic_energy_cost_eur": 6210.166792
+  },
+  "trend": {
+    "first_to_last_import_change_percent": 21.6062,
+    "first_to_last_export_change_percent": -32.785595,
+    "first_to_last_import_weighted_market_price_change_percent": 43.137502
+  },
+  "sunny_intraday_observed_dispatch": {
+    "method": "INFERRED: grid-supplied battery charge is limited by simultaneous grid import after available PV surplus",
+    "skipped_row_count": 192,
+    "total": {
+      "battery_charge_kwh": 1784.108333,
+      "battery_discharge_kwh": 1516.3925,
+      "estimated_grid_charge_kwh": 22.438333
+    },
+    "monthly": [
+      {
+        "month": "2025-05",
+        "battery_charge_kwh": 38.4125,
+        "battery_discharge_kwh": 25.74,
+        "estimated_grid_charge_kwh": 0.8875
+      },
+      {
+        "month": "2025-06",
+        "battery_charge_kwh": 412.3025,
+        "battery_discharge_kwh": 358.965,
+        "estimated_grid_charge_kwh": 4.95
+      },
+      {
+        "month": "2025-07",
+        "battery_charge_kwh": 364.2125,
+        "battery_discharge_kwh": 314.2225,
+        "estimated_grid_charge_kwh": 4.4825
+      },
+      {
+        "month": "2025-08",
+        "battery_charge_kwh": 423.293333,
+        "battery_discharge_kwh": 362.22,
+        "estimated_grid_charge_kwh": 3.105833
+      },
+      {
+        "month": "2025-09",
+        "battery_charge_kwh": 350.4675,
+        "battery_discharge_kwh": 298.814167,
+        "estimated_grid_charge_kwh": 3.644167
+      },
+      {
+        "month": "2025-10",
+        "battery_charge_kwh": 118.401667,
+        "battery_discharge_kwh": 96.885833,
+        "estimated_grid_charge_kwh": 3.224167
+      },
+      {
+        "month": "2025-11",
+        "battery_charge_kwh": 58.345833,
+        "battery_discharge_kwh": 46.879167,
+        "estimated_grid_charge_kwh": 1.231667
+      },
+      {
+        "month": "2025-12",
+        "battery_charge_kwh": 18.6725,
+        "battery_discharge_kwh": 12.665833,
+        "estimated_grid_charge_kwh": 0.9125
+      }
+    ]
+  },
+  "years": [
+    {
+      "analysis_year": "2023-2024",
+      "period_start_local": "2023-10-01T00:00:00+02:00",
+      "period_end_local": "2024-10-01T00:00:00+02:00",
+      "energy_and_price": {
+        "interval_count": 35136,
+        "usable_interval_count": 35130,
+        "estimated_interval_count": 198,
+        "unavailable_interval_count": 6,
+        "import_kwh": 7820.473,
+        "export_kwh": 1471.811,
+        "net_import_kwh": 6348.662,
+        "observed_peak_import_kw": 10.012,
+        "average_market_price_eur_per_mwh": 66.574795,
+        "p10_market_price_eur_per_mwh": 6.5,
+        "p90_market_price_eur_per_mwh": 113.11,
+        "import_weighted_market_price_eur_per_mwh": 72.045476,
+        "export_weighted_market_price_eur_per_mwh": 19.772516,
+        "negative_market_interval_count": 1836,
+        "import_during_negative_market_kwh": 130.268,
+        "export_during_negative_market_kwh": 505.595,
+        "retrospective_dynamic_energy_cost_eur": 1704.532711,
+        "winter_import_kwh": 6925.057,
+        "winter_export_kwh": 65.266,
+        "summer_import_kwh": 895.416,
+        "summer_export_kwh": 1406.545
+      },
+      "financial_sensitivity": {
+        "calculation_scope": "RECONCILED_ALL_IN_RATE_SENSITIVITY",
+        "verification_status": "RATE_RECONCILED_FIXED_COMPONENTS_HELD_CONSTANT",
+        "usable_interval_count": 35130,
+        "unavailable_interval_count": 6,
+        "represented_month_count": 12,
+        "historical_import_charge_eur": 2429.110734,
+        "historical_export_credit_eur": 109.111685,
+        "historical_net_variable_cost_eur": 2319.999049,
+        "historical_fixed_cost_eur": 372.5926,
+        "historical_total_cost_eur": 2692.591649,
+        "dynamic_import_charge_eur": 1715.61587,
+        "dynamic_export_credit_eur": 6.442213,
+        "dynamic_net_variable_cost_eur": 1709.173657,
+        "dynamic_subscription_eur": 63.6,
+        "dynamic_fixed_cost_carried_forward_eur": 372.5926,
+        "dynamic_total_cost_eur": 2145.366257,
+        "dynamic_minus_historical_variable_eur": -610.825392,
+        "dynamic_minus_historical_eur": -547.225392,
+        "selected_import_sources": [
+          "DSMR_EXPORT_OWNER_PROVIDED"
+        ],
+        "providers": [
+          "EcoPower",
+          "eMobility"
+        ],
+        "limitations": [
+          "DSMR exported all-in rates are internally reconciled but not independently invoice-validated.",
+          "Historical fixed costs are carried unchanged into the dynamic scenario because supplier, grid, capacity, tax and levy components are not decomposed.",
+          "The dynamic supplier subscription is added separately including configured import VAT.",
+          "Unavailable quarter energy is excluded from variable charges; fixed monthly costs remain included.",
+          "The August 2026 dynamic tariff formula and current marginal components are applied retrospectively."
+        ]
+      },
+      "observed_battery": {
+        "sunny_daily_day_count": 366,
+        "ha_hour_count": 0,
+        "coverage_classification": "COMPLETE_DAILY_SUNNY",
+        "charge_kwh": 2936.04,
+        "discharge_kwh": 2483.74,
+        "discharge_charge_ratio": 0.845949,
+        "equivalent_full_cycles": 174.42,
+        "sources": [
+          "Sunny Portal daily energy"
+        ]
+      },
+      "additional_battery": [
+        {
+          "additional_usable_capacity_kwh": 5.0,
+          "power_limit_kw": 5.0,
+          "pv_surplus_only_net_saving_eur": 33.056004,
+          "best_with_grid_charging_net_saving_eur": 33.056004,
+          "incremental_value_of_grid_charging_eur": 0.0,
+          "selected_source": "pv_surplus_only_fallback",
+          "grid_charge_kwh": 0.0,
+          "conversion_loss_kwh": 25.764551,
+          "equivalent_full_cycles": 30.075354,
+          "capacity_peak_delta_eur": -3.086826,
+          "battery_export_allowed": false
+        },
+        {
+          "additional_usable_capacity_kwh": 10.0,
+          "power_limit_kw": 5.0,
+          "pv_surplus_only_net_saving_eur": 53.367229,
+          "best_with_grid_charging_net_saving_eur": 53.367229,
+          "incremental_value_of_grid_charging_eur": 0.0,
+          "selected_source": "pv_surplus_only_fallback",
+          "grid_charge_kwh": 0.0,
+          "conversion_loss_kwh": 40.447575,
+          "equivalent_full_cycles": 23.607536,
+          "capacity_peak_delta_eur": -6.415756,
+          "battery_export_allowed": false
+        },
+        {
+          "additional_usable_capacity_kwh": 14.24,
+          "power_limit_kw": 5.0,
+          "pv_surplus_only_net_saving_eur": 63.176866,
+          "best_with_grid_charging_net_saving_eur": 65.981376,
+          "incremental_value_of_grid_charging_eur": 2.80451,
+          "selected_source": "price_aware_grid_charging_candidate",
+          "grid_charge_kwh": 307.573491,
+          "conversion_loss_kwh": 98.675031,
+          "equivalent_full_cycles": 40.444125,
+          "capacity_peak_delta_eur": 5.56446,
+          "battery_export_allowed": false
+        }
+      ],
+      "decision_scenarios": {
+        "interpretation": "virtual 14.24 kWh dispatch on the residual grid profile; not an exact redispatch of the installed battery",
+        "peak_neutral": {
+          "pv_surplus_only": {
+            "feasible": true,
+            "allow_grid_charge": false,
+            "allow_battery_export": false,
+            "peak_policy": "observed_monthly_peak",
+            "segment_count": 13,
+            "baseline_cost_eur": 1704.532711,
+            "simulated_cost_eur": 1641.355845,
+            "net_saving_eur": 63.176866,
+            "capacity_peak_delta_eur": -6.435931,
+            "charge_kwh": 338.786779,
+            "grid_charge_kwh": 0.0,
+            "surplus_charge_kwh": 338.786779,
+            "discharge_kwh": 289.231743,
+            "conversion_loss_kwh": 49.555036,
+            "equivalent_full_cycles": 20.311218,
+            "grid_import_kwh": 7502.400257,
+            "grid_export_kwh": 1104.183221,
+            "monthly_peaks": [
+              {
+                "month": "2023-10",
+                "baseline_peak_kw": 9.804,
+                "simulated_peak_kw": 9.804,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2023-11",
+                "baseline_peak_kw": 10.012,
+                "simulated_peak_kw": 10.012,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2023-12",
+                "baseline_peak_kw": 8.944,
+                "simulated_peak_kw": 8.944,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-01",
+                "baseline_peak_kw": 7.172,
+                "simulated_peak_kw": 7.172,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-02",
+                "baseline_peak_kw": 6.56,
+                "simulated_peak_kw": 6.56,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-03",
+                "baseline_peak_kw": 6.592,
+                "simulated_peak_kw": 6.592,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-04",
+                "baseline_peak_kw": 5.032,
+                "simulated_peak_kw": 5.032,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-05",
+                "baseline_peak_kw": 4.36,
+                "simulated_peak_kw": 4.356,
+                "delta_cost_eur": -0.020175333333335592
+              },
+              {
+                "month": "2024-06",
+                "baseline_peak_kw": 4.324,
+                "simulated_peak_kw": 4.3,
+                "delta_cost_eur": -0.12105200000000012
+              },
+              {
+                "month": "2024-07",
+                "baseline_peak_kw": 4.636,
+                "simulated_peak_kw": 4.364,
+                "delta_cost_eur": -1.371922666666668
+              },
+              {
+                "month": "2024-08",
+                "baseline_peak_kw": 4.912,
+                "simulated_peak_kw": 4.56,
+                "delta_cost_eur": -1.775429333333335
+              },
+              {
+                "month": "2024-09",
+                "baseline_peak_kw": 5.524,
+                "simulated_peak_kw": 4.9,
+                "delta_cost_eur": -3.1473519999999984
+              }
+            ],
+            "seasonal": {
+              "winter": {
+                "net_saving_eur": 5.694053,
+                "grid_charge_kwh": 0.0,
+                "surplus_charge_kwh": 34.067944,
+                "discharge_kwh": 29.084756,
+                "conversion_loss_kwh": 4.983188
+              },
+              "summer": {
+                "net_saving_eur": 57.482813,
+                "grid_charge_kwh": 0.0,
+                "surplus_charge_kwh": 304.718835,
+                "discharge_kwh": 260.146987,
+                "conversion_loss_kwh": 44.571848
+              }
+            }
+          },
+          "price_aware_grid_charging": {
+            "feasible": true,
+            "allow_grid_charge": true,
+            "allow_battery_export": false,
+            "peak_policy": "observed_monthly_peak",
+            "segment_count": 13,
+            "baseline_cost_eur": 1704.532711,
+            "simulated_cost_eur": 1619.799379,
+            "net_saving_eur": 84.733332,
+            "capacity_peak_delta_eur": -13.335895,
+            "charge_kwh": 673.24747,
+            "grid_charge_kwh": 306.221589,
+            "surplus_charge_kwh": 367.025881,
+            "discharge_kwh": 574.770184,
+            "conversion_loss_kwh": 98.477286,
+            "equivalent_full_cycles": 40.363075,
+            "grid_import_kwh": 7523.083405,
+            "grid_export_kwh": 1075.944119,
+            "monthly_peaks": [
+              {
+                "month": "2023-10",
+                "baseline_peak_kw": 9.804,
+                "simulated_peak_kw": 9.804,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2023-11",
+                "baseline_peak_kw": 10.012,
+                "simulated_peak_kw": 10.012,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2023-12",
+                "baseline_peak_kw": 8.944,
+                "simulated_peak_kw": 8.944,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-01",
+                "baseline_peak_kw": 7.172,
+                "simulated_peak_kw": 7.172,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-02",
+                "baseline_peak_kw": 6.56,
+                "simulated_peak_kw": 6.56,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-03",
+                "baseline_peak_kw": 6.592,
+                "simulated_peak_kw": 6.592,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-04",
+                "baseline_peak_kw": 5.032,
+                "simulated_peak_kw": 5.032,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-05",
+                "baseline_peak_kw": 4.36,
+                "simulated_peak_kw": 2.988,
+                "delta_cost_eur": -6.920139333333335
+              },
+              {
+                "month": "2024-06",
+                "baseline_peak_kw": 4.324,
+                "simulated_peak_kw": 4.3,
+                "delta_cost_eur": -0.12105200000000012
+              },
+              {
+                "month": "2024-07",
+                "baseline_peak_kw": 4.636,
+                "simulated_peak_kw": 4.364,
+                "delta_cost_eur": -1.371922666666668
+              },
+              {
+                "month": "2024-08",
+                "baseline_peak_kw": 4.912,
+                "simulated_peak_kw": 4.56,
+                "delta_cost_eur": -1.775429333333335
+              },
+              {
+                "month": "2024-09",
+                "baseline_peak_kw": 5.524,
+                "simulated_peak_kw": 4.9,
+                "delta_cost_eur": -3.1473519999999984
+              }
+            ],
+            "seasonal": {
+              "winter": {
+                "net_saving_eur": 17.436444,
+                "grid_charge_kwh": 263.815004,
+                "surplus_charge_kwh": 45.229919,
+                "discharge_kwh": 263.840289,
+                "conversion_loss_kwh": 45.204634
+              },
+              "summer": {
+                "net_saving_eur": 67.296888,
+                "grid_charge_kwh": 42.406585,
+                "surplus_charge_kwh": 321.795963,
+                "discharge_kwh": 310.929895,
+                "conversion_loss_kwh": 53.272652
+              }
+            }
+          },
+          "price_aware_with_battery_export": {
+            "feasible": true,
+            "allow_grid_charge": true,
+            "allow_battery_export": true,
+            "peak_policy": "observed_monthly_peak",
+            "segment_count": 13,
+            "baseline_cost_eur": 1704.532711,
+            "simulated_cost_eur": 1600.853645,
+            "net_saving_eur": 103.679066,
+            "capacity_peak_delta_eur": -3.267515,
+            "charge_kwh": 1269.436495,
+            "grid_charge_kwh": 347.007735,
+            "surplus_charge_kwh": 922.42876,
+            "discharge_kwh": 1083.75342,
+            "conversion_loss_kwh": 185.683075,
+            "equivalent_full_cycles": 76.106279,
+            "grid_import_kwh": 7511.138651,
+            "grid_export_kwh": 976.793576,
+            "monthly_peaks": [
+              {
+                "month": "2023-10",
+                "baseline_peak_kw": 9.804,
+                "simulated_peak_kw": 9.804,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2023-11",
+                "baseline_peak_kw": 10.012,
+                "simulated_peak_kw": 10.012,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2023-12",
+                "baseline_peak_kw": 8.944,
+                "simulated_peak_kw": 8.944,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-01",
+                "baseline_peak_kw": 7.172,
+                "simulated_peak_kw": 7.172,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-02",
+                "baseline_peak_kw": 6.56,
+                "simulated_peak_kw": 6.56,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-03",
+                "baseline_peak_kw": 6.592,
+                "simulated_peak_kw": 6.592,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-04",
+                "baseline_peak_kw": 5.032,
+                "simulated_peak_kw": 5.032,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-05",
+                "baseline_peak_kw": 4.36,
+                "simulated_peak_kw": 4.326088160983038,
+                "delta_cost_eur": -0.17104566402838875
+              },
+              {
+                "month": "2024-06",
+                "baseline_peak_kw": 4.324,
+                "simulated_peak_kw": 4.3,
+                "delta_cost_eur": -0.12105200000000012
+              },
+              {
+                "month": "2024-07",
+                "baseline_peak_kw": 4.636,
+                "simulated_peak_kw": 4.398088160983038,
+                "delta_cost_eur": -1.1999876640283875
+              },
+              {
+                "month": "2024-08",
+                "baseline_peak_kw": 4.912,
+                "simulated_peak_kw": 4.56,
+                "delta_cost_eur": -1.775429333333335
+              },
+              {
+                "month": "2024-09",
+                "baseline_peak_kw": 5.524,
+                "simulated_peak_kw": 5.524,
+                "delta_cost_eur": 0.0
+              }
+            ],
+            "seasonal": {
+              "winter": {
+                "net_saving_eur": 17.899208,
+                "grid_charge_kwh": 274.293225,
+                "surplus_charge_kwh": 46.37806,
+                "discharge_kwh": 273.76604,
+                "conversion_loss_kwh": 46.905245
+              },
+              "summer": {
+                "net_saving_eur": 85.779857,
+                "grid_charge_kwh": 72.71451,
+                "surplus_charge_kwh": 876.0507,
+                "discharge_kwh": 809.98738,
+                "conversion_loss_kwh": 138.77783
+              }
+            }
+          },
+          "incremental_grid_charging_value_eur": 21.556466,
+          "incremental_export_value_eur": 18.945734
+        },
+        "absolute_peak_caps": [
+          {
+            "cap_kw": 7.0,
+            "baseline_exposure": {
+              "cap_kw": 7.0,
+              "observed_peak_kw": 10.012,
+              "quarter_count_above_cap": 125,
+              "maximum_excess_kw": 3.012,
+              "excess_energy_kwh": 14.779
+            },
+            "pv_surplus_only": {
+              "feasible": false,
+              "reason": "No feasible residual-battery transition",
+              "allow_grid_charge": false,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_7_kw"
+            },
+            "price_aware_grid_charging": {
+              "feasible": true,
+              "allow_grid_charge": true,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_7_kw",
+              "segment_count": 13,
+              "baseline_cost_eur": 1704.532711,
+              "simulated_cost_eur": 1585.36249,
+              "net_saving_eur": 119.170221,
+              "capacity_peak_delta_eur": -51.890068,
+              "charge_kwh": 676.492036,
+              "grid_charge_kwh": 309.466155,
+              "surplus_charge_kwh": 367.025881,
+              "discharge_kwh": 577.540161,
+              "conversion_loss_kwh": 98.951875,
+              "equivalent_full_cycles": 40.557596,
+              "grid_import_kwh": 7523.557994,
+              "grid_export_kwh": 1075.944119,
+              "monthly_peaks": [
+                {
+                  "month": "2023-10",
+                  "baseline_peak_kw": 9.804,
+                  "simulated_peak_kw": 6.994088160983038,
+                  "delta_cost_eur": -14.172726997361721
+                },
+                {
+                  "month": "2023-11",
+                  "baseline_peak_kw": 10.012,
+                  "simulated_peak_kw": 6.992,
+                  "delta_cost_eur": -15.23237666666667
+                },
+                {
+                  "month": "2023-12",
+                  "baseline_peak_kw": 8.944,
+                  "simulated_peak_kw": 6.996,
+                  "delta_cost_eur": -9.825387333333335
+                },
+                {
+                  "month": "2024-01",
+                  "baseline_peak_kw": 7.172,
+                  "simulated_peak_kw": 7.0,
+                  "delta_cost_eur": -0.8675393333333319
+                },
+                {
+                  "month": "2024-02",
+                  "baseline_peak_kw": 6.56,
+                  "simulated_peak_kw": 6.866088160983037,
+                  "delta_cost_eur": 1.543857669304944
+                },
+                {
+                  "month": "2024-03",
+                  "baseline_peak_kw": 6.592,
+                  "simulated_peak_kw": 6.592,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-04",
+                  "baseline_peak_kw": 5.032,
+                  "simulated_peak_kw": 5.032,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-05",
+                  "baseline_peak_kw": 4.36,
+                  "simulated_peak_kw": 2.988,
+                  "delta_cost_eur": -6.920139333333335
+                },
+                {
+                  "month": "2024-06",
+                  "baseline_peak_kw": 4.324,
+                  "simulated_peak_kw": 4.3,
+                  "delta_cost_eur": -0.12105200000000012
+                },
+                {
+                  "month": "2024-07",
+                  "baseline_peak_kw": 4.636,
+                  "simulated_peak_kw": 4.364,
+                  "delta_cost_eur": -1.371922666666668
+                },
+                {
+                  "month": "2024-08",
+                  "baseline_peak_kw": 4.912,
+                  "simulated_peak_kw": 4.56,
+                  "delta_cost_eur": -1.775429333333335
+                },
+                {
+                  "month": "2024-09",
+                  "baseline_peak_kw": 5.524,
+                  "simulated_peak_kw": 4.9,
+                  "delta_cost_eur": -3.1473519999999984
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": 51.873333,
+                  "grid_charge_kwh": 267.05957,
+                  "surplus_charge_kwh": 45.229919,
+                  "discharge_kwh": 266.610266,
+                  "conversion_loss_kwh": 45.679223
+                },
+                "summer": {
+                  "net_saving_eur": 67.296888,
+                  "grid_charge_kwh": 42.406585,
+                  "surplus_charge_kwh": 321.795963,
+                  "discharge_kwh": 310.929895,
+                  "conversion_loss_kwh": 53.272652
+                }
+              }
+            },
+            "incremental_grid_charging_value_eur": null
+          },
+          {
+            "cap_kw": 8.0,
+            "baseline_exposure": {
+              "cap_kw": 8.0,
+              "observed_peak_kw": 10.012,
+              "quarter_count_above_cap": 19,
+              "maximum_excess_kw": 2.012,
+              "excess_energy_kwh": 4.826
+            },
+            "pv_surplus_only": {
+              "feasible": false,
+              "reason": "Residual-battery terminal SOC is unreachable",
+              "allow_grid_charge": false,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_8_kw"
+            },
+            "price_aware_grid_charging": {
+              "feasible": true,
+              "allow_grid_charge": true,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_8_kw",
+              "segment_count": 13,
+              "baseline_cost_eur": 1704.532711,
+              "simulated_cost_eur": 1606.166863,
+              "net_saving_eur": 98.365848,
+              "capacity_peak_delta_eur": -27.97693,
+              "charge_kwh": 669.191762,
+              "grid_charge_kwh": 302.165881,
+              "surplus_charge_kwh": 367.025881,
+              "discharge_kwh": 571.307713,
+              "conversion_loss_kwh": 97.884049,
+              "equivalent_full_cycles": 40.119924,
+              "grid_import_kwh": 7522.490168,
+              "grid_export_kwh": 1075.944119,
+              "monthly_peaks": [
+                {
+                  "month": "2023-10",
+                  "baseline_peak_kw": 9.804,
+                  "simulated_peak_kw": 7.988,
+                  "delta_cost_eur": -9.159601333333333
+                },
+                {
+                  "month": "2023-11",
+                  "baseline_peak_kw": 10.012,
+                  "simulated_peak_kw": 7.992674402807018,
+                  "delta_cost_eur": -10.185141757975206
+                },
+                {
+                  "month": "2023-12",
+                  "baseline_peak_kw": 8.944,
+                  "simulated_peak_kw": 7.993522040245759,
+                  "delta_cost_eur": -4.794052416007103
+                },
+                {
+                  "month": "2024-01",
+                  "baseline_peak_kw": 7.172,
+                  "simulated_peak_kw": 7.985522040245759,
+                  "delta_cost_eur": 4.103269583992903
+                },
+                {
+                  "month": "2024-02",
+                  "baseline_peak_kw": 6.56,
+                  "simulated_peak_kw": 7.629522040245759,
+                  "delta_cost_eur": 5.394490917326238
+                },
+                {
+                  "month": "2024-03",
+                  "baseline_peak_kw": 6.592,
+                  "simulated_peak_kw": 6.592,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-04",
+                  "baseline_peak_kw": 5.032,
+                  "simulated_peak_kw": 5.032,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-05",
+                  "baseline_peak_kw": 4.36,
+                  "simulated_peak_kw": 2.988,
+                  "delta_cost_eur": -6.920139333333335
+                },
+                {
+                  "month": "2024-06",
+                  "baseline_peak_kw": 4.324,
+                  "simulated_peak_kw": 4.3,
+                  "delta_cost_eur": -0.12105200000000012
+                },
+                {
+                  "month": "2024-07",
+                  "baseline_peak_kw": 4.636,
+                  "simulated_peak_kw": 4.364,
+                  "delta_cost_eur": -1.371922666666668
+                },
+                {
+                  "month": "2024-08",
+                  "baseline_peak_kw": 4.912,
+                  "simulated_peak_kw": 4.56,
+                  "delta_cost_eur": -1.775429333333335
+                },
+                {
+                  "month": "2024-09",
+                  "baseline_peak_kw": 5.524,
+                  "simulated_peak_kw": 4.9,
+                  "delta_cost_eur": -3.1473519999999984
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": 31.06896,
+                  "grid_charge_kwh": 259.759297,
+                  "surplus_charge_kwh": 45.229919,
+                  "discharge_kwh": 260.377818,
+                  "conversion_loss_kwh": 44.611397
+                },
+                "summer": {
+                  "net_saving_eur": 67.296888,
+                  "grid_charge_kwh": 42.406585,
+                  "surplus_charge_kwh": 321.795963,
+                  "discharge_kwh": 310.929895,
+                  "conversion_loss_kwh": 53.272652
+                }
+              }
+            },
+            "incremental_grid_charging_value_eur": null
+          },
+          {
+            "cap_kw": 10.0,
+            "baseline_exposure": {
+              "cap_kw": 10.0,
+              "observed_peak_kw": 10.012,
+              "quarter_count_above_cap": 1,
+              "maximum_excess_kw": 0.012,
+              "excess_energy_kwh": 0.003
+            },
+            "pv_surplus_only": {
+              "feasible": false,
+              "reason": "Residual-battery terminal SOC is unreachable",
+              "allow_grid_charge": false,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_10_kw"
+            },
+            "price_aware_grid_charging": {
+              "feasible": true,
+              "allow_grid_charge": true,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_10_kw",
+              "segment_count": 13,
+              "baseline_cost_eur": 1704.532711,
+              "simulated_cost_eur": 1651.168871,
+              "net_saving_eur": 53.36384,
+              "capacity_peak_delta_eur": 18.093342,
+              "charge_kwh": 674.869753,
+              "grid_charge_kwh": 307.843872,
+              "surplus_charge_kwh": 367.025881,
+              "discharge_kwh": 576.155173,
+              "conversion_loss_kwh": 98.71458,
+              "equivalent_full_cycles": 40.460335,
+              "grid_import_kwh": 7523.320699,
+              "grid_export_kwh": 1075.944119,
+              "monthly_peaks": [
+                {
+                  "month": "2023-10",
+                  "baseline_peak_kw": 9.804,
+                  "simulated_peak_kw": 9.804,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2023-11",
+                  "baseline_peak_kw": 10.012,
+                  "simulated_peak_kw": 9.99752204024576,
+                  "delta_cost_eur": -0.07302441600709385
+                },
+                {
+                  "month": "2023-12",
+                  "baseline_peak_kw": 8.944,
+                  "simulated_peak_kw": 9.878088160983037,
+                  "delta_cost_eur": 4.711385002638269
+                },
+                {
+                  "month": "2024-01",
+                  "baseline_peak_kw": 7.172,
+                  "simulated_peak_kw": 9.25104408049151,
+                  "delta_cost_eur": 10.486351834652433
+                },
+                {
+                  "month": "2024-02",
+                  "baseline_peak_kw": 6.56,
+                  "simulated_peak_kw": 9.792566120737279,
+                  "delta_cost_eur": 16.304524751978715
+                },
+                {
+                  "month": "2024-03",
+                  "baseline_peak_kw": 6.592,
+                  "simulated_peak_kw": 6.592,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-04",
+                  "baseline_peak_kw": 5.032,
+                  "simulated_peak_kw": 5.032,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-05",
+                  "baseline_peak_kw": 4.36,
+                  "simulated_peak_kw": 2.988,
+                  "delta_cost_eur": -6.920139333333335
+                },
+                {
+                  "month": "2024-06",
+                  "baseline_peak_kw": 4.324,
+                  "simulated_peak_kw": 4.3,
+                  "delta_cost_eur": -0.12105200000000012
+                },
+                {
+                  "month": "2024-07",
+                  "baseline_peak_kw": 4.636,
+                  "simulated_peak_kw": 4.364,
+                  "delta_cost_eur": -1.371922666666668
+                },
+                {
+                  "month": "2024-08",
+                  "baseline_peak_kw": 4.912,
+                  "simulated_peak_kw": 4.56,
+                  "delta_cost_eur": -1.775429333333335
+                },
+                {
+                  "month": "2024-09",
+                  "baseline_peak_kw": 5.524,
+                  "simulated_peak_kw": 4.9,
+                  "delta_cost_eur": -3.1473519999999984
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": -13.933048,
+                  "grid_charge_kwh": 265.437287,
+                  "surplus_charge_kwh": 45.229919,
+                  "discharge_kwh": 265.225278,
+                  "conversion_loss_kwh": 45.441928
+                },
+                "summer": {
+                  "net_saving_eur": 67.296888,
+                  "grid_charge_kwh": 42.406585,
+                  "surplus_charge_kwh": 321.795963,
+                  "discharge_kwh": 310.929895,
+                  "conversion_loss_kwh": 53.272652
+                }
+              }
+            },
+            "incremental_grid_charging_value_eur": null
+          }
+        ]
+      }
+    },
+    {
+      "analysis_year": "2024-2025",
+      "period_start_local": "2024-10-01T00:00:00+02:00",
+      "period_end_local": "2025-10-01T00:00:00+02:00",
+      "energy_and_price": {
+        "interval_count": 35040,
+        "usable_interval_count": 35040,
+        "estimated_interval_count": 101,
+        "unavailable_interval_count": 0,
+        "import_kwh": 8411.868,
+        "export_kwh": 1268.425,
+        "net_import_kwh": 7143.443,
+        "observed_peak_import_kw": 5.396,
+        "average_market_price_eur_per_mwh": 86.369879,
+        "p10_market_price_eur_per_mwh": 7.5,
+        "p90_market_price_eur_per_mwh": 137.66,
+        "import_weighted_market_price_eur_per_mwh": 101.970754,
+        "export_weighted_market_price_eur_per_mwh": 19.751641,
+        "negative_market_interval_count": 2032,
+        "import_during_negative_market_kwh": 84.063,
+        "export_during_negative_market_kwh": 427.136,
+        "retrospective_dynamic_energy_cost_eur": 2110.09064,
+        "winter_import_kwh": 6706.811,
+        "winter_export_kwh": 123.548,
+        "summer_import_kwh": 1705.057,
+        "summer_export_kwh": 1144.877
+      },
+      "financial_sensitivity": {
+        "calculation_scope": "RECONCILED_ALL_IN_RATE_SENSITIVITY",
+        "verification_status": "RATE_RECONCILED_FIXED_COMPONENTS_HELD_CONSTANT",
+        "usable_interval_count": 35040,
+        "unavailable_interval_count": 0,
+        "represented_month_count": 12,
+        "historical_import_charge_eur": 2298.068724,
+        "historical_export_credit_eur": 26.871485,
+        "historical_net_variable_cost_eur": 2271.197239,
+        "historical_fixed_cost_eur": 395.8241,
+        "historical_total_cost_eur": 2667.021339,
+        "dynamic_import_charge_eur": 2117.520878,
+        "dynamic_export_credit_eur": 5.52603,
+        "dynamic_net_variable_cost_eur": 2111.994847,
+        "dynamic_subscription_eur": 63.6,
+        "dynamic_fixed_cost_carried_forward_eur": 395.8241,
+        "dynamic_total_cost_eur": 2571.418947,
+        "dynamic_minus_historical_variable_eur": -159.202391,
+        "dynamic_minus_historical_eur": -95.602391,
+        "selected_import_sources": [
+          "DSMR_EXPORT_OWNER_PROVIDED"
+        ],
+        "providers": [
+          "EcoPower"
+        ],
+        "limitations": [
+          "DSMR exported all-in rates are internally reconciled but not independently invoice-validated.",
+          "Historical fixed costs are carried unchanged into the dynamic scenario because supplier, grid, capacity, tax and levy components are not decomposed.",
+          "The dynamic supplier subscription is added separately including configured import VAT.",
+          "Unavailable quarter energy is excluded from variable charges; fixed monthly costs remain included.",
+          "The August 2026 dynamic tariff formula and current marginal components are applied retrospectively."
+        ]
+      },
+      "observed_battery": {
+        "sunny_daily_day_count": 365,
+        "ha_hour_count": 0,
+        "coverage_classification": "COMPLETE_DAILY_SUNNY",
+        "charge_kwh": 3194.11,
+        "discharge_kwh": 2717.11,
+        "discharge_charge_ratio": 0.850663,
+        "equivalent_full_cycles": 190.808,
+        "sources": [
+          "Sunny Portal daily energy"
+        ]
+      },
+      "additional_battery": [
+        {
+          "additional_usable_capacity_kwh": 5.0,
+          "power_limit_kw": 5.0,
+          "pv_surplus_only_net_saving_eur": 52.204019,
+          "best_with_grid_charging_net_saving_eur": 52.204019,
+          "incremental_value_of_grid_charging_eur": 0.0,
+          "selected_source": "pv_surplus_only_fallback",
+          "grid_charge_kwh": 0.0,
+          "conversion_loss_kwh": 37.123117,
+          "equivalent_full_cycles": 43.334381,
+          "capacity_peak_delta_eur": -1.190345,
+          "battery_export_allowed": false
+        },
+        {
+          "additional_usable_capacity_kwh": 10.0,
+          "power_limit_kw": 5.0,
+          "pv_surplus_only_net_saving_eur": 73.769034,
+          "best_with_grid_charging_net_saving_eur": 73.769034,
+          "incremental_value_of_grid_charging_eur": 0.0,
+          "selected_source": "pv_surplus_only_fallback",
+          "grid_charge_kwh": 0.0,
+          "conversion_loss_kwh": 54.1016,
+          "equivalent_full_cycles": 31.576811,
+          "capacity_peak_delta_eur": 0.0,
+          "battery_export_allowed": false
+        },
+        {
+          "additional_usable_capacity_kwh": 14.24,
+          "power_limit_kw": 5.0,
+          "pv_surplus_only_net_saving_eur": 87.127946,
+          "best_with_grid_charging_net_saving_eur": 90.454425,
+          "incremental_value_of_grid_charging_eur": 3.326479,
+          "selected_source": "price_aware_grid_charging_candidate",
+          "grid_charge_kwh": 584.812523,
+          "conversion_loss_kwh": 159.699309,
+          "equivalent_full_cycles": 65.456263,
+          "capacity_peak_delta_eur": 36.792833,
+          "battery_export_allowed": false
+        }
+      ],
+      "decision_scenarios": {
+        "interpretation": "virtual 14.24 kWh dispatch on the residual grid profile; not an exact redispatch of the installed battery",
+        "peak_neutral": {
+          "pv_surplus_only": {
+            "feasible": true,
+            "allow_grid_charge": false,
+            "allow_battery_export": false,
+            "peak_policy": "observed_monthly_peak",
+            "segment_count": 12,
+            "baseline_cost_eur": 2110.09064,
+            "simulated_cost_eur": 2022.962695,
+            "net_saving_eur": 87.127946,
+            "capacity_peak_delta_eur": -0.181578,
+            "charge_kwh": 442.612895,
+            "grid_charge_kwh": 0.0,
+            "surplus_charge_kwh": 442.612895,
+            "discharge_kwh": 377.871001,
+            "conversion_loss_kwh": 64.741894,
+            "equivalent_full_cycles": 26.535885,
+            "grid_import_kwh": 8022.226999,
+            "grid_export_kwh": 814.042105,
+            "monthly_peaks": [
+              {
+                "month": "2024-10",
+                "baseline_peak_kw": 4.86,
+                "simulated_peak_kw": 4.86,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-11",
+                "baseline_peak_kw": 5.312,
+                "simulated_peak_kw": 5.312,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2024-12",
+                "baseline_peak_kw": 5.188,
+                "simulated_peak_kw": 5.188,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-01",
+                "baseline_peak_kw": 5.08,
+                "simulated_peak_kw": 5.08,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-02",
+                "baseline_peak_kw": 5.248,
+                "simulated_peak_kw": 5.248,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-03",
+                "baseline_peak_kw": 5.172,
+                "simulated_peak_kw": 5.172,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-04",
+                "baseline_peak_kw": 5.032,
+                "simulated_peak_kw": 5.032,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-05",
+                "baseline_peak_kw": 5.144,
+                "simulated_peak_kw": 5.144,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-06",
+                "baseline_peak_kw": 4.952,
+                "simulated_peak_kw": 4.952,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-07",
+                "baseline_peak_kw": 5.396,
+                "simulated_peak_kw": 5.396,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-08",
+                "baseline_peak_kw": 5.212,
+                "simulated_peak_kw": 5.176,
+                "delta_cost_eur": -0.18157799999999794
+              },
+              {
+                "month": "2025-09",
+                "baseline_peak_kw": 4.992,
+                "simulated_peak_kw": 4.992,
+                "delta_cost_eur": 0.0
+              }
+            ],
+            "seasonal": {
+              "winter": {
+                "net_saving_eur": 13.547357,
+                "grid_charge_kwh": 0.0,
+                "surplus_charge_kwh": 70.028552,
+                "discharge_kwh": 59.785332,
+                "conversion_loss_kwh": 10.24322
+              },
+              "summer": {
+                "net_saving_eur": 73.580588,
+                "grid_charge_kwh": 0.0,
+                "surplus_charge_kwh": 372.584343,
+                "discharge_kwh": 318.085668,
+                "conversion_loss_kwh": 54.498675
+              }
+            }
+          },
+          "price_aware_grid_charging": {
+            "feasible": true,
+            "allow_grid_charge": true,
+            "allow_battery_export": false,
+            "peak_policy": "observed_monthly_peak",
+            "segment_count": 12,
+            "baseline_cost_eur": 2110.09064,
+            "simulated_cost_eur": 1982.050399,
+            "net_saving_eur": 128.040241,
+            "capacity_peak_delta_eur": -1.62278,
+            "charge_kwh": 1075.84405,
+            "grid_charge_kwh": 568.809073,
+            "surplus_charge_kwh": 507.034976,
+            "discharge_kwh": 918.478138,
+            "conversion_loss_kwh": 157.365912,
+            "equivalent_full_cycles": 64.499869,
+            "grid_import_kwh": 8050.428935,
+            "grid_export_kwh": 749.620024,
+            "monthly_peaks": [
+              {
+                "month": "2024-10",
+                "baseline_peak_kw": 4.86,
+                "simulated_peak_kw": 4.850088160983038,
+                "delta_cost_eur": -0.049993664028388625
+              },
+              {
+                "month": "2024-11",
+                "baseline_peak_kw": 5.312,
+                "simulated_peak_kw": 5.2740881609830375,
+                "delta_cost_eur": -0.19122099736172432
+              },
+              {
+                "month": "2024-12",
+                "baseline_peak_kw": 5.188,
+                "simulated_peak_kw": 5.186088160983038,
+                "delta_cost_eur": -0.009642997361717438
+              },
+              {
+                "month": "2025-01",
+                "baseline_peak_kw": 5.08,
+                "simulated_peak_kw": 5.08,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-02",
+                "baseline_peak_kw": 5.248,
+                "simulated_peak_kw": 5.248,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-03",
+                "baseline_peak_kw": 5.172,
+                "simulated_peak_kw": 5.172,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-04",
+                "baseline_peak_kw": 5.032,
+                "simulated_peak_kw": 5.032,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-05",
+                "baseline_peak_kw": 5.144,
+                "simulated_peak_kw": 5.144,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-06",
+                "baseline_peak_kw": 4.952,
+                "simulated_peak_kw": 4.832,
+                "delta_cost_eur": -0.6052600000000006
+              },
+              {
+                "month": "2025-07",
+                "baseline_peak_kw": 5.396,
+                "simulated_peak_kw": 5.396,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-08",
+                "baseline_peak_kw": 5.212,
+                "simulated_peak_kw": 5.176,
+                "delta_cost_eur": -0.18157799999999794
+              },
+              {
+                "month": "2025-09",
+                "baseline_peak_kw": 4.992,
+                "simulated_peak_kw": 4.876,
+                "delta_cost_eur": -0.585084666666665
+              }
+            ],
+            "seasonal": {
+              "winter": {
+                "net_saving_eur": 40.462905,
+                "grid_charge_kwh": 383.421647,
+                "surplus_charge_kwh": 98.937183,
+                "discharge_kwh": 411.803216,
+                "conversion_loss_kwh": 70.555614
+              },
+              "summer": {
+                "net_saving_eur": 87.577336,
+                "grid_charge_kwh": 185.387426,
+                "surplus_charge_kwh": 408.097793,
+                "discharge_kwh": 506.674921,
+                "conversion_loss_kwh": 86.810298
+              }
+            }
+          },
+          "price_aware_with_battery_export": {
+            "feasible": true,
+            "allow_grid_charge": true,
+            "allow_battery_export": true,
+            "peak_policy": "observed_monthly_peak",
+            "segment_count": 12,
+            "baseline_cost_eur": 2110.09064,
+            "simulated_cost_eur": 1951.91879,
+            "net_saving_eur": 158.17185,
+            "capacity_peak_delta_eur": -1.585285,
+            "charge_kwh": 1521.701511,
+            "grid_charge_kwh": 645.840057,
+            "surplus_charge_kwh": 875.861454,
+            "discharge_kwh": 1299.119115,
+            "conversion_loss_kwh": 222.582395,
+            "equivalent_full_cycles": 91.230275,
+            "grid_import_kwh": 8066.166137,
+            "grid_export_kwh": 700.140741,
+            "monthly_peaks": [
+              {
+                "month": "2024-10",
+                "baseline_peak_kw": 4.86,
+                "simulated_peak_kw": 4.850088160983038,
+                "delta_cost_eur": -0.049993664028388625
+              },
+              {
+                "month": "2024-11",
+                "baseline_peak_kw": 5.312,
+                "simulated_peak_kw": 5.281522040245759,
+                "delta_cost_eur": -0.15372574934043173
+              },
+              {
+                "month": "2024-12",
+                "baseline_peak_kw": 5.188,
+                "simulated_peak_kw": 5.186088160983038,
+                "delta_cost_eur": -0.009642997361717438
+              },
+              {
+                "month": "2025-01",
+                "baseline_peak_kw": 5.08,
+                "simulated_peak_kw": 5.08,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-02",
+                "baseline_peak_kw": 5.248,
+                "simulated_peak_kw": 5.248,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-03",
+                "baseline_peak_kw": 5.172,
+                "simulated_peak_kw": 5.172,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-04",
+                "baseline_peak_kw": 5.032,
+                "simulated_peak_kw": 5.032,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-05",
+                "baseline_peak_kw": 5.144,
+                "simulated_peak_kw": 5.144,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-06",
+                "baseline_peak_kw": 4.952,
+                "simulated_peak_kw": 4.832,
+                "delta_cost_eur": -0.6052600000000006
+              },
+              {
+                "month": "2025-07",
+                "baseline_peak_kw": 5.396,
+                "simulated_peak_kw": 5.396,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-08",
+                "baseline_peak_kw": 5.212,
+                "simulated_peak_kw": 5.176,
+                "delta_cost_eur": -0.18157799999999794
+              },
+              {
+                "month": "2025-09",
+                "baseline_peak_kw": 4.992,
+                "simulated_peak_kw": 4.876,
+                "delta_cost_eur": -0.585084666666665
+              }
+            ],
+            "seasonal": {
+              "winter": {
+                "net_saving_eur": 42.749799,
+                "grid_charge_kwh": 407.519644,
+                "surplus_charge_kwh": 103.7699,
+                "discharge_kwh": 436.502176,
+                "conversion_loss_kwh": 74.787368
+              },
+              "summer": {
+                "net_saving_eur": 115.422051,
+                "grid_charge_kwh": 238.320412,
+                "surplus_charge_kwh": 772.091554,
+                "discharge_kwh": 862.616939,
+                "conversion_loss_kwh": 147.795027
+              }
+            }
+          },
+          "incremental_grid_charging_value_eur": 40.912295,
+          "incremental_export_value_eur": 30.131609
+        },
+        "absolute_peak_caps": [
+          {
+            "cap_kw": 7.0,
+            "baseline_exposure": {
+              "cap_kw": 7.0,
+              "observed_peak_kw": 5.396,
+              "quarter_count_above_cap": 0,
+              "maximum_excess_kw": 0.0,
+              "excess_energy_kwh": 0.0
+            },
+            "pv_surplus_only": {
+              "feasible": true,
+              "allow_grid_charge": false,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_7_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2110.09064,
+              "simulated_cost_eur": 2022.962695,
+              "net_saving_eur": 87.127946,
+              "capacity_peak_delta_eur": -0.181578,
+              "charge_kwh": 442.612895,
+              "grid_charge_kwh": 0.0,
+              "surplus_charge_kwh": 442.612895,
+              "discharge_kwh": 377.871001,
+              "conversion_loss_kwh": 64.741894,
+              "equivalent_full_cycles": 26.535885,
+              "grid_import_kwh": 8022.226999,
+              "grid_export_kwh": 814.042105,
+              "monthly_peaks": [
+                {
+                  "month": "2024-10",
+                  "baseline_peak_kw": 4.86,
+                  "simulated_peak_kw": 4.86,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-11",
+                  "baseline_peak_kw": 5.312,
+                  "simulated_peak_kw": 5.312,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-12",
+                  "baseline_peak_kw": 5.188,
+                  "simulated_peak_kw": 5.188,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-01",
+                  "baseline_peak_kw": 5.08,
+                  "simulated_peak_kw": 5.08,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-02",
+                  "baseline_peak_kw": 5.248,
+                  "simulated_peak_kw": 5.248,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-03",
+                  "baseline_peak_kw": 5.172,
+                  "simulated_peak_kw": 5.172,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-04",
+                  "baseline_peak_kw": 5.032,
+                  "simulated_peak_kw": 5.032,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-05",
+                  "baseline_peak_kw": 5.144,
+                  "simulated_peak_kw": 5.144,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-06",
+                  "baseline_peak_kw": 4.952,
+                  "simulated_peak_kw": 4.952,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-07",
+                  "baseline_peak_kw": 5.396,
+                  "simulated_peak_kw": 5.396,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-08",
+                  "baseline_peak_kw": 5.212,
+                  "simulated_peak_kw": 5.176,
+                  "delta_cost_eur": -0.18157799999999794
+                },
+                {
+                  "month": "2025-09",
+                  "baseline_peak_kw": 4.992,
+                  "simulated_peak_kw": 4.992,
+                  "delta_cost_eur": 0.0
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": 13.547357,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 70.028552,
+                  "discharge_kwh": 59.785332,
+                  "conversion_loss_kwh": 10.24322
+                },
+                "summer": {
+                  "net_saving_eur": 73.580588,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 372.584343,
+                  "discharge_kwh": 318.085668,
+                  "conversion_loss_kwh": 54.498675
+                }
+              }
+            },
+            "price_aware_grid_charging": {
+              "feasible": true,
+              "allow_grid_charge": true,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_7_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2110.09064,
+              "simulated_cost_eur": 2052.997284,
+              "net_saving_eur": 57.093356,
+              "capacity_peak_delta_eur": 70.359766,
+              "charge_kwh": 1097.744871,
+              "grid_charge_kwh": 590.760894,
+              "surplus_charge_kwh": 506.983976,
+              "discharge_kwh": 937.175481,
+              "conversion_loss_kwh": 160.56939,
+              "equivalent_full_cycles": 65.812885,
+              "grid_import_kwh": 8053.683413,
+              "grid_export_kwh": 749.671024,
+              "monthly_peaks": [
+                {
+                  "month": "2024-10",
+                  "baseline_peak_kw": 4.86,
+                  "simulated_peak_kw": 6.264566120737278,
+                  "delta_cost_eur": 7.084397418645374
+                },
+                {
+                  "month": "2024-11",
+                  "baseline_peak_kw": 5.312,
+                  "simulated_peak_kw": 6.787044080491519,
+                  "delta_cost_eur": 7.439876501319139
+                },
+                {
+                  "month": "2024-12",
+                  "baseline_peak_kw": 5.188,
+                  "simulated_peak_kw": 6.987044080491518,
+                  "delta_cost_eur": 9.07407850131914
+                },
+                {
+                  "month": "2025-01",
+                  "baseline_peak_kw": 5.08,
+                  "simulated_peak_kw": 6.918088160983038,
+                  "delta_cost_eur": 9.271010335971612
+                },
+                {
+                  "month": "2025-02",
+                  "baseline_peak_kw": 5.248,
+                  "simulated_peak_kw": 6.8940881609830384,
+                  "delta_cost_eur": 8.302594335971614
+                },
+                {
+                  "month": "2025-03",
+                  "baseline_peak_kw": 5.172,
+                  "simulated_peak_kw": 5.172,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-04",
+                  "baseline_peak_kw": 5.032,
+                  "simulated_peak_kw": 5.032,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-05",
+                  "baseline_peak_kw": 5.144,
+                  "simulated_peak_kw": 6.3940881609830384,
+                  "delta_cost_eur": 6.305236335971615
+                },
+                {
+                  "month": "2025-06",
+                  "baseline_peak_kw": 4.952,
+                  "simulated_peak_kw": 6.9580881609830385,
+                  "delta_cost_eur": 10.118374335971616
+                },
+                {
+                  "month": "2025-07",
+                  "baseline_peak_kw": 5.396,
+                  "simulated_peak_kw": 5.396,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-08",
+                  "baseline_peak_kw": 5.212,
+                  "simulated_peak_kw": 6.928566120737279,
+                  "delta_cost_eur": 8.65807341864538
+                },
+                {
+                  "month": "2025-09",
+                  "baseline_peak_kw": 4.992,
+                  "simulated_peak_kw": 5.806088160983034,
+                  "delta_cost_eur": 4.10612500263826
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": 0.066093,
+                  "grid_charge_kwh": 405.373468,
+                  "surplus_charge_kwh": 98.886183,
+                  "discharge_kwh": 430.50056,
+                  "conversion_loss_kwh": 73.759092
+                },
+                "summer": {
+                  "net_saving_eur": 57.027263,
+                  "grid_charge_kwh": 185.387426,
+                  "surplus_charge_kwh": 408.097793,
+                  "discharge_kwh": 506.674921,
+                  "conversion_loss_kwh": 86.810298
+                }
+              }
+            },
+            "incremental_grid_charging_value_eur": -30.03459
+          },
+          {
+            "cap_kw": 8.0,
+            "baseline_exposure": {
+              "cap_kw": 8.0,
+              "observed_peak_kw": 5.396,
+              "quarter_count_above_cap": 0,
+              "maximum_excess_kw": 0.0,
+              "excess_energy_kwh": 0.0
+            },
+            "pv_surplus_only": {
+              "feasible": true,
+              "allow_grid_charge": false,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_8_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2110.09064,
+              "simulated_cost_eur": 2022.962695,
+              "net_saving_eur": 87.127946,
+              "capacity_peak_delta_eur": -0.181578,
+              "charge_kwh": 442.612895,
+              "grid_charge_kwh": 0.0,
+              "surplus_charge_kwh": 442.612895,
+              "discharge_kwh": 377.871001,
+              "conversion_loss_kwh": 64.741894,
+              "equivalent_full_cycles": 26.535885,
+              "grid_import_kwh": 8022.226999,
+              "grid_export_kwh": 814.042105,
+              "monthly_peaks": [
+                {
+                  "month": "2024-10",
+                  "baseline_peak_kw": 4.86,
+                  "simulated_peak_kw": 4.86,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-11",
+                  "baseline_peak_kw": 5.312,
+                  "simulated_peak_kw": 5.312,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-12",
+                  "baseline_peak_kw": 5.188,
+                  "simulated_peak_kw": 5.188,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-01",
+                  "baseline_peak_kw": 5.08,
+                  "simulated_peak_kw": 5.08,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-02",
+                  "baseline_peak_kw": 5.248,
+                  "simulated_peak_kw": 5.248,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-03",
+                  "baseline_peak_kw": 5.172,
+                  "simulated_peak_kw": 5.172,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-04",
+                  "baseline_peak_kw": 5.032,
+                  "simulated_peak_kw": 5.032,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-05",
+                  "baseline_peak_kw": 5.144,
+                  "simulated_peak_kw": 5.144,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-06",
+                  "baseline_peak_kw": 4.952,
+                  "simulated_peak_kw": 4.952,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-07",
+                  "baseline_peak_kw": 5.396,
+                  "simulated_peak_kw": 5.396,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-08",
+                  "baseline_peak_kw": 5.212,
+                  "simulated_peak_kw": 5.176,
+                  "delta_cost_eur": -0.18157799999999794
+                },
+                {
+                  "month": "2025-09",
+                  "baseline_peak_kw": 4.992,
+                  "simulated_peak_kw": 4.992,
+                  "delta_cost_eur": 0.0
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": 13.547357,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 70.028552,
+                  "discharge_kwh": 59.785332,
+                  "conversion_loss_kwh": 10.24322
+                },
+                "summer": {
+                  "net_saving_eur": 73.580588,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 372.584343,
+                  "discharge_kwh": 318.085668,
+                  "conversion_loss_kwh": 54.498675
+                }
+              }
+            },
+            "price_aware_grid_charging": {
+              "feasible": true,
+              "allow_grid_charge": true,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_8_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2110.09064,
+              "simulated_cost_eur": 2077.907474,
+              "net_saving_eur": 32.183166,
+              "capacity_peak_delta_eur": 95.609641,
+              "charge_kwh": 1102.34134,
+              "grid_charge_kwh": 595.425363,
+              "surplus_charge_kwh": 506.915976,
+              "discharge_kwh": 941.099615,
+              "conversion_loss_kwh": 161.241725,
+              "equivalent_full_cycles": 66.088456,
+              "grid_import_kwh": 8054.423748,
+              "grid_export_kwh": 749.739024,
+              "monthly_peaks": [
+                {
+                  "month": "2024-10",
+                  "baseline_peak_kw": 4.86,
+                  "simulated_peak_kw": 7.346088160983037,
+                  "delta_cost_eur": 12.539414335971605
+                },
+                {
+                  "month": "2024-11",
+                  "baseline_peak_kw": 5.312,
+                  "simulated_peak_kw": 7.86856612073727,
+                  "delta_cost_eur": 12.894893418645335
+                },
+                {
+                  "month": "2024-12",
+                  "baseline_peak_kw": 5.188,
+                  "simulated_peak_kw": 7.992566120737276,
+                  "delta_cost_eur": 14.145764085312035
+                },
+                {
+                  "month": "2025-01",
+                  "baseline_peak_kw": 5.08,
+                  "simulated_peak_kw": 7.750088160983029,
+                  "delta_cost_eur": 13.467479669304904
+                },
+                {
+                  "month": "2025-02",
+                  "baseline_peak_kw": 5.248,
+                  "simulated_peak_kw": 7.318088160983038,
+                  "delta_cost_eur": 10.441179669304946
+                },
+                {
+                  "month": "2025-03",
+                  "baseline_peak_kw": 5.172,
+                  "simulated_peak_kw": 5.172,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-04",
+                  "baseline_peak_kw": 5.032,
+                  "simulated_peak_kw": 5.032,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-05",
+                  "baseline_peak_kw": 5.144,
+                  "simulated_peak_kw": 6.3940881609830384,
+                  "delta_cost_eur": 6.305236335971615
+                },
+                {
+                  "month": "2025-06",
+                  "baseline_peak_kw": 4.952,
+                  "simulated_peak_kw": 6.9580881609830385,
+                  "delta_cost_eur": 10.118374335971616
+                },
+                {
+                  "month": "2025-07",
+                  "baseline_peak_kw": 5.396,
+                  "simulated_peak_kw": 5.396,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-08",
+                  "baseline_peak_kw": 5.212,
+                  "simulated_peak_kw": 7.510088160983038,
+                  "delta_cost_eur": 11.591173669304949
+                },
+                {
+                  "month": "2025-09",
+                  "baseline_peak_kw": 4.992,
+                  "simulated_peak_kw": 5.806088160983034,
+                  "delta_cost_eur": 4.10612500263826
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": -21.910997,
+                  "grid_charge_kwh": 410.037937,
+                  "surplus_charge_kwh": 98.818183,
+                  "discharge_kwh": 434.424693,
+                  "conversion_loss_kwh": 74.431426
+                },
+                "summer": {
+                  "net_saving_eur": 54.094163,
+                  "grid_charge_kwh": 185.387426,
+                  "surplus_charge_kwh": 408.097793,
+                  "discharge_kwh": 506.674921,
+                  "conversion_loss_kwh": 86.810298
+                }
+              }
+            },
+            "incremental_grid_charging_value_eur": -54.94478
+          },
+          {
+            "cap_kw": 10.0,
+            "baseline_exposure": {
+              "cap_kw": 10.0,
+              "observed_peak_kw": 5.396,
+              "quarter_count_above_cap": 0,
+              "maximum_excess_kw": 0.0,
+              "excess_energy_kwh": 0.0
+            },
+            "pv_surplus_only": {
+              "feasible": true,
+              "allow_grid_charge": false,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_10_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2110.09064,
+              "simulated_cost_eur": 2022.962695,
+              "net_saving_eur": 87.127946,
+              "capacity_peak_delta_eur": -0.181578,
+              "charge_kwh": 442.612895,
+              "grid_charge_kwh": 0.0,
+              "surplus_charge_kwh": 442.612895,
+              "discharge_kwh": 377.871001,
+              "conversion_loss_kwh": 64.741894,
+              "equivalent_full_cycles": 26.535885,
+              "grid_import_kwh": 8022.226999,
+              "grid_export_kwh": 814.042105,
+              "monthly_peaks": [
+                {
+                  "month": "2024-10",
+                  "baseline_peak_kw": 4.86,
+                  "simulated_peak_kw": 4.86,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-11",
+                  "baseline_peak_kw": 5.312,
+                  "simulated_peak_kw": 5.312,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2024-12",
+                  "baseline_peak_kw": 5.188,
+                  "simulated_peak_kw": 5.188,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-01",
+                  "baseline_peak_kw": 5.08,
+                  "simulated_peak_kw": 5.08,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-02",
+                  "baseline_peak_kw": 5.248,
+                  "simulated_peak_kw": 5.248,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-03",
+                  "baseline_peak_kw": 5.172,
+                  "simulated_peak_kw": 5.172,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-04",
+                  "baseline_peak_kw": 5.032,
+                  "simulated_peak_kw": 5.032,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-05",
+                  "baseline_peak_kw": 5.144,
+                  "simulated_peak_kw": 5.144,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-06",
+                  "baseline_peak_kw": 4.952,
+                  "simulated_peak_kw": 4.952,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-07",
+                  "baseline_peak_kw": 5.396,
+                  "simulated_peak_kw": 5.396,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-08",
+                  "baseline_peak_kw": 5.212,
+                  "simulated_peak_kw": 5.176,
+                  "delta_cost_eur": -0.18157799999999794
+                },
+                {
+                  "month": "2025-09",
+                  "baseline_peak_kw": 4.992,
+                  "simulated_peak_kw": 4.992,
+                  "delta_cost_eur": 0.0
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": 13.547357,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 70.028552,
+                  "discharge_kwh": 59.785332,
+                  "conversion_loss_kwh": 10.24322
+                },
+                "summer": {
+                  "net_saving_eur": 73.580588,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 372.584343,
+                  "discharge_kwh": 318.085668,
+                  "conversion_loss_kwh": 54.498675
+                }
+              }
+            },
+            "price_aware_grid_charging": {
+              "feasible": true,
+              "allow_grid_charge": true,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_10_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2110.09064,
+              "simulated_cost_eur": 2103.021001,
+              "net_saving_eur": 7.069639,
+              "capacity_peak_delta_eur": 120.884512,
+              "charge_kwh": 1103.693242,
+              "grid_charge_kwh": 596.777266,
+              "surplus_charge_kwh": 506.915976,
+              "discharge_kwh": 942.253772,
+              "conversion_loss_kwh": 161.43947,
+              "equivalent_full_cycles": 66.169506,
+              "grid_import_kwh": 8054.621494,
+              "grid_export_kwh": 749.739024,
+              "monthly_peaks": [
+                {
+                  "month": "2024-10",
+                  "baseline_peak_kw": 4.86,
+                  "simulated_peak_kw": 7.346088160983037,
+                  "delta_cost_eur": 12.539414335971605
+                },
+                {
+                  "month": "2024-11",
+                  "baseline_peak_kw": 5.312,
+                  "simulated_peak_kw": 8.950088160983038,
+                  "delta_cost_eur": 18.34991033597161
+                },
+                {
+                  "month": "2024-12",
+                  "baseline_peak_kw": 5.188,
+                  "simulated_peak_kw": 9.294088160983037,
+                  "delta_cost_eur": 20.71042433597161
+                },
+                {
+                  "month": "2025-01",
+                  "baseline_peak_kw": 5.08,
+                  "simulated_peak_kw": 7.750088160983029,
+                  "delta_cost_eur": 13.467479669304904
+                },
+                {
+                  "month": "2025-02",
+                  "baseline_peak_kw": 5.248,
+                  "simulated_peak_kw": 9.446088160983034,
+                  "delta_cost_eur": 21.174457002638263
+                },
+                {
+                  "month": "2025-03",
+                  "baseline_peak_kw": 5.172,
+                  "simulated_peak_kw": 5.172,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-04",
+                  "baseline_peak_kw": 5.032,
+                  "simulated_peak_kw": 5.032,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-05",
+                  "baseline_peak_kw": 5.144,
+                  "simulated_peak_kw": 6.3940881609830384,
+                  "delta_cost_eur": 6.305236335971615
+                },
+                {
+                  "month": "2025-06",
+                  "baseline_peak_kw": 4.952,
+                  "simulated_peak_kw": 6.9580881609830385,
+                  "delta_cost_eur": 10.118374335971616
+                },
+                {
+                  "month": "2025-07",
+                  "baseline_peak_kw": 5.396,
+                  "simulated_peak_kw": 5.396,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-08",
+                  "baseline_peak_kw": 5.212,
+                  "simulated_peak_kw": 8.010088160983038,
+                  "delta_cost_eur": 14.113090335971616
+                },
+                {
+                  "month": "2025-09",
+                  "baseline_peak_kw": 4.992,
+                  "simulated_peak_kw": 5.806088160983034,
+                  "delta_cost_eur": 4.10612500263826
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": -44.502608,
+                  "grid_charge_kwh": 411.389839,
+                  "surplus_charge_kwh": 98.818183,
+                  "discharge_kwh": 435.57885,
+                  "conversion_loss_kwh": 74.629172
+                },
+                "summer": {
+                  "net_saving_eur": 51.572246,
+                  "grid_charge_kwh": 185.387426,
+                  "surplus_charge_kwh": 408.097793,
+                  "discharge_kwh": 506.674921,
+                  "conversion_loss_kwh": 86.810298
+                }
+              }
+            },
+            "incremental_grid_charging_value_eur": -80.058307
+          }
+        ]
+      }
+    },
+    {
+      "analysis_year": "2025-2026",
+      "period_start_local": "2025-10-01T00:00:00+02:00",
+      "period_end_local": "2026-10-01T00:00:00+02:00",
+      "energy_and_price": {
+        "interval_count": 35040,
+        "usable_interval_count": 35040,
+        "estimated_interval_count": 5,
+        "unavailable_interval_count": 0,
+        "import_kwh": 9510.18,
+        "export_kwh": 989.269,
+        "net_import_kwh": 8520.911,
+        "observed_peak_import_kw": 6.6,
+        "average_market_price_eur_per_mwh": 100.935298,
+        "p10_market_price_eur_per_mwh": 18.0,
+        "p90_market_price_eur_per_mwh": 168.08,
+        "import_weighted_market_price_eur_per_mwh": 103.124095,
+        "export_weighted_market_price_eur_per_mwh": 24.85856,
+        "negative_market_interval_count": 1344,
+        "import_during_negative_market_kwh": 55.312,
+        "export_during_negative_market_kwh": 297.185,
+        "retrospective_dynamic_energy_cost_eur": 2395.543441,
+        "winter_import_kwh": 7521.922,
+        "winter_export_kwh": 99.961,
+        "summer_import_kwh": 1988.258,
+        "summer_export_kwh": 889.308
+      },
+      "financial_sensitivity": {
+        "calculation_scope": "RECONCILED_ALL_IN_RATE_SENSITIVITY",
+        "verification_status": "RATE_RECONCILED_FIXED_COMPONENTS_HELD_CONSTANT",
+        "usable_interval_count": 35040,
+        "unavailable_interval_count": 0,
+        "represented_month_count": 12,
+        "historical_import_charge_eur": 2649.251127,
+        "historical_export_credit_eur": 25.880186,
+        "historical_net_variable_cost_eur": 2623.370942,
+        "historical_fixed_cost_eur": 417.1644,
+        "historical_total_cost_eur": 3040.535342,
+        "dynamic_import_charge_eur": 2405.858258,
+        "dynamic_export_credit_eur": 9.260932,
+        "dynamic_net_variable_cost_eur": 2396.597326,
+        "dynamic_subscription_eur": 63.6,
+        "dynamic_fixed_cost_carried_forward_eur": 417.1644,
+        "dynamic_total_cost_eur": 2877.361726,
+        "dynamic_minus_historical_variable_eur": -226.773615,
+        "dynamic_minus_historical_eur": -163.173615,
+        "selected_import_sources": [
+          "DSMR_EXPORT_HA_MATCH",
+          "DSMR_EXPORT_OWNER_PROVIDED"
+        ],
+        "providers": [
+          "EcoPower"
+        ],
+        "limitations": [
+          "DSMR exported all-in rates are internally reconciled but not independently invoice-validated.",
+          "Historical fixed costs are carried unchanged into the dynamic scenario because supplier, grid, capacity, tax and levy components are not decomposed.",
+          "The dynamic supplier subscription is added separately including configured import VAT.",
+          "Unavailable quarter energy is excluded from variable charges; fixed monthly costs remain included.",
+          "The August 2026 dynamic tariff formula and current marginal components are applied retrospectively."
+        ]
+      },
+      "observed_battery": {
+        "sunny_daily_day_count": 92,
+        "ha_hour_count": 5833,
+        "coverage_classification": "PARTIAL_MIXED_SUNNY_HA",
+        "charge_kwh": 2849.651,
+        "discharge_kwh": 2422.675,
+        "discharge_charge_ratio": 0.850166,
+        "equivalent_full_cycles": 170.132,
+        "sources": [
+          "Sunny Portal daily energy",
+          "Home Assistant hourly statistics"
+        ]
+      },
+      "additional_battery": [
+        {
+          "additional_usable_capacity_kwh": 5.0,
+          "power_limit_kw": 5.0,
+          "pv_surplus_only_net_saving_eur": 52.399192,
+          "best_with_grid_charging_net_saving_eur": 52.399192,
+          "incremental_value_of_grid_charging_eur": 0.0,
+          "selected_source": "pv_surplus_only_fallback",
+          "grid_charge_kwh": 0.0,
+          "conversion_loss_kwh": 31.186585,
+          "equivalent_full_cycles": 36.404576,
+          "capacity_peak_delta_eur": 0.0,
+          "battery_export_allowed": false
+        },
+        {
+          "additional_usable_capacity_kwh": 10.0,
+          "power_limit_kw": 5.0,
+          "pv_surplus_only_net_saving_eur": 73.320438,
+          "best_with_grid_charging_net_saving_eur": 77.462496,
+          "incremental_value_of_grid_charging_eur": 4.142058,
+          "selected_source": "price_aware_grid_charging_candidate",
+          "grid_charge_kwh": 594.673889,
+          "conversion_loss_kwh": 138.242056,
+          "equivalent_full_cycles": 80.68603,
+          "capacity_peak_delta_eur": 34.689623,
+          "battery_export_allowed": false
+        },
+        {
+          "additional_usable_capacity_kwh": 14.24,
+          "power_limit_kw": 5.0,
+          "pv_surplus_only_net_saving_eur": 84.348626,
+          "best_with_grid_charging_net_saving_eur": 96.192657,
+          "incremental_value_of_grid_charging_eur": 11.844031,
+          "selected_source": "price_aware_grid_charging_candidate",
+          "grid_charge_kwh": 751.001159,
+          "conversion_loss_kwh": 168.756056,
+          "equivalent_full_cycles": 69.168369,
+          "capacity_peak_delta_eur": 36.177041,
+          "battery_export_allowed": false
+        }
+      ],
+      "decision_scenarios": {
+        "interpretation": "virtual 14.24 kWh dispatch on the residual grid profile; not an exact redispatch of the installed battery",
+        "peak_neutral": {
+          "pv_surplus_only": {
+            "feasible": true,
+            "allow_grid_charge": false,
+            "allow_battery_export": false,
+            "peak_policy": "observed_monthly_peak",
+            "segment_count": 12,
+            "baseline_cost_eur": 2395.543441,
+            "simulated_cost_eur": 2311.194816,
+            "net_saving_eur": 84.348626,
+            "capacity_peak_delta_eur": -0.221929,
+            "charge_kwh": 342.572106,
+            "grid_charge_kwh": 0.0,
+            "surplus_charge_kwh": 342.572106,
+            "discharge_kwh": 292.463383,
+            "conversion_loss_kwh": 50.108723,
+            "equivalent_full_cycles": 20.538159,
+            "grid_import_kwh": 9211.264617,
+            "grid_export_kwh": 640.244894,
+            "monthly_peaks": [
+              {
+                "month": "2025-10",
+                "baseline_peak_kw": 5.184,
+                "simulated_peak_kw": 5.184,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-11",
+                "baseline_peak_kw": 6.0,
+                "simulated_peak_kw": 6.0,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-12",
+                "baseline_peak_kw": 5.912,
+                "simulated_peak_kw": 5.912,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-01",
+                "baseline_peak_kw": 6.6,
+                "simulated_peak_kw": 6.6,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-02",
+                "baseline_peak_kw": 5.2,
+                "simulated_peak_kw": 5.2,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-03",
+                "baseline_peak_kw": 5.208,
+                "simulated_peak_kw": 5.208,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-04",
+                "baseline_peak_kw": 5.132,
+                "simulated_peak_kw": 5.132,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-05",
+                "baseline_peak_kw": 4.648,
+                "simulated_peak_kw": 4.604,
+                "delta_cost_eur": -0.22192866666666464
+              },
+              {
+                "month": "2026-06",
+                "baseline_peak_kw": 5.324,
+                "simulated_peak_kw": 5.324,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-07",
+                "baseline_peak_kw": 5.352,
+                "simulated_peak_kw": 5.352,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-08",
+                "baseline_peak_kw": 5.42,
+                "simulated_peak_kw": 5.42,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-09",
+                "baseline_peak_kw": 5.42,
+                "simulated_peak_kw": 5.42,
+                "delta_cost_eur": 0.0
+              }
+            ],
+            "seasonal": {
+              "winter": {
+                "net_saving_eur": 12.879882,
+                "grid_charge_kwh": 0.0,
+                "surplus_charge_kwh": 59.213332,
+                "discharge_kwh": 50.552076,
+                "conversion_loss_kwh": 8.661255
+              },
+              "summer": {
+                "net_saving_eur": 71.468743,
+                "grid_charge_kwh": 0.0,
+                "surplus_charge_kwh": 283.358775,
+                "discharge_kwh": 241.911306,
+                "conversion_loss_kwh": 41.447468
+              }
+            }
+          },
+          "price_aware_grid_charging": {
+            "feasible": true,
+            "allow_grid_charge": true,
+            "allow_battery_export": false,
+            "peak_policy": "observed_monthly_peak",
+            "segment_count": 12,
+            "baseline_cost_eur": 2395.543441,
+            "simulated_cost_eur": 2263.080597,
+            "net_saving_eur": 132.462844,
+            "capacity_peak_delta_eur": -0.262279,
+            "charge_kwh": 1149.387548,
+            "grid_charge_kwh": 746.674071,
+            "surplus_charge_kwh": 402.713478,
+            "discharge_kwh": 981.264278,
+            "conversion_loss_kwh": 168.12327,
+            "equivalent_full_cycles": 68.909008,
+            "grid_import_kwh": 9269.137792,
+            "grid_export_kwh": 580.103522,
+            "monthly_peaks": [
+              {
+                "month": "2025-10",
+                "baseline_peak_kw": 5.184,
+                "simulated_peak_kw": 5.184,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-11",
+                "baseline_peak_kw": 6.0,
+                "simulated_peak_kw": 6.0,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-12",
+                "baseline_peak_kw": 5.912,
+                "simulated_peak_kw": 5.912,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-01",
+                "baseline_peak_kw": 6.6,
+                "simulated_peak_kw": 6.6,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-02",
+                "baseline_peak_kw": 5.2,
+                "simulated_peak_kw": 5.2,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-03",
+                "baseline_peak_kw": 5.208,
+                "simulated_peak_kw": 5.208,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-04",
+                "baseline_peak_kw": 5.132,
+                "simulated_peak_kw": 5.132,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-05",
+                "baseline_peak_kw": 4.648,
+                "simulated_peak_kw": 4.596,
+                "delta_cost_eur": -0.26227933333333137
+              },
+              {
+                "month": "2026-06",
+                "baseline_peak_kw": 5.324,
+                "simulated_peak_kw": 5.324,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-07",
+                "baseline_peak_kw": 5.352,
+                "simulated_peak_kw": 5.352,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-08",
+                "baseline_peak_kw": 5.42,
+                "simulated_peak_kw": 5.42,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-09",
+                "baseline_peak_kw": 5.42,
+                "simulated_peak_kw": 5.42,
+                "delta_cost_eur": 0.0
+              }
+            ],
+            "seasonal": {
+              "winter": {
+                "net_saving_eur": 33.299014,
+                "grid_charge_kwh": 405.504927,
+                "surplus_charge_kwh": 92.535972,
+                "discharge_kwh": 425.191438,
+                "conversion_loss_kwh": 72.849462
+              },
+              "summer": {
+                "net_saving_eur": 99.16383,
+                "grid_charge_kwh": 341.169143,
+                "surplus_charge_kwh": 310.177505,
+                "discharge_kwh": 556.072841,
+                "conversion_loss_kwh": 95.273808
+              }
+            }
+          },
+          "price_aware_with_battery_export": {
+            "feasible": true,
+            "allow_grid_charge": true,
+            "allow_battery_export": true,
+            "peak_policy": "observed_monthly_peak",
+            "segment_count": 12,
+            "baseline_cost_eur": 2395.543441,
+            "simulated_cost_eur": 2206.601037,
+            "net_saving_eur": 188.942404,
+            "capacity_peak_delta_eur": -0.262279,
+            "charge_kwh": 1732.057547,
+            "grid_charge_kwh": 980.976304,
+            "surplus_charge_kwh": 751.081243,
+            "discharge_kwh": 1478.705944,
+            "conversion_loss_kwh": 253.351604,
+            "equivalent_full_cycles": 103.84171,
+            "grid_import_kwh": 9413.997169,
+            "grid_export_kwh": 639.734565,
+            "monthly_peaks": [
+              {
+                "month": "2025-10",
+                "baseline_peak_kw": 5.184,
+                "simulated_peak_kw": 5.184,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-11",
+                "baseline_peak_kw": 6.0,
+                "simulated_peak_kw": 6.0,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2025-12",
+                "baseline_peak_kw": 5.912,
+                "simulated_peak_kw": 5.912,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-01",
+                "baseline_peak_kw": 6.6,
+                "simulated_peak_kw": 6.6,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-02",
+                "baseline_peak_kw": 5.2,
+                "simulated_peak_kw": 5.2,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-03",
+                "baseline_peak_kw": 5.208,
+                "simulated_peak_kw": 5.208,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-04",
+                "baseline_peak_kw": 5.132,
+                "simulated_peak_kw": 5.132,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-05",
+                "baseline_peak_kw": 4.648,
+                "simulated_peak_kw": 4.596,
+                "delta_cost_eur": -0.26227933333333137
+              },
+              {
+                "month": "2026-06",
+                "baseline_peak_kw": 5.324,
+                "simulated_peak_kw": 5.324,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-07",
+                "baseline_peak_kw": 5.352,
+                "simulated_peak_kw": 5.352,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-08",
+                "baseline_peak_kw": 5.42,
+                "simulated_peak_kw": 5.42,
+                "delta_cost_eur": 0.0
+              },
+              {
+                "month": "2026-09",
+                "baseline_peak_kw": 5.42,
+                "simulated_peak_kw": 5.42,
+                "delta_cost_eur": 0.0
+              }
+            ],
+            "seasonal": {
+              "winter": {
+                "net_saving_eur": 34.337456,
+                "grid_charge_kwh": 422.542661,
+                "surplus_charge_kwh": 92.802592,
+                "discharge_kwh": 439.964647,
+                "conversion_loss_kwh": 75.380605
+              },
+              "summer": {
+                "net_saving_eur": 154.604948,
+                "grid_charge_kwh": 558.433644,
+                "surplus_charge_kwh": 658.278651,
+                "discharge_kwh": 1038.741297,
+                "conversion_loss_kwh": 177.970998
+              }
+            }
+          },
+          "incremental_grid_charging_value_eur": 48.114218,
+          "incremental_export_value_eur": 56.47956
+        },
+        "absolute_peak_caps": [
+          {
+            "cap_kw": 7.0,
+            "baseline_exposure": {
+              "cap_kw": 7.0,
+              "observed_peak_kw": 6.6,
+              "quarter_count_above_cap": 0,
+              "maximum_excess_kw": 0.0,
+              "excess_energy_kwh": 0.0
+            },
+            "pv_surplus_only": {
+              "feasible": true,
+              "allow_grid_charge": false,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_7_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2395.543441,
+              "simulated_cost_eur": 2311.194816,
+              "net_saving_eur": 84.348626,
+              "capacity_peak_delta_eur": -0.221929,
+              "charge_kwh": 342.572106,
+              "grid_charge_kwh": 0.0,
+              "surplus_charge_kwh": 342.572106,
+              "discharge_kwh": 292.463383,
+              "conversion_loss_kwh": 50.108723,
+              "equivalent_full_cycles": 20.538159,
+              "grid_import_kwh": 9211.264617,
+              "grid_export_kwh": 640.244894,
+              "monthly_peaks": [
+                {
+                  "month": "2025-10",
+                  "baseline_peak_kw": 5.184,
+                  "simulated_peak_kw": 5.184,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-11",
+                  "baseline_peak_kw": 6.0,
+                  "simulated_peak_kw": 6.0,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-12",
+                  "baseline_peak_kw": 5.912,
+                  "simulated_peak_kw": 5.912,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-01",
+                  "baseline_peak_kw": 6.6,
+                  "simulated_peak_kw": 6.6,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-02",
+                  "baseline_peak_kw": 5.2,
+                  "simulated_peak_kw": 5.2,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-03",
+                  "baseline_peak_kw": 5.208,
+                  "simulated_peak_kw": 5.208,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-04",
+                  "baseline_peak_kw": 5.132,
+                  "simulated_peak_kw": 5.132,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-05",
+                  "baseline_peak_kw": 4.648,
+                  "simulated_peak_kw": 4.604,
+                  "delta_cost_eur": -0.22192866666666464
+                },
+                {
+                  "month": "2026-06",
+                  "baseline_peak_kw": 5.324,
+                  "simulated_peak_kw": 5.324,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-07",
+                  "baseline_peak_kw": 5.352,
+                  "simulated_peak_kw": 5.352,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-08",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 5.42,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-09",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 5.42,
+                  "delta_cost_eur": 0.0
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": 12.879882,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 59.213332,
+                  "discharge_kwh": 50.552076,
+                  "conversion_loss_kwh": 8.661255
+                },
+                "summer": {
+                  "net_saving_eur": 71.468743,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 283.358775,
+                  "discharge_kwh": 241.911306,
+                  "conversion_loss_kwh": 41.447468
+                }
+              }
+            },
+            "price_aware_grid_charging": {
+              "feasible": true,
+              "allow_grid_charge": true,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_7_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2395.543441,
+              "simulated_cost_eur": 2307.480208,
+              "net_saving_eur": 88.063234,
+              "capacity_peak_delta_eur": 44.277882,
+              "charge_kwh": 1154.524778,
+              "grid_charge_kwh": 751.8163,
+              "surplus_charge_kwh": 402.708478,
+              "discharge_kwh": 985.650075,
+              "conversion_loss_kwh": 168.874703,
+              "equivalent_full_cycles": 69.217,
+              "grid_import_kwh": 9269.894225,
+              "grid_export_kwh": 580.108522,
+              "monthly_peaks": [
+                {
+                  "month": "2025-10",
+                  "baseline_peak_kw": 5.184,
+                  "simulated_peak_kw": 6.99104408049152,
+                  "delta_cost_eur": 9.11442916798581
+                },
+                {
+                  "month": "2025-11",
+                  "baseline_peak_kw": 6.0,
+                  "simulated_peak_kw": 6.891044080491518,
+                  "delta_cost_eur": 4.49427783465247
+                },
+                {
+                  "month": "2025-12",
+                  "baseline_peak_kw": 5.912,
+                  "simulated_peak_kw": 6.812566120737278,
+                  "delta_cost_eur": 4.542305418645376
+                },
+                {
+                  "month": "2026-01",
+                  "baseline_peak_kw": 6.6,
+                  "simulated_peak_kw": 6.994088160983038,
+                  "delta_cost_eur": 1.9877150026382822
+                },
+                {
+                  "month": "2026-02",
+                  "baseline_peak_kw": 5.2,
+                  "simulated_peak_kw": 5.2,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-03",
+                  "baseline_peak_kw": 5.208,
+                  "simulated_peak_kw": 6.922088160983038,
+                  "delta_cost_eur": 8.64557500263828
+                },
+                {
+                  "month": "2026-04",
+                  "baseline_peak_kw": 5.132,
+                  "simulated_peak_kw": 5.921522040245759,
+                  "delta_cost_eur": 3.9822175839929033
+                },
+                {
+                  "month": "2026-05",
+                  "baseline_peak_kw": 4.648,
+                  "simulated_peak_kw": 5.282088160983038,
+                  "delta_cost_eur": 3.1982350026382833
+                },
+                {
+                  "month": "2026-06",
+                  "baseline_peak_kw": 5.324,
+                  "simulated_peak_kw": 5.324,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-07",
+                  "baseline_peak_kw": 5.352,
+                  "simulated_peak_kw": 5.352,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-08",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 5.586088160983038,
+                  "delta_cost_eur": 0.8377210026382789
+                },
+                {
+                  "month": "2026-09",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 6.902088160983038,
+                  "delta_cost_eur": 7.475405669304945
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": 4.637965,
+                  "grid_charge_kwh": 410.376777,
+                  "surplus_charge_kwh": 92.530972,
+                  "discharge_kwh": 429.346403,
+                  "conversion_loss_kwh": 73.561346
+                },
+                "summer": {
+                  "net_saving_eur": 83.425268,
+                  "grid_charge_kwh": 341.439524,
+                  "surplus_charge_kwh": 310.177505,
+                  "discharge_kwh": 556.303672,
+                  "conversion_loss_kwh": 95.313357
+                }
+              }
+            },
+            "incremental_grid_charging_value_eur": 3.714608
+          },
+          {
+            "cap_kw": 8.0,
+            "baseline_exposure": {
+              "cap_kw": 8.0,
+              "observed_peak_kw": 6.6,
+              "quarter_count_above_cap": 0,
+              "maximum_excess_kw": 0.0,
+              "excess_energy_kwh": 0.0
+            },
+            "pv_surplus_only": {
+              "feasible": true,
+              "allow_grid_charge": false,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_8_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2395.543441,
+              "simulated_cost_eur": 2311.194816,
+              "net_saving_eur": 84.348626,
+              "capacity_peak_delta_eur": -0.221929,
+              "charge_kwh": 342.572106,
+              "grid_charge_kwh": 0.0,
+              "surplus_charge_kwh": 342.572106,
+              "discharge_kwh": 292.463383,
+              "conversion_loss_kwh": 50.108723,
+              "equivalent_full_cycles": 20.538159,
+              "grid_import_kwh": 9211.264617,
+              "grid_export_kwh": 640.244894,
+              "monthly_peaks": [
+                {
+                  "month": "2025-10",
+                  "baseline_peak_kw": 5.184,
+                  "simulated_peak_kw": 5.184,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-11",
+                  "baseline_peak_kw": 6.0,
+                  "simulated_peak_kw": 6.0,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-12",
+                  "baseline_peak_kw": 5.912,
+                  "simulated_peak_kw": 5.912,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-01",
+                  "baseline_peak_kw": 6.6,
+                  "simulated_peak_kw": 6.6,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-02",
+                  "baseline_peak_kw": 5.2,
+                  "simulated_peak_kw": 5.2,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-03",
+                  "baseline_peak_kw": 5.208,
+                  "simulated_peak_kw": 5.208,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-04",
+                  "baseline_peak_kw": 5.132,
+                  "simulated_peak_kw": 5.132,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-05",
+                  "baseline_peak_kw": 4.648,
+                  "simulated_peak_kw": 4.604,
+                  "delta_cost_eur": -0.22192866666666464
+                },
+                {
+                  "month": "2026-06",
+                  "baseline_peak_kw": 5.324,
+                  "simulated_peak_kw": 5.324,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-07",
+                  "baseline_peak_kw": 5.352,
+                  "simulated_peak_kw": 5.352,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-08",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 5.42,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-09",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 5.42,
+                  "delta_cost_eur": 0.0
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": 12.879882,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 59.213332,
+                  "discharge_kwh": 50.552076,
+                  "conversion_loss_kwh": 8.661255
+                },
+                "summer": {
+                  "net_saving_eur": 71.468743,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 283.358775,
+                  "discharge_kwh": 241.911306,
+                  "conversion_loss_kwh": 41.447468
+                }
+              }
+            },
+            "price_aware_grid_charging": {
+              "feasible": true,
+              "allow_grid_charge": true,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_8_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2395.543441,
+              "simulated_cost_eur": 2341.049985,
+              "net_saving_eur": 54.493456,
+              "capacity_peak_delta_eur": 77.945692,
+              "charge_kwh": 1155.065539,
+              "grid_charge_kwh": 752.359061,
+              "surplus_charge_kwh": 402.706478,
+              "discharge_kwh": 986.111738,
+              "conversion_loss_kwh": 168.953801,
+              "equivalent_full_cycles": 69.24942,
+              "grid_import_kwh": 9269.975324,
+              "grid_export_kwh": 580.110522,
+              "monthly_peaks": [
+                {
+                  "month": "2025-10",
+                  "baseline_peak_kw": 5.184,
+                  "simulated_peak_kw": 7.976566120737278,
+                  "delta_cost_eur": 14.08523808531204
+                },
+                {
+                  "month": "2025-11",
+                  "baseline_peak_kw": 6.0,
+                  "simulated_peak_kw": 7.972566120737278,
+                  "delta_cost_eur": 9.94929475197871
+                },
+                {
+                  "month": "2025-12",
+                  "baseline_peak_kw": 5.912,
+                  "simulated_peak_kw": 7.8940881609830384,
+                  "delta_cost_eur": 9.997322335971617
+                },
+                {
+                  "month": "2026-01",
+                  "baseline_peak_kw": 6.6,
+                  "simulated_peak_kw": 7.9580881609830385,
+                  "delta_cost_eur": 6.8499703359716175
+                },
+                {
+                  "month": "2026-02",
+                  "baseline_peak_kw": 5.2,
+                  "simulated_peak_kw": 5.2,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-03",
+                  "baseline_peak_kw": 5.208,
+                  "simulated_peak_kw": 7.756566120737277,
+                  "delta_cost_eur": 12.854542751978704
+                },
+                {
+                  "month": "2026-04",
+                  "baseline_peak_kw": 5.132,
+                  "simulated_peak_kw": 7.003044080491518,
+                  "delta_cost_eur": 9.43723450131914
+                },
+                {
+                  "month": "2026-05",
+                  "baseline_peak_kw": 4.648,
+                  "simulated_peak_kw": 5.282088160983038,
+                  "delta_cost_eur": 3.1982350026382833
+                },
+                {
+                  "month": "2026-06",
+                  "baseline_peak_kw": 5.324,
+                  "simulated_peak_kw": 5.324,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-07",
+                  "baseline_peak_kw": 5.352,
+                  "simulated_peak_kw": 5.352,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-08",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 5.586088160983038,
+                  "delta_cost_eur": 0.8377210026382789
+                },
+                {
+                  "month": "2026-09",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 7.548566120737279,
+                  "delta_cost_eur": 10.736132751978714
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": -20.220733,
+                  "grid_charge_kwh": 410.649157,
+                  "surplus_charge_kwh": 92.528972,
+                  "discharge_kwh": 429.577234,
+                  "conversion_loss_kwh": 73.600895
+                },
+                "summer": {
+                  "net_saving_eur": 74.714189,
+                  "grid_charge_kwh": 341.709904,
+                  "surplus_charge_kwh": 310.177505,
+                  "discharge_kwh": 556.534504,
+                  "conversion_loss_kwh": 95.352906
+                }
+              }
+            },
+            "incremental_grid_charging_value_eur": -29.85517
+          },
+          {
+            "cap_kw": 10.0,
+            "baseline_exposure": {
+              "cap_kw": 10.0,
+              "observed_peak_kw": 6.6,
+              "quarter_count_above_cap": 0,
+              "maximum_excess_kw": 0.0,
+              "excess_energy_kwh": 0.0
+            },
+            "pv_surplus_only": {
+              "feasible": true,
+              "allow_grid_charge": false,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_10_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2395.543441,
+              "simulated_cost_eur": 2311.194816,
+              "net_saving_eur": 84.348626,
+              "capacity_peak_delta_eur": -0.221929,
+              "charge_kwh": 342.572106,
+              "grid_charge_kwh": 0.0,
+              "surplus_charge_kwh": 342.572106,
+              "discharge_kwh": 292.463383,
+              "conversion_loss_kwh": 50.108723,
+              "equivalent_full_cycles": 20.538159,
+              "grid_import_kwh": 9211.264617,
+              "grid_export_kwh": 640.244894,
+              "monthly_peaks": [
+                {
+                  "month": "2025-10",
+                  "baseline_peak_kw": 5.184,
+                  "simulated_peak_kw": 5.184,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-11",
+                  "baseline_peak_kw": 6.0,
+                  "simulated_peak_kw": 6.0,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2025-12",
+                  "baseline_peak_kw": 5.912,
+                  "simulated_peak_kw": 5.912,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-01",
+                  "baseline_peak_kw": 6.6,
+                  "simulated_peak_kw": 6.6,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-02",
+                  "baseline_peak_kw": 5.2,
+                  "simulated_peak_kw": 5.2,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-03",
+                  "baseline_peak_kw": 5.208,
+                  "simulated_peak_kw": 5.208,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-04",
+                  "baseline_peak_kw": 5.132,
+                  "simulated_peak_kw": 5.132,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-05",
+                  "baseline_peak_kw": 4.648,
+                  "simulated_peak_kw": 4.604,
+                  "delta_cost_eur": -0.22192866666666464
+                },
+                {
+                  "month": "2026-06",
+                  "baseline_peak_kw": 5.324,
+                  "simulated_peak_kw": 5.324,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-07",
+                  "baseline_peak_kw": 5.352,
+                  "simulated_peak_kw": 5.352,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-08",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 5.42,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-09",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 5.42,
+                  "delta_cost_eur": 0.0
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": 12.879882,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 59.213332,
+                  "discharge_kwh": 50.552076,
+                  "conversion_loss_kwh": 8.661255
+                },
+                "summer": {
+                  "net_saving_eur": 71.468743,
+                  "grid_charge_kwh": 0.0,
+                  "surplus_charge_kwh": 283.358775,
+                  "discharge_kwh": 241.911306,
+                  "conversion_loss_kwh": 41.447468
+                }
+              }
+            },
+            "price_aware_grid_charging": {
+              "feasible": true,
+              "allow_grid_charge": true,
+              "allow_battery_export": false,
+              "peak_policy": "absolute_10_kw",
+              "segment_count": 12,
+              "baseline_cost_eur": 2395.543441,
+              "simulated_cost_eur": 2381.518247,
+              "net_saving_eur": 14.025195,
+              "capacity_peak_delta_eur": 118.435619,
+              "charge_kwh": 1155.335919,
+              "grid_charge_kwh": 752.635442,
+              "surplus_charge_kwh": 402.700478,
+              "discharge_kwh": 986.342569,
+              "conversion_loss_kwh": 168.99335,
+              "equivalent_full_cycles": 69.26563,
+              "grid_import_kwh": 9270.020873,
+              "grid_export_kwh": 580.116522,
+              "monthly_peaks": [
+                {
+                  "month": "2025-10",
+                  "baseline_peak_kw": 5.184,
+                  "simulated_peak_kw": 9.298088160983031,
+                  "delta_cost_eur": 20.750775002638246
+                },
+                {
+                  "month": "2025-11",
+                  "baseline_peak_kw": 6.0,
+                  "simulated_peak_kw": 9.278088160983039,
+                  "delta_cost_eur": 16.534130335971618
+                },
+                {
+                  "month": "2025-12",
+                  "baseline_peak_kw": 5.912,
+                  "simulated_peak_kw": 7.8940881609830384,
+                  "delta_cost_eur": 9.997322335971617
+                },
+                {
+                  "month": "2026-01",
+                  "baseline_peak_kw": 6.6,
+                  "simulated_peak_kw": 9.182088160983039,
+                  "delta_cost_eur": 13.02362233597162
+                },
+                {
+                  "month": "2026-02",
+                  "baseline_peak_kw": 5.2,
+                  "simulated_peak_kw": 5.2,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-03",
+                  "baseline_peak_kw": 5.208,
+                  "simulated_peak_kw": 8.838088160983038,
+                  "delta_cost_eur": 18.309559669304946
+                },
+                {
+                  "month": "2026-04",
+                  "baseline_peak_kw": 5.132,
+                  "simulated_peak_kw": 8.084566120737277,
+                  "delta_cost_eur": 14.89225141864537
+                },
+                {
+                  "month": "2026-05",
+                  "baseline_peak_kw": 4.648,
+                  "simulated_peak_kw": 5.282088160983038,
+                  "delta_cost_eur": 3.1982350026382833
+                },
+                {
+                  "month": "2026-06",
+                  "baseline_peak_kw": 5.324,
+                  "simulated_peak_kw": 5.324,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-07",
+                  "baseline_peak_kw": 5.352,
+                  "simulated_peak_kw": 5.352,
+                  "delta_cost_eur": 0.0
+                },
+                {
+                  "month": "2026-08",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 5.586088160983038,
+                  "delta_cost_eur": 0.8377210026382789
+                },
+                {
+                  "month": "2026-09",
+                  "baseline_peak_kw": 5.42,
+                  "simulated_peak_kw": 9.562088160983038,
+                  "delta_cost_eur": 20.892002335971615
+                }
+              ],
+              "seasonal": {
+                "winter": {
+                  "net_saving_eur": -45.081394,
+                  "grid_charge_kwh": 410.925538,
+                  "surplus_charge_kwh": 92.522972,
+                  "discharge_kwh": 429.808065,
+                  "conversion_loss_kwh": 73.640444
+                },
+                "summer": {
+                  "net_saving_eur": 59.106589,
+                  "grid_charge_kwh": 341.709904,
+                  "surplus_charge_kwh": 310.177505,
+                  "discharge_kwh": 556.534504,
+                  "conversion_loss_kwh": 95.352906
+                }
+              }
+            },
+            "incremental_grid_charging_value_eur": -70.323431
+          }
+        ]
+      }
+    }
+  ],
+  "three_year_financial_sensitivity": {
+    "calculation_scope": "RECONCILED_ALL_IN_RATE_SENSITIVITY",
+    "verification_status": "RATE_RECONCILED_FIXED_COMPONENTS_HELD_CONSTANT",
+    "historical_net_variable_cost_eur": 7214.56723,
+    "dynamic_net_variable_cost_eur": 6217.76583,
+    "historical_fixed_cost_eur": 1185.5811,
+    "dynamic_fixed_cost_carried_forward_eur": 1185.5811,
+    "dynamic_subscription_eur": 190.8,
+    "historical_total_cost_eur": 8400.14833,
+    "dynamic_total_cost_eur": 7594.14693,
+    "dynamic_minus_historical_variable_eur": -996.8014,
+    "dynamic_minus_historical_eur": -806.0014,
+    "average_dynamic_saving_eur_per_year": 268.667133,
+    "limitations": [
+      "DSMR exported all-in rates are internally reconciled but not independently invoice-validated.",
+      "Historical fixed costs are carried unchanged into the dynamic scenario because supplier, grid, capacity, tax and levy components are not decomposed.",
+      "The dynamic supplier subscription is added separately including configured import VAT.",
+      "Unavailable quarter energy is excluded from variable charges; fixed monthly costs remain included.",
+      "The August 2026 dynamic tariff formula and current marginal components are applied retrospectively."
+    ]
+  },
+  "additional_capacity_three_year_average": [
+    {
+      "additional_usable_capacity_kwh": 5.0,
+      "average_pv_surplus_only_net_saving_eur_per_year": 45.886405,
+      "average_best_with_grid_charging_net_saving_eur_per_year": 45.886405,
+      "average_incremental_grid_charging_value_eur_per_year": 0.0
+    },
+    {
+      "additional_usable_capacity_kwh": 10.0,
+      "average_pv_surplus_only_net_saving_eur_per_year": 66.8189,
+      "average_best_with_grid_charging_net_saving_eur_per_year": 68.199586,
+      "average_incremental_grid_charging_value_eur_per_year": 1.380686
+    },
+    {
+      "additional_usable_capacity_kwh": 14.24,
+      "average_pv_surplus_only_net_saving_eur_per_year": 78.217813,
+      "average_best_with_grid_charging_net_saving_eur_per_year": 84.209486,
+      "average_incremental_grid_charging_value_eur_per_year": 5.991673
+    }
+  ],
+  "scenario_overview": {
+    "computed": [
+      {
+        "id": "dynamic_contract_unchanged_behavior",
+        "title": "Dynamisch contract zonder sturing",
+        "status": "OPTION",
+        "value_eur_per_year": 268.667133,
+        "why": "DSMR-exported monthly all-in rates are compared with the same retrospective dynamic formula for all three local years; unchanged fixed costs are carried forward and the dynamic subscription is added.",
+        "limitation": "The export reconciles configured prices to DSMR displayed costs, but fixed supplier, grid, capacity, tax and levy components are not decomposed or independently invoice-validated."
+      },
+      {
+        "id": "peak_neutral_winter_grid_charging",
+        "title": "Winterse netlading zonder hogere maandpiek",
+        "status": "OPTION",
+        "value_eur_per_year": 36.860993,
+        "winter_value_eur_per_year": 19.692357,
+        "why": "Uses cheap Day-Ahead quarters to fill otherwise idle storage while keeping every simulated month at or below its observed peak.",
+        "limitation": "Perfect foresight on a residual profile; this is not an exact redispatch of the installed battery."
+      },
+      {
+        "id": "battery_export",
+        "title": "Prijsarbitrage met batterij-export",
+        "status": "REQUIRES_TESTING",
+        "value_eur_per_year": 35.185634,
+        "why": "Can capture rare high-price intervals after household demand is covered.",
+        "limitation": "Requires controller, warranty, metering, supplier and regulatory validation; no physical export control has been tested."
+      },
+      {
+        "id": "additional_battery_capacity",
+        "title": "Extra batterijcapaciteit",
+        "status": "INVESTMENT_CASE_REQUIRED",
+        "value_eur_per_year": 84.209486,
+        "why": "Adds PV capture and some price arbitrage on the residual profile.",
+        "limitation": "The perfect-foresight annual value remains too small to support hardware purchase without installed cost and lifetime inputs."
+      }
+    ],
+    "peak_caps": [
+      {
+        "cap_kw": 7.0,
+        "status": "OPTION",
+        "feasible_year_count": 3,
+        "average_net_saving_eur_per_year": 98.120467,
+        "average_incremental_grid_charging_value_eur_per_year": 1.857304,
+        "grid_charging_selected_year_count": 1,
+        "baseline_quarter_count_above_cap": 125,
+        "maximum_historical_excess_kw": 3.012,
+        "interpretation": "shared quarter-hour grid-import ceiling covering house, heat pump, EV and battery charging; individual loads are not separately reconstructed"
+      },
+      {
+        "cap_kw": 8.0,
+        "status": "OPTION",
+        "feasible_year_count": 3,
+        "average_net_saving_eur_per_year": 89.947473,
+        "average_incremental_grid_charging_value_eur_per_year": 0.0,
+        "grid_charging_selected_year_count": 0,
+        "baseline_quarter_count_above_cap": 19,
+        "maximum_historical_excess_kw": 2.012,
+        "interpretation": "shared quarter-hour grid-import ceiling covering house, heat pump, EV and battery charging; individual loads are not separately reconstructed"
+      },
+      {
+        "cap_kw": 10.0,
+        "status": "OPTION",
+        "feasible_year_count": 3,
+        "average_net_saving_eur_per_year": 74.946804,
+        "average_incremental_grid_charging_value_eur_per_year": 0.0,
+        "grid_charging_selected_year_count": 0,
+        "baseline_quarter_count_above_cap": 1,
+        "maximum_historical_excess_kw": 0.012,
+        "interpretation": "shared quarter-hour grid-import ceiling covering house, heat pump, EV and battery charging; individual loads are not separately reconstructed"
+      }
+    ],
+    "data_gated": [
+      {
+        "id": "coordinated_ev_charging",
+        "title": "EV-laden op goedkope uren binnen een gezamenlijke piek",
+        "status": "DATA_GATED",
+        "required_data": "EV availability, departure time, target energy and complete interval power"
+      },
+      {
+        "id": "heat_pump_preheating",
+        "title": "Warmtepomp voorverwarmen op goedkope uren",
+        "status": "DATA_GATED",
+        "required_data": "heat-pump interval power, indoor/outdoor temperature, COP and comfort constraints"
+      },
+      {
+        "id": "coordinated_home_energy_manager",
+        "title": "Gezamenlijke planning batterij, EV, warmtepomp en huis",
+        "status": "DATA_GATED",
+        "required_data": "battery SOC and flows plus disaggregated EV, heat-pump and base-load intervals"
+      }
+    ]
+  },
+  "model": {
+    "energy_source": "Fluvius quarter-hour import/export",
+    "price_source": "ENTSO-E Belgian Day-Ahead",
+    "observed_battery_sources": [
+      "Sunny Portal daily energy 2023-2025",
+      "Sunny Portal intraday power 2025-05-29 through 2025-12-31",
+      "Home Assistant hourly battery statistics 2026-01-22 through 2026-09-30"
+    ],
+    "retrospective_tariff_version": "ECOPOWER_DBS_2026-08-01",
+    "historical_tariff_ledger": "READ_ONLY_HISTORICAL_TARIFF_LEDGER",
+    "historical_tariff_calculation_scope": "RECONCILED_ALL_IN_RATE_SENSITIVITY",
+    "residual_battery_interpretation": "additional virtual battery applied after historically observed battery behavior",
+    "residual_battery_export": false,
+    "grid_charging_comparison": [
+      "PV surplus only",
+      "price-aware grid charging with perfect foresight and a baseline monthly peak plus 1 kW cap"
+    ],
+    "physical_writes": false,
+    "contract_change": false,
+    "state_step_kwh": 0.25
+  },
+  "limitations": [
+    "Fluvius residual net flow already includes the historical operation of the existing battery; residual scenarios therefore represent additional storage, not a clean replacement of the existing battery.",
+    "Sunny Portal provides complete daily battery energy for 2023-2025, but interval battery power only from 2025-05-29 through 2025-12-31.",
+    "The 2025-2026 observed battery year is partial because detailed battery data is unavailable for 2026-01-01 through 2026-01-21.",
+    "The August 2026 Ecopower dynamic formula is applied retrospectively as a controlled constant-tariff sensitivity across all three years.",
+    "The three-year historical comparison uses configured DSMR rates, with owner-confirmed Home Assistant import rates taking precedence for January through September 2026; component scope and VAT inclusion remain unverified.",
+    "Residual-battery scenarios use perfect price and residual-load foresight and are upper bounds, not deployable production forecasts.",
+    "The six unavailable Fluvius quarters remain excluded from optimization and visible in quality counts."
+  ]
+}

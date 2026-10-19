@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0-alpha.8 — 2026-10-19
+## 0.3.0-alpha.11 — 2026-10-19
 
 - Add an optional battery heartbeat entity for the read-only validation card.
 - Accept an unchanged numeric battery value as current only while the separately
@@ -9,6 +9,22 @@
 - Keep stale, missing, unavailable and invalid battery values fail-closed; a
   heartbeat never substitutes a measurement or changes its numeric value.
 - Preserve `execution_allowed: false` and all physical-write prohibitions.
+
+## 0.3.0-alpha.10 — 2026-10-19
+
+- Add a read-only Home Assistant dashboard view that compares Ecopower Dynamische
+  and Groene Burgerstroom (current and next-hour prices, injection, costs,
+  monthly peak, tariff-card versions and two quarter-hour price charts) using
+  the `BE electricity prices` entities. Import it from
+  `deploy/home-assistant/dashboard-vergelijking-view.json`.
+- The view contains no actions and writes nothing.
+
+## 0.3.0-alpha.9 — 2026-10-19
+
+- Read `today` and `tomorrow` price attributes of the `BE electricity prices`
+  integration (`all_in` and `injection` rows without an end time). The
+  attribute option now accepts a comma-separated list, and row ends are inferred
+  from the next row. The existing `data` contract is unchanged.
 
 ## 0.3.0-alpha.7 — 2026-10-19
 

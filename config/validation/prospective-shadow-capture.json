@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "mode": "READ_ONLY_SHADOW_CAPTURE",
+  "timezone": "Europe/Brussels",
+  "load_history_days": 14,
+  "minimum_load_samples": 3,
+  "pv_forecast_max_age_hours": 18,
+  "price_feed_max_age_hours": 18,
+  "month_peak_max_age_hours": 744,
+  "controller_boundaries": {
+    "battery_and_pv_owner": "SMA",
+    "ev_charging_owner": "Smappee",
+    "home_assistant_role": "observation_only",
+    "physical_writes": false,
+    "home_assistant_actuator_writes": false,
+    "sma_writes": false,
+    "smappee_writes": false
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "required_per_stratum": 2,
+  "strata": [
+    "winter_weekday",
+    "summer_high_pv_weekday",
+    "weekend",
+    "negative_price_day",
+    "high_load_ev_day",
+    "ordinary_shoulder_weekday"
+  ],
+  "assignments": {}
+}

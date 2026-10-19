@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "entities": {
+    "soc": "sensor.<battery_soc>",
+    "month_peak": "sensor.<current_month_peak>",
+    "pv_forecast": "sensor.<tomorrow_pv_forecast>",
+    "load_power": "sensor.<total_household_load_power>"
+  }
+}

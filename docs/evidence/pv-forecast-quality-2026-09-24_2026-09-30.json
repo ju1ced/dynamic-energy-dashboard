@@ -1,0 +1,749 @@
+{
+  "schema_version": 1,
+  "status": "VERIFIED_WITH_LIMITATIONS",
+  "classification": "READ_ONLY_PV_FORECAST_QUALITY",
+  "mode": "READ_ONLY",
+  "timezone": "Europe/Brussels",
+  "period_start": "2026-09-24",
+  "period_end_inclusive": "2026-09-30",
+  "quality": {
+    "target_day_count": 7,
+    "forecast_version_count": 75,
+    "days_with_revisions": 7,
+    "day_ahead_missing_day_count": 1,
+    "source_retention_note": "Raw state history retained only the recent recorder window; the first target day therefore has no preserved day-ahead version."
+  },
+  "summary_by_horizon": {
+    "day_ahead": {
+      "evaluated_day_count": 6,
+      "missing_day_count": 1,
+      "mean_error_kwh": 6.935833,
+      "mean_absolute_error_kwh": 6.935833,
+      "root_mean_square_error_kwh": 8.354463,
+      "mean_absolute_percentage_error": 28.694241
+    },
+    "same_day_midnight": {
+      "evaluated_day_count": 6,
+      "missing_day_count": 1,
+      "mean_error_kwh": 6.935833,
+      "mean_absolute_error_kwh": 6.935833,
+      "root_mean_square_error_kwh": 8.354463,
+      "mean_absolute_percentage_error": 28.694241
+    },
+    "same_day_morning": {
+      "evaluated_day_count": 7,
+      "missing_day_count": 0,
+      "mean_error_kwh": 9.154343,
+      "mean_absolute_error_kwh": 9.154343,
+      "root_mean_square_error_kwh": 10.396971,
+      "mean_absolute_percentage_error": 38.431639
+    }
+  },
+  "days": [
+    {
+      "target_date": "2026-09-24",
+      "target_start_local": "2026-09-24T00:00:00+02:00",
+      "target_end_local": "2026-09-25T00:00:00+02:00",
+      "actual_kwh": 25.402,
+      "actual_method": "adjacent daily cumulative state delta",
+      "forecast_version_count": 5,
+      "revision_count": 4,
+      "overwritten_forecasts_preserved": true,
+      "forecast_range_kwh": 4.0527,
+      "versions": [
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-24T07:34:41.031794+02:00",
+          "predicted_kwh": 40.4562
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-24T09:59:59.565028+02:00",
+          "predicted_kwh": 41.3419
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-24T12:25:17.640626+02:00",
+          "predicted_kwh": 38.7257
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-24T14:50:35.556005+02:00",
+          "predicted_kwh": 37.6896
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-24T17:15:53.211721+02:00",
+          "predicted_kwh": 37.2892
+        }
+      ],
+      "horizons": {
+        "day_ahead": {
+          "status": "MISSING",
+          "issue_time": null,
+          "predicted_kwh": null,
+          "actual_kwh": null,
+          "error_kwh": null,
+          "absolute_error_kwh": null,
+          "absolute_percentage_error": null,
+          "horizon_hours_to_target_end": null
+        },
+        "same_day_midnight": {
+          "status": "MISSING",
+          "issue_time": null,
+          "predicted_kwh": null,
+          "actual_kwh": null,
+          "error_kwh": null,
+          "absolute_error_kwh": null,
+          "absolute_percentage_error": null,
+          "horizon_hours_to_target_end": null
+        },
+        "same_day_morning": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-24T07:34:41.031794+02:00",
+          "predicted_kwh": 40.4562,
+          "actual_kwh": 25.402,
+          "error_kwh": 15.0542,
+          "absolute_error_kwh": 15.0542,
+          "absolute_percentage_error": 59.263837,
+          "horizon_hours_to_target_end": 16.421936
+        }
+      }
+    },
+    {
+      "target_date": "2026-09-25",
+      "target_start_local": "2026-09-25T00:00:00+02:00",
+      "target_end_local": "2026-09-26T00:00:00+02:00",
+      "actual_kwh": 36.794,
+      "actual_method": "adjacent daily cumulative state delta",
+      "forecast_version_count": 10,
+      "revision_count": 9,
+      "overwritten_forecasts_preserved": true,
+      "forecast_range_kwh": 0.9694,
+      "versions": [
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-24T07:34:41.032946+02:00",
+          "predicted_kwh": 50.4549
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-24T09:59:59.566385+02:00",
+          "predicted_kwh": 50.449
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-24T12:25:17.641738+02:00",
+          "predicted_kwh": 50.2708
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-24T14:50:35.557159+02:00",
+          "predicted_kwh": 49.6235
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-24T17:15:53.212780+02:00",
+          "predicted_kwh": 49.7167
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-25T00:00:00.203385+02:00",
+          "predicted_kwh": 49.7167
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-25T07:36:15.673265+02:00",
+          "predicted_kwh": 49.5804
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-25T10:01:40.715373+02:00",
+          "predicted_kwh": 49.5357
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-25T12:25:19.133759+02:00",
+          "predicted_kwh": 49.584
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-25T14:49:51.983002+02:00",
+          "predicted_kwh": 49.4855
+        }
+      ],
+      "horizons": {
+        "day_ahead": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-24T17:15:53.212780+02:00",
+          "predicted_kwh": 49.7167,
+          "actual_kwh": 36.794,
+          "error_kwh": 12.9227,
+          "absolute_error_kwh": 12.9227,
+          "absolute_percentage_error": 35.121759,
+          "horizon_hours_to_target_end": 30.735219
+        },
+        "same_day_midnight": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-25T00:00:00.203385+02:00",
+          "predicted_kwh": 49.7167,
+          "actual_kwh": 36.794,
+          "error_kwh": 12.9227,
+          "absolute_error_kwh": 12.9227,
+          "absolute_percentage_error": 35.121759,
+          "horizon_hours_to_target_end": 23.999944
+        },
+        "same_day_morning": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-25T07:36:15.673265+02:00",
+          "predicted_kwh": 49.5804,
+          "actual_kwh": 36.794,
+          "error_kwh": 12.7864,
+          "absolute_error_kwh": 12.7864,
+          "absolute_percentage_error": 34.751318,
+          "horizon_hours_to_target_end": 16.395646
+        }
+      }
+    },
+    {
+      "target_date": "2026-09-26",
+      "target_start_local": "2026-09-26T00:00:00+02:00",
+      "target_end_local": "2026-09-27T00:00:00+02:00",
+      "actual_kwh": 17.928,
+      "actual_method": "adjacent daily cumulative state delta",
+      "forecast_version_count": 12,
+      "revision_count": 11,
+      "overwritten_forecasts_preserved": true,
+      "forecast_range_kwh": 5.4017,
+      "versions": [
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-25T00:00:00.204463+02:00",
+          "predicted_kwh": 22.1787
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-25T07:36:15.674511+02:00",
+          "predicted_kwh": 21.5424
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-25T10:01:40.716636+02:00",
+          "predicted_kwh": 21.6141
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-25T12:25:19.134930+02:00",
+          "predicted_kwh": 21.0866
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-25T14:49:51.984183+02:00",
+          "predicted_kwh": 19.6866
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-25T17:14:24.259907+02:00",
+          "predicted_kwh": 20.706
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-26T00:00:00.449319+02:00",
+          "predicted_kwh": 20.706
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-26T07:37:49.851865+02:00",
+          "predicted_kwh": 23.6994
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-26T10:01:35.850402+02:00",
+          "predicted_kwh": 24.43
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-26T12:25:22.723117+02:00",
+          "predicted_kwh": 20.3468
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-26T14:49:07.243802+02:00",
+          "predicted_kwh": 19.0283
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-26T17:12:53.244229+02:00",
+          "predicted_kwh": 19.4384
+        }
+      ],
+      "horizons": {
+        "day_ahead": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-25T17:14:24.259907+02:00",
+          "predicted_kwh": 20.706,
+          "actual_kwh": 17.928,
+          "error_kwh": 2.778,
+          "absolute_error_kwh": 2.778,
+          "absolute_percentage_error": 15.495315,
+          "horizon_hours_to_target_end": 30.759928
+        },
+        "same_day_midnight": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-26T00:00:00.449319+02:00",
+          "predicted_kwh": 20.706,
+          "actual_kwh": 17.928,
+          "error_kwh": 2.778,
+          "absolute_error_kwh": 2.778,
+          "absolute_percentage_error": 15.495315,
+          "horizon_hours_to_target_end": 23.999875
+        },
+        "same_day_morning": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-26T07:37:49.851865+02:00",
+          "predicted_kwh": 23.6994,
+          "actual_kwh": 17.928,
+          "error_kwh": 5.7714,
+          "absolute_error_kwh": 5.7714,
+          "absolute_percentage_error": 32.192102,
+          "horizon_hours_to_target_end": 16.369486
+        }
+      }
+    },
+    {
+      "target_date": "2026-09-27",
+      "target_start_local": "2026-09-27T00:00:00+02:00",
+      "target_end_local": "2026-09-28T00:00:00+02:00",
+      "actual_kwh": 30.278,
+      "actual_method": "adjacent daily cumulative state delta",
+      "forecast_version_count": 12,
+      "revision_count": 11,
+      "overwritten_forecasts_preserved": true,
+      "forecast_range_kwh": 8.7447,
+      "versions": [
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-26T00:00:00.450550+02:00",
+          "predicted_kwh": 32.0195
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-26T07:37:49.853055+02:00",
+          "predicted_kwh": 39.5429
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-26T10:01:35.851701+02:00",
+          "predicted_kwh": 39.8545
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-26T12:25:22.724309+02:00",
+          "predicted_kwh": 39.92
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-26T14:49:07.244933+02:00",
+          "predicted_kwh": 38.2836
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-26T17:12:53.245400+02:00",
+          "predicted_kwh": 38.6306
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-27T00:00:00.448643+02:00",
+          "predicted_kwh": 38.6306
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-27T07:39:23.980212+02:00",
+          "predicted_kwh": 40.4973
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-27T10:02:23.953017+02:00",
+          "predicted_kwh": 40.1101
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-27T12:25:24.028825+02:00",
+          "predicted_kwh": 40.6617
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-27T14:48:24.213919+02:00",
+          "predicted_kwh": 40.7642
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-27T17:11:23.941272+02:00",
+          "predicted_kwh": 40.669
+        }
+      ],
+      "horizons": {
+        "day_ahead": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-26T17:12:53.245400+02:00",
+          "predicted_kwh": 38.6306,
+          "actual_kwh": 30.278,
+          "error_kwh": 8.3526,
+          "absolute_error_kwh": 8.3526,
+          "absolute_percentage_error": 27.586366,
+          "horizon_hours_to_target_end": 30.78521
+        },
+        "same_day_midnight": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-27T00:00:00.448643+02:00",
+          "predicted_kwh": 38.6306,
+          "actual_kwh": 30.278,
+          "error_kwh": 8.3526,
+          "absolute_error_kwh": 8.3526,
+          "absolute_percentage_error": 27.586366,
+          "horizon_hours_to_target_end": 23.999875
+        },
+        "same_day_morning": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-27T07:39:23.980212+02:00",
+          "predicted_kwh": 40.4973,
+          "actual_kwh": 30.278,
+          "error_kwh": 10.2193,
+          "absolute_error_kwh": 10.2193,
+          "absolute_percentage_error": 33.751569,
+          "horizon_hours_to_target_end": 16.343339
+        }
+      }
+    },
+    {
+      "target_date": "2026-09-28",
+      "target_start_local": "2026-09-28T00:00:00+02:00",
+      "target_end_local": "2026-09-29T00:00:00+02:00",
+      "actual_kwh": 10.849,
+      "actual_method": "adjacent daily cumulative state delta",
+      "forecast_version_count": 12,
+      "revision_count": 11,
+      "overwritten_forecasts_preserved": true,
+      "forecast_range_kwh": 8.3351,
+      "versions": [
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-27T00:00:00.449875+02:00",
+          "predicted_kwh": 22.0508
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-27T07:39:23.981398+02:00",
+          "predicted_kwh": 14.5804
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-27T10:02:23.954225+02:00",
+          "predicted_kwh": 14.6708
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-27T12:25:24.030199+02:00",
+          "predicted_kwh": 14.7536
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-27T14:48:24.215155+02:00",
+          "predicted_kwh": 14.7297
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-27T17:11:23.942411+02:00",
+          "predicted_kwh": 14.8487
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-28T00:00:00.457676+02:00",
+          "predicted_kwh": 14.8487
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-28T07:40:58.787728+02:00",
+          "predicted_kwh": 15.0833
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-28T10:03:12.967564+02:00",
+          "predicted_kwh": 14.1886
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-28T12:25:26.978392+02:00",
+          "predicted_kwh": 13.7157
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-28T14:47:41.589281+02:00",
+          "predicted_kwh": 13.8074
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-28T17:09:56.542192+02:00",
+          "predicted_kwh": 14.1545
+        }
+      ],
+      "horizons": {
+        "day_ahead": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-27T17:11:23.942411+02:00",
+          "predicted_kwh": 14.8487,
+          "actual_kwh": 10.849,
+          "error_kwh": 3.9997,
+          "absolute_error_kwh": 3.9997,
+          "absolute_percentage_error": 36.866992,
+          "horizon_hours_to_target_end": 30.810016
+        },
+        "same_day_midnight": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-28T00:00:00.457676+02:00",
+          "predicted_kwh": 14.8487,
+          "actual_kwh": 10.849,
+          "error_kwh": 3.9997,
+          "absolute_error_kwh": 3.9997,
+          "absolute_percentage_error": 36.866992,
+          "horizon_hours_to_target_end": 23.999873
+        },
+        "same_day_morning": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-28T07:40:58.787728+02:00",
+          "predicted_kwh": 15.0833,
+          "actual_kwh": 10.849,
+          "error_kwh": 4.2343,
+          "absolute_error_kwh": 4.2343,
+          "absolute_percentage_error": 39.029404,
+          "horizon_hours_to_target_end": 16.317003
+        }
+      }
+    },
+    {
+      "target_date": "2026-09-29",
+      "target_start_local": "2026-09-29T00:00:00+02:00",
+      "target_end_local": "2026-09-30T00:00:00+02:00",
+      "actual_kwh": 27.16,
+      "actual_method": "adjacent daily cumulative state delta",
+      "forecast_version_count": 12,
+      "revision_count": 11,
+      "overwritten_forecasts_preserved": true,
+      "forecast_range_kwh": 10.9279,
+      "versions": [
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-28T00:00:00.458966+02:00",
+          "predicted_kwh": 30.6679
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-28T07:40:58.788974+02:00",
+          "predicted_kwh": 40.7278
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-28T10:03:12.968776+02:00",
+          "predicted_kwh": 40.8934
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-28T12:25:26.979561+02:00",
+          "predicted_kwh": 40.4668
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-28T14:47:41.590390+02:00",
+          "predicted_kwh": 40.203
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-28T17:09:56.543263+02:00",
+          "predicted_kwh": 39.7004
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-29T00:00:00.211477+02:00",
+          "predicted_kwh": 39.7004
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-29T07:42:33.742321+02:00",
+          "predicted_kwh": 41.5958
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-29T10:04:00.988961+02:00",
+          "predicted_kwh": 39.806
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-29T12:25:29.946525+02:00",
+          "predicted_kwh": 40.1944
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-29T14:46:59.558765+02:00",
+          "predicted_kwh": 39.1405
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-29T17:08:27.030594+02:00",
+          "predicted_kwh": 38.674
+        }
+      ],
+      "horizons": {
+        "day_ahead": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-28T17:09:56.543263+02:00",
+          "predicted_kwh": 39.7004,
+          "actual_kwh": 27.16,
+          "error_kwh": 12.5404,
+          "absolute_error_kwh": 12.5404,
+          "absolute_percentage_error": 46.172312,
+          "horizon_hours_to_target_end": 30.834294
+        },
+        "same_day_midnight": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-29T00:00:00.211477+02:00",
+          "predicted_kwh": 39.7004,
+          "actual_kwh": 27.16,
+          "error_kwh": 12.5404,
+          "absolute_error_kwh": 12.5404,
+          "absolute_percentage_error": 46.172312,
+          "horizon_hours_to_target_end": 23.999941
+        },
+        "same_day_morning": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-29T07:42:33.742321+02:00",
+          "predicted_kwh": 41.5958,
+          "actual_kwh": 27.16,
+          "error_kwh": 14.4358,
+          "absolute_error_kwh": 14.4358,
+          "absolute_percentage_error": 53.150957,
+          "horizon_hours_to_target_end": 16.290627
+        }
+      }
+    },
+    {
+      "target_date": "2026-09-30",
+      "target_start_local": "2026-09-30T00:00:00+02:00",
+      "target_end_local": "2026-10-01T00:00:00+02:00",
+      "actual_kwh": 9.353,
+      "actual_method": "adjacent daily cumulative state delta",
+      "forecast_version_count": 12,
+      "revision_count": 11,
+      "overwritten_forecasts_preserved": true,
+      "forecast_range_kwh": 1.4224,
+      "versions": [
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-29T00:00:00.212733+02:00",
+          "predicted_kwh": 11.2873
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-29T07:42:33.743524+02:00",
+          "predicted_kwh": 11.4796
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-29T10:04:00.990108+02:00",
+          "predicted_kwh": 10.7407
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-29T12:25:29.947699+02:00",
+          "predicted_kwh": 10.8285
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-29T14:46:59.560004+02:00",
+          "predicted_kwh": 10.0869
+        },
+        {
+          "forecast_kind": "tomorrow",
+          "issue_time": "2026-09-29T17:08:27.031905+02:00",
+          "predicted_kwh": 10.3746
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-30T00:00:00.204107+02:00",
+          "predicted_kwh": 10.3746
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-30T07:44:08.507753+02:00",
+          "predicted_kwh": 10.932
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-30T10:04:50.638886+02:00",
+          "predicted_kwh": 10.6369
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-30T12:25:34.177990+02:00",
+          "predicted_kwh": 10.0572
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-30T14:46:17.142794+02:00",
+          "predicted_kwh": 10.3728
+        },
+        {
+          "forecast_kind": "today",
+          "issue_time": "2026-09-30T17:06:59.925120+02:00",
+          "predicted_kwh": 10.4187
+        }
+      ],
+      "horizons": {
+        "day_ahead": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-29T17:08:27.031905+02:00",
+          "predicted_kwh": 10.3746,
+          "actual_kwh": 9.353,
+          "error_kwh": 1.0216,
+          "absolute_error_kwh": 1.0216,
+          "absolute_percentage_error": 10.922699,
+          "horizon_hours_to_target_end": 30.859158
+        },
+        "same_day_midnight": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-30T00:00:00.204107+02:00",
+          "predicted_kwh": 10.3746,
+          "actual_kwh": 9.353,
+          "error_kwh": 1.0216,
+          "absolute_error_kwh": 1.0216,
+          "absolute_percentage_error": 10.922699,
+          "horizon_hours_to_target_end": 23.999943
+        },
+        "same_day_morning": {
+          "status": "EVALUATED",
+          "issue_time": "2026-09-30T07:44:08.507753+02:00",
+          "predicted_kwh": 10.932,
+          "actual_kwh": 9.353,
+          "error_kwh": 1.579,
+          "absolute_error_kwh": 1.579,
+          "absolute_percentage_error": 16.882284,
+          "horizon_hours_to_target_end": 16.264303
+        }
+      }
+    }
+  ],
+  "extensions": {
+    "load_forecast": {
+      "status": "NOT_IMPLEMENTED_SEPARATE_STREAM",
+      "inferred_from_pv": false
+    },
+    "ev_energy_forecast": {
+      "status": "NOT_IMPLEMENTED_SEPARATE_STREAM",
+      "inferred_from_pv": false
+    }
+  },
+  "limitations": [
+    "The recorder raw-state window covers only seven completed target days, not the full Solcast long-term-statistics period.",
+    "Daily forecast sensors are evaluated as whole-day energy; interval PV forecast series are not yet exported.",
+    "The first target day lacks a preserved previous-day forecast because it predates the retained raw-state window."
+  ]
+}

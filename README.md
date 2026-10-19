@@ -15,7 +15,7 @@ can create or switch only its own automations between `OFF` and
 `ARMED_BLOCKED`. It cannot select `LIVE`, and generated automations stop before
 any SMA, Smappee, battery or EV-charger action.
 
-Alpha `0.3.0-alpha.8` retains the alpha.7 quarter-price and telemetry fixes and
+Alpha `0.3.0-alpha.11` retains the alpha.7 quarter-price and telemetry fixes and
 adds an optional battery heartbeat for integrations whose unchanged numeric
 battery sensor is not re-reported. The heartbeat proves only that the configured
 source is current; it never supplies or changes the measured battery value.
@@ -115,7 +115,7 @@ artifact. No publication is performed automatically by this repository.
 The alpha control card requires Home Assistant `2024.10.0` or newer because its
 generated automations use the current plural automation syntax.
 
-For the alpha cards, explicitly select the `0.3.0-alpha.8` prerelease in
+For the alpha cards, explicitly select the `0.3.0-alpha.11` prerelease in
 HACS. Do not replace a stable read-only installation with the alpha unless the
 Home Assistant configuration-write boundary below is understood.
 
@@ -149,6 +149,31 @@ entities whose `data` attribute contains `start_time`, `end_time` and
 `price_per_kwh` rows. This contract is provided by the HACS integrations
 `EPEX Spot Data` and `Ecopower Dynamic Prices`. Identical duplicate intervals
 from these integrations are collapsed; conflicting duplicates remain rejected.
+
+The card also reads the `BE electricity prices` integration
+(`be_electricity_prices`, HACS). Its `Huidige prijs` and `Injectieprijs`
+sensors expose `today` and `tomorrow` attributes with rows such as
+`{start, all_in}` (import, incl. network and taxes) and `{start, injection}`.
+These rows have no end time, so each interval ends where the next one starts
+and the last one repeats the previous length (15 minutes for the dynamic
+contract, 1 hour for Groene Burgerstroom). Set the attribute option to a
+comma-separated list:
+
+```yaml
+import_price_entity: sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_huidige_prijs
+export_price_entity: sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_injectieprijs
+integration_price_attribute: today,tomorrow
+```
+
+### Comparison view for Ecopower contracts
+
+`deploy/home-assistant/dashboard-vergelijking-view.json` is a read-only
+dashboard view that compares Ecopower Dynamische and Groene Burgerstroom with the
+`BE electricity prices` integration: current and next-hour prices, injection,
+costs, monthly peak, tariff-card versions and two quarter-hour price charts
+(`apexcharts-card` required). Paste it as a new view in the raw configuration
+editor of a dashboard and replace the entity IDs if yours differ. The view has no
+actions and writes nothing.
 
 Recommended setup when those integrations are already available:
 
@@ -451,4 +476,4 @@ npm run check:hacs
 The HACS artifact is `dist/dynamic-energy-dashboard.js`.
 
 Release validation for the alpha is documented in
-`docs/releases/v0.3.0-alpha.8-checklist.md`.
+`docs/releases/v0.3.0-alpha.11-checklist.md`.

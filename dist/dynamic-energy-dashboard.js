@@ -814,6 +814,38 @@ export function getUpcomingPriceIntervals(
     .map(({ startMs, endMs, ...row }) => row);
 }
 
+const PRICE_ROW_KEYS = ["price_per_kwh", "all_in", "injection"];
+const MAX_INFERRED_SLOT_MS = 3600000;
+
+function attributeRowList(stateObject, attributeName) {
+  const attributes = safeAttributes(stateObject);
+  const names = String(attributeName).split(",").map((name) => name.trim()).filter(Boolean);
+  const lists = names.map((name) => safeValue(attributes, name));
+  if (!lists.some(Array.isArray)) return null;
+  return lists.flatMap((list) => (Array.isArray(list) ? list : []));
+}
+
+// Rows without an end or duration (BE electricity prices: {start, all_in}) end
+// where the next row starts; the last row repeats the previous slot length.
+function inferRowEnds(rows) {
+  const sorted = [...rows].sort((left, right) => left.startMs - right.startMs);
+  let previousSpanMs = null;
+  for (let index = 0; index < sorted.length; index += 1) {
+    const row = sorted[index];
+    if (row.endMs !== null) {
+      previousSpanMs = row.endMs - row.startMs;
+      continue;
+    }
+    const next = sorted[index + 1];
+    const gapMs = next ? next.startMs - row.startMs : NaN;
+    const spanMs = gapMs > 0 && gapMs <= MAX_INFERRED_SLOT_MS ? gapMs : previousSpanMs;
+    if (!Number.isFinite(spanMs) || spanMs <= 0) return null;
+    row.endMs = row.startMs + spanMs;
+    previousSpanMs = spanMs;
+  }
+  return sorted;
+}
+
 export function getEntityPriceIntervals(
   importState,
   exportState = null,
@@ -821,10 +853,10 @@ export function getEntityPriceIntervals(
   now = new Date(),
   includeElapsed = false,
 ) {
-  const importRows = safeValue(safeAttributes(importState), attributeName);
-  if (!Array.isArray(importRows)) return [];
-  const candidateExportRows = safeValue(safeAttributes(exportState), attributeName);
-  const exportRows = Array.isArray(candidateExportRows) ? candidateExportRows : [];
+  // attributeName may list several attributes ("today,tomorrow").
+  const importRows = attributeRowList(importState, attributeName);
+  if (!importRows) return [];
+  const exportRows = attributeRowList(exportState, attributeName) || [];
 
   const parseIntegrationRows = (rows) => {
     const parsed = [];
@@ -842,9 +874,9 @@ export function getEntityPriceIntervals(
       ) return [];
       const endMs = Number.isFinite(explicitEndMs)
         ? explicitEndMs
-        : durationHours === null ? NaN : startMs + durationHours * 3600000;
-      const price = finiteNumber(safeValue(row, "price_per_kwh"));
-      if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs || price === null) return [];
+        : durationHours === null ? null : startMs + durationHours * 3600000;
+      const price = finiteNumber(firstExternalValue(row, PRICE_ROW_KEYS));
+      if (!Number.isFinite(startMs) || (endMs !== null && (!Number.isFinite(endMs) || endMs <= startMs)) || price === null) return [];
       const existing = byStart.get(startMs);
       if (existing) {
         if (existing.endMs !== endMs || existing.price !== price) return [];
@@ -854,7 +886,8 @@ export function getEntityPriceIntervals(
       byStart.set(startMs, parsedRow);
       parsed.push(parsedRow);
     }
-    return nonOverlappingRows(parsed);
+    const complete = inferRowEnds(parsed);
+    return complete ? nonOverlappingRows(complete) : [];
   };
 
   const parsedExportRows = parseIntegrationRows(exportRows);

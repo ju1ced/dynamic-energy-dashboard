@@ -1,4 +1,5 @@
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -121,12 +122,29 @@ class HacsLovelacePackageTests(unittest.TestCase):
         self.assertIn("https://support.smappee.com/hc/en-gb/articles/4900468508692", readme)
         self.assertIn("performs no sma- or smappee-setting change", readme.lower())
 
-    def test_package_version_matches_the_alpha_8_candidate(self):
+    def test_package_version_matches_the_alpha_11_candidate(self):
         package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(package["version"], "0.3.0-alpha.8")
+        self.assertEqual(package["version"], "0.3.0-alpha.11")
         self.assertTrue(
-            (ROOT / "docs" / "releases" / "v0.3.0-alpha.8-checklist.md").is_file()
+            (ROOT / "docs" / "releases" / "v0.3.0-alpha.11-checklist.md").is_file()
+        )
+
+    def test_comparison_dashboard_view_is_read_only_and_uses_price_entities(self):
+        view = json.loads(
+            (ROOT / "deploy" / "home-assistant" / "dashboard-vergelijking-view.json")
+            .read_text(encoding="utf-8")
+        )
+        text = json.dumps(view)
+
+        self.assertEqual(view["type"], "sections")
+        self.assertEqual(view["path"], "vergelijking")
+        for forbidden in ("tap_action", "hold_action", "perform_action", "call-service", "service_data"):
+            self.assertNotIn(forbidden, text)
+        entities = set(re.findall(r'"((?:binary_)?sensor\.[a-z0-9_]+)"', text))
+        self.assertTrue(entities)
+        self.assertTrue(
+            all(entity.split(".", 1)[1].startswith("ecopower_ecopower_") for entity in entities)
         )
 
     def test_readme_documents_only_supported_frontend_price_inputs(self):

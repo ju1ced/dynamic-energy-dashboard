@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "classification": "READ_ONLY_OFFLINE_SIMULATION",
+  "status": "VERIFIED_WITH_LIMITATIONS",
+  "period_start_utc": "2026-01-22T07:00:00+00:00",
+  "period_end_utc": "2026-09-30T00:00:00+00:00",
+  "resolution_minutes": 60,
+  "quality": {
+    "source_hour_count": 6024,
+    "usable_hour_count": 5814,
+    "excluded_hour_count": 210,
+    "coverage_percent": 96.513944,
+    "missing_by_reason": {
+      "pv_generation": 15,
+      "battery_charge": 191,
+      "grid_import": 4
+    }
+  },
+  "battery": {
+    "usable_capacity_kwh": 14.24,
+    "max_charge_power_kw": 5.0,
+    "max_discharge_power_kw": 5.0,
+    "round_trip_efficiency": 0.853727,
+    "charge_efficiency": 0.923974,
+    "discharge_efficiency": 0.923974
+  },
+  "central_degradation_eur_per_discharged_kwh": 0.06,
+  "central_results": {
+    "perfect_foresight_export_allowed": {
+      "net_incremental_saving_eur": 88.961518,
+      "conversion_loss_kwh": 412.615873,
+      "equivalent_full_cycles": 169.119662,
+      "battery_discharge_to_export_kwh": 131.409605,
+      "capacity_peak_delta_eur": -0.309909
+    },
+    "perfect_foresight_self_consumption": {
+      "net_incremental_saving_eur": 68.458933,
+      "conversion_loss_kwh": 385.247888,
+      "equivalent_full_cycles": 157.902294,
+      "battery_discharge_to_export_kwh": 0.0,
+      "capacity_peak_delta_eur": -0.345661
+    },
+    "day_ahead_realistic": {
+      "net_incremental_saving_eur": -107.734356,
+      "conversion_loss_kwh": 287.735516,
+      "equivalent_full_cycles": 118.568822,
+      "battery_discharge_to_export_kwh": 0.0,
+      "capacity_peak_delta_eur": 63.567499,
+      "skipped_incomplete_day_count": 5
+    }
+  },
+  "degradation_sensitivity": [
+    {
+      "degradation_eur_per_discharged_kwh": 0.0,
+      "perfect_foresight_export_allowed_saving_eur": 107.88679,
+      "perfect_foresight_self_consumption_saving_eur": 76.101417,
+      "day_ahead_realistic_saving_eur": -154.300796
+    },
+    {
+      "degradation_eur_per_discharged_kwh": 0.03,
+      "perfect_foresight_export_allowed_saving_eur": 95.481549,
+      "perfect_foresight_self_consumption_saving_eur": 69.872652,
+      "day_ahead_realistic_saving_eur": -133.243003
+    },
+    {
+      "degradation_eur_per_discharged_kwh": 0.06,
+      "perfect_foresight_export_allowed_saving_eur": 88.961518,
+      "perfect_foresight_self_consumption_saving_eur": 68.458933,
+      "day_ahead_realistic_saving_eur": -107.734356
+    },
+    {
+      "degradation_eur_per_discharged_kwh": 0.1,
+      "perfect_foresight_export_allowed_saving_eur": 85.880677,
+      "perfect_foresight_self_consumption_saving_eur": 71.169294,
+      "day_ahead_realistic_saving_eur": -83.082232
+    }
+  ],
+  "additional_capacity": [
+    {
+      "additional_usable_capacity_kwh": 5.0,
+      "power_limit_kw": 5.0,
+      "perfect_self_consumption_marginal_saving_annualized_eur": 68.066277,
+      "perfect_self_consumption_upper_bound_installed_cost_10y_eur": 680.66,
+      "perfect_self_consumption_upper_bound_installed_cost_15y_eur": 1020.99,
+      "day_ahead_candidate_total_net_saving_observed_period_eur": -78.665884,
+      "realistic_investment_case_supported": false
+    },
+    {
+      "additional_usable_capacity_kwh": 10.0,
+      "power_limit_kw": 5.0,
+      "perfect_self_consumption_marginal_saving_annualized_eur": 105.643598,
+      "perfect_self_consumption_upper_bound_installed_cost_10y_eur": 1056.44,
+      "perfect_self_consumption_upper_bound_installed_cost_15y_eur": 1584.65,
+      "day_ahead_candidate_total_net_saving_observed_period_eur": -60.088466,
+      "realistic_investment_case_supported": false
+    },
+    {
+      "additional_usable_capacity_kwh": 14.24,
+      "power_limit_kw": 5.0,
+      "perfect_self_consumption_marginal_saving_annualized_eur": 125.266141,
+      "perfect_self_consumption_upper_bound_installed_cost_10y_eur": 1252.66,
+      "perfect_self_consumption_upper_bound_installed_cost_15y_eur": 1878.99,
+      "day_ahead_candidate_total_net_saving_observed_period_eur": -53.26184,
+      "realistic_investment_case_supported": false
+    }
+  ],
+  "conclusion": {
+    "existing_battery_optimization": "The perfect-foresight upper bounds are positive, but the tested realistic Day-Ahead heuristic is worse than observed operation after losses, degradation and the hourly peak approximation.",
+    "additional_battery": "No tested additional-capacity case has a positive realistic Day-Ahead investment case. Perfect-foresight break-even values are upper bounds, not purchase budgets.",
+    "physical_writes": false,
+    "contract_change_authorized": false
+  },
+  "limitations": [
+    "The validated battery overlap covers 2026-01-22 through 2026-09-30, not three full years.",
+    "The 2026-08 dynamic tariff formula is applied retrospectively across the overlap.",
+    "Capacity tariff impact uses hourly-average import power rather than official quarter-hour billing peaks.",
+    "Efficiency is derived from aggregate charge and discharge counters and is not SOC-boundary corrected.",
+    "Day-Ahead load and PV forecasting is represented by a price-quartile heuristic and trailing PV-surplus reserve, not a production forecast model."
+  ],
+  "source_output": "data/raw/battery-arbitrage-simulation-2026-01-22_2026-09-30.json"
+}

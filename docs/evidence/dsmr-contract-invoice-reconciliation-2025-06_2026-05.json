@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "classification": "READ_ONLY_DSMR_INVOICE_RECONCILIATION",
+  "period": {
+    "start": "2025-06-01",
+    "end_exclusive": "2026-06-01",
+    "calendar_day_count": 365
+  },
+  "dsmr": {
+    "contract_block_count": 12,
+    "stored_day_count": 364,
+    "stored_day_gap_vs_calendar": -1,
+    "variable_eur_incl_vat": 2413.88,
+    "fixed_eur_incl_vat": 414.96,
+    "total_eur_incl_vat": 2828.84,
+    "source_semantics": "DSMR_DISPLAYED_ALL_IN_RATE_AND_FIXED_DAILY_COST"
+  },
+  "invoice": {
+    "variable_eur_incl_vat": 2516.4374,
+    "fixed_eur_incl_vat": 336.7726,
+    "total_eur_incl_vat": 2853.21,
+    "fixed_components": {
+      "data_management_eur_excl_vat": 17.65,
+      "capacity_tariff_eur_excl_vat": 300.06,
+      "energy_fund_eur_vat_exempt": 0.0
+    }
+  },
+  "difference_dsmr_minus_invoice": {
+    "variable_eur": -102.5574,
+    "variable_percent": -4.0755,
+    "fixed_eur": 78.1874,
+    "fixed_percent": 23.216675,
+    "total_eur": -24.37,
+    "total_percent": -0.854126
+  },
+  "assessment": "TOTAL_CLOSE_COMPONENT_MISMATCH",
+  "independent_component_validation": false,
+  "interpretation": "The DSMR total is close to the invoice total only because a lower variable amount and a higher fixed amount partly offset. Total proximity therefore does not validate DSMR component allocation or fixed daily cost accuracy.",
+  "sources": [
+    "docs/evidence/dsmr-contract-price-ledger-2023-10_2026-09.json",
+    "docs/evidence/ecopower-invoice-baseline-2025-06-01_2026-05-31.json"
+  ],
+  "safety": {
+    "read_only": true,
+    "contract_change_allowed": false,
+    "physical_writes_allowed": false,
+    "production_automation_allowed": false
+  }
+}

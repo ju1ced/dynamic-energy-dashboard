@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.dynamic-energy-dashboard.invalid/schemas/energy-decision-log-v1.json",
+  "title": "Energy Decision Log v1",
+  "type": "object",
+  "required": ["schema_version", "classification", "mode", "generated_at", "entry_count", "entries"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "classification": {"const": "ENERGY_DECISION_LOG"},
+    "mode": {"const": "READ_ONLY"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "entry_count": {"type": "integer", "minimum": 0},
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "recorded_at", "entry_kind", "scenario_id", "title", "inputs", "constraints", "reason", "proposed_action", "confidence", "outcome", "reproduction"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^EDL-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{3}$"},
+          "recorded_at": {"type": "string", "format": "date-time"},
+          "entry_kind": {"enum": ["MEASUREMENT_CONCLUSION", "SIMULATION_DECISION"]},
+          "scenario_id": {"type": "string", "minLength": 1},
+          "title": {"type": "string", "minLength": 1},
+          "inputs": {
+            "type": "object",
+            "required": ["evidence_refs", "data_classification"],
+            "properties": {
+              "evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+              "data_classification": {"const": "PRIVACY_SAFE_DERIVED_EVIDENCE"}
+            }
+          },
+          "constraints": {
+            "type": "object",
+            "required": ["read_only", "physical_writes_allowed", "contract_change_allowed", "production_automation_allowed"],
+            "properties": {
+              "read_only": {"const": true},
+              "physical_writes_allowed": {"const": false},
+              "contract_change_allowed": {"const": false},
+              "production_automation_allowed": {"const": false}
+            }
+          },
+          "proposed_action": {
+            "type": "object",
+            "required": ["type", "summary", "production_command", "setpoint"],
+            "properties": {
+              "production_command": {"type": "null"},
+              "setpoint": {"type": "null"}
+            }
+          },
+          "confidence": {
+            "type": "object",
+            "required": ["level", "score", "basis"],
+            "properties": {
+              "level": {"enum": ["HIGH", "MEDIUM", "LOW"]},
+              "score": {"type": "number", "minimum": 0, "maximum": 1},
+              "basis": {"type": "string", "minLength": 1}
+            }
+          },
+          "outcome": {"type": "object"},
+          "reproduction": {
+            "type": "object",
+            "required": ["script", "arguments"],
+            "properties": {
+              "script": {"type": "string", "minLength": 1},
+              "arguments": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        }
+      }
+    }
+  }
+}

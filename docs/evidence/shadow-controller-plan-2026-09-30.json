@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "mode": "READ_ONLY_SHADOW",
+  "classification": "PROPOSED_PLAN_NO_CONTROL",
+  "physical_writes": false,
+  "home_assistant_writes": false,
+  "sma_writes": false,
+  "smappee_writes": false,
+  "initial_soc_kwh": 7.12,
+  "status": "PLANNED",
+  "reason": "SHADOW_PLAN_READY",
+  "target_start_utc": "2026-09-29T22:00:00+00:00",
+  "target_end_utc": "2026-09-30T22:00:00+00:00",
+  "interval_count": 96,
+  "quality_flags": [],
+  "selected_policy_id": "peak_neutral",
+  "target_date": "2026-09-30",
+  "generated_at": "2026-10-02T06:12:40.476677+00:00",
+  "forecast_method": "trailing same-quarter median of the residual Fluvius grid profile",
+  "forecast_limitations": [
+    "The residual Fluvius profile already includes historical installed-battery behavior.",
+    "Separate interval PV, house, EV and heat-pump forecasts are not yet available.",
+    "The historical validation run uses an assumed initial SOC because a target-time SOC snapshot is unavailable."
+  ],
+  "month_peak_to_date_kw": 5.42,
+  "battery": {
+    "usable_capacity_kwh": 14.24,
+    "max_charge_power_kw": 5.0,
+    "max_discharge_power_kw": 5.0,
+    "round_trip_efficiency": 0.853727,
+    "initial_soc_percent": 50.0,
+    "initial_soc_source": "ASSUMED_FOR_HISTORICAL_SHADOW_VALIDATION"
+  },
+  "plans": [
+    {
+      "id": "peak_neutral",
+      "title": "Piekneutraal",
+      "cap_kw": 5.42,
+      "status": "PLANNED",
+      "reason": "OPTIMISED_WITH_SHARED_GRID_CAP",
+      "initial_soc_kwh": 6.995087719,
+      "terminal_soc_kwh": 6.995087719,
+      "state_step_kwh": 0.249824561,
+      "baseline_forecast_cost_eur": 1.776763139,
+      "planned_total_cost_eur": 1.733595849,
+      "forecast_saving_eur": 0.04316729,
+      "totals": {
+        "charge_kwh": 1.89266357,
+        "grid_charge_kwh": 1.89266357,
+        "surplus_charge_kwh": 0.0,
+        "discharge_kwh": 1.615819795,
+        "grid_import_kwh": 6.158343775,
+        "grid_export_kwh": 0.0105,
+        "grid_cost_eur": 1.636646662,
+        "degradation_cost_eur": 0.096949188
+      }
+    },
+    {
+      "id": "cap_7_kw",
+      "title": "Absolute grens 7 kW",
+      "cap_kw": 7.0,
+      "status": "PLANNED",
+      "reason": "OPTIMISED_WITH_SHARED_GRID_CAP",
+      "initial_soc_kwh": 6.995087719,
+      "terminal_soc_kwh": 6.995087719,
+      "state_step_kwh": 0.249824561,
+      "baseline_forecast_cost_eur": 1.776763139,
+      "planned_total_cost_eur": 1.733595849,
+      "forecast_saving_eur": 0.04316729,
+      "totals": {
+        "charge_kwh": 1.89266357,
+        "grid_charge_kwh": 1.89266357,
+        "surplus_charge_kwh": 0.0,
+        "discharge_kwh": 1.615819795,
+        "grid_import_kwh": 6.158343775,
+        "grid_export_kwh": 0.0105,
+        "grid_cost_eur": 1.636646662,
+        "degradation_cost_eur": 0.096949188
+      }
+    },
+    {
+      "id": "cap_8_kw",
+      "title": "Absolute grens 8 kW",
+      "cap_kw": 8.0,
+      "status": "PLANNED",
+      "reason": "OPTIMISED_WITH_SHARED_GRID_CAP",
+      "initial_soc_kwh": 6.995087719,
+      "terminal_soc_kwh": 6.995087719,
+      "state_step_kwh": 0.249824561,
+      "baseline_forecast_cost_eur": 1.776763139,
+      "planned_total_cost_eur": 1.733595849,
+      "forecast_saving_eur": 0.04316729,
+      "totals": {
+        "charge_kwh": 1.89266357,
+        "grid_charge_kwh": 1.89266357,
+        "surplus_charge_kwh": 0.0,
+        "discharge_kwh": 1.615819795,
+        "grid_import_kwh": 6.158343775,
+        "grid_export_kwh": 0.0105,
+        "grid_cost_eur": 1.636646662,
+        "degradation_cost_eur": 0.096949188
+      }
+    },
+    {
+      "id": "cap_10_kw",
+      "title": "Absolute grens 10 kW",
+      "cap_kw": 10.0,
+      "status": "PLANNED",
+      "reason": "OPTIMISED_WITH_SHARED_GRID_CAP",
+      "initial_soc_kwh": 6.995087719,
+      "terminal_soc_kwh": 6.995087719,
+      "state_step_kwh": 0.249824561,
+      "baseline_forecast_cost_eur": 1.776763139,
+      "planned_total_cost_eur": 1.733595849,
+      "forecast_saving_eur": 0.04316729,
+      "totals": {
+        "charge_kwh": 1.89266357,
+        "grid_charge_kwh": 1.89266357,
+        "surplus_charge_kwh": 0.0,
+        "discharge_kwh": 1.615819795,
+        "grid_import_kwh": 6.158343775,
+        "grid_export_kwh": 0.0105,
+        "grid_cost_eur": 1.636646662,
+        "degradation_cost_eur": 0.096949188
+      }
+    }
+  ],
+  "selected_action_counts": {
+    "CHARGE_FROM_GRID": 2,
+    "DISCHARGE_TO_LOAD": 7,
+    "HOLD": 87
+  },
+  "actual_evaluations": {
+    "peak_neutral": {
+      "totals": {
+        "charge_kwh": 1.89266357,
+        "discharge_kwh": 1.606988394,
+        "grid_import_kwh": 20.427675176,
+        "grid_export_kwh": 0.002,
+        "grid_cost_eur": 6.392939929,
+        "degradation_cost_eur": 0.096419304
+      },
+      "baseline_cost_eur": 6.529965229,
+      "shadow_total_cost_eur": 6.489359232,
+      "shadow_saving_eur": 0.040605996,
+      "terminal_soc_kwh": 7.129558062
+    },
+    "cap_7_kw": {
+      "totals": {
+        "charge_kwh": 1.89266357,
+        "discharge_kwh": 1.606988394,
+        "grid_import_kwh": 20.427675176,
+        "grid_export_kwh": 0.002,
+        "grid_cost_eur": 6.392939929,
+        "degradation_cost_eur": 0.096419304
+      },
+      "baseline_cost_eur": 6.529965229,
+      "shadow_total_cost_eur": 6.489359232,
+      "shadow_saving_eur": 0.040605996,
+      "terminal_soc_kwh": 7.129558062
+    },
+    "cap_8_kw": {
+      "totals": {
+        "charge_kwh": 1.89266357,
+        "discharge_kwh": 1.606988394,
+        "grid_import_kwh": 20.427675176,
+        "grid_export_kwh": 0.002,
+        "grid_cost_eur": 6.392939929,
+        "degradation_cost_eur": 0.096419304
+      },
+      "baseline_cost_eur": 6.529965229,
+      "shadow_total_cost_eur": 6.489359232,
+      "shadow_saving_eur": 0.040605996,
+      "terminal_soc_kwh": 7.129558062
+    },
+    "cap_10_kw": {
+      "totals": {
+        "charge_kwh": 1.89266357,
+        "discharge_kwh": 1.606988394,
+        "grid_import_kwh": 20.427675176,
+        "grid_export_kwh": 0.002,
+        "grid_cost_eur": 6.392939929,
+        "degradation_cost_eur": 0.096419304
+      },
+      "baseline_cost_eur": 6.529965229,
+      "shadow_total_cost_eur": 6.489359232,
+      "shadow_saving_eur": 0.040605996,
+      "terminal_soc_kwh": 7.129558062
+    }
+  },
+  "privacy": {
+    "quarter_household_profile_included": false,
+    "device_identifiers_included": false
+  }
+}

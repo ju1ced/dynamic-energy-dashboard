@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "classification": "VERIFIED_READ_ONLY_EXPORT_SUMMARY",
+  "period_local": {
+    "start": "2023-10-01T00:00:00+02:00",
+    "end": "2026-10-01T00:00:00+02:00",
+    "end_exclusive": true
+  },
+  "privacy": {
+    "api_key_included": false,
+    "endpoint_included": false,
+    "measurement_values_included": false
+  },
+  "resources": {
+    "electricity": {
+      "record_count": 94891,
+      "first_timestamp": "2023-10-01T00:00:00+02:00",
+      "last_timestamp": "2026-10-01T00:00:00+02:00",
+      "duplicate_timestamp_count": 0,
+      "top_cadence_seconds": [
+        {
+          "seconds": 60,
+          "count": 69431
+        },
+        {
+          "seconds": 3540,
+          "count": 25229
+        },
+        {
+          "seconds": 3420,
+          "count": 22
+        },
+        {
+          "seconds": 3480,
+          "count": 22
+        },
+        {
+          "seconds": 120,
+          "count": 20
+        },
+        {
+          "seconds": 240,
+          "count": 13
+        },
+        {
+          "seconds": 180,
+          "count": 12
+        },
+        {
+          "seconds": 3300,
+          "count": 10
+        },
+        {
+          "seconds": 3360,
+          "count": 8
+        },
+        {
+          "seconds": 3180,
+          "count": 5
+        }
+      ],
+      "counter_decreases": {
+        "delivered_1": 0,
+        "delivered_2": 0,
+        "returned_1": 0,
+        "returned_2": 0
+      }
+    },
+    "hour_statistics": {
+      "record_count": 26104,
+      "expected_hour_count": 26304,
+      "duplicate_start_count": 0,
+      "missing_hour_count": 200,
+      "gap_range_count": 24,
+      "longest_gap": {
+        "start_utc": "2025-12-27T20:00:00+00:00",
+        "end_utc_inclusive": "2025-12-29T16:00:00+00:00",
+        "count": 45
+      }
+    },
+    "quarter_hour_peaks": {
+      "record_count": 104290,
+      "expected_quarter_count": 105216,
+      "duplicate_nominal_start_count": 0,
+      "missing_quarter_count": 926,
+      "gap_range_count": 43,
+      "longest_gap": {
+        "start_utc": "2025-12-27T19:45:00+00:00",
+        "end_utc_inclusive": "2025-12-29T16:45:00+00:00",
+        "count": 181
+      }
+    },
+    "day_statistics": {
+      "record_count": 1095,
+      "expected_day_count": 1096,
+      "duplicate_day_count": 0,
+      "missing_days": [
+        "2025-12-28"
+      ]
+    },
+    "energy_supplier_prices": {
+      "record_count": 32,
+      "coverage": {
+        "expected_days": 1096,
+        "covered_once_days": 1096,
+        "uncovered_days": [],
+        "overlapping_days": []
+      },
+      "daily_cost_reconciliation": {
+        "checked_days": 1095,
+        "skipped_days": [],
+        "mismatch_count": 0,
+        "first_mismatch_days": []
+      },
+      "ha_monthly_price_cross_check": {
+        "historical_months_compared": 9,
+        "historical_matches": 5,
+        "historical_mismatches": [
+          {
+            "month": "2026-03",
+            "ha_eur_per_kwh": 0.277,
+            "dsmr_eur_per_kwh": 0.2716,
+            "difference_eur_per_kwh": 0.0054,
+            "match": false
+          },
+          {
+            "month": "2026-04",
+            "ha_eur_per_kwh": 0.2702,
+            "dsmr_eur_per_kwh": 0.2716,
+            "difference_eur_per_kwh": -0.0014,
+            "match": false
+          },
+          {
+            "month": "2026-05",
+            "ha_eur_per_kwh": 0.2773,
+            "dsmr_eur_per_kwh": 0.2716,
+            "difference_eur_per_kwh": 0.0057,
+            "match": false
+          },
+          {
+            "month": "2026-06",
+            "ha_eur_per_kwh": 0.2894,
+            "dsmr_eur_per_kwh": 0.2716,
+            "difference_eur_per_kwh": 0.0178,
+            "match": false
+          }
+        ],
+        "all_months": [
+          {
+            "month": "2026-01",
+            "ha_eur_per_kwh": 0.2841,
+            "dsmr_eur_per_kwh": 0.2841,
+            "difference_eur_per_kwh": 0.0,
+            "match": true
+          },
+          {
+            "month": "2026-02",
+            "ha_eur_per_kwh": 0.2716,
+            "dsmr_eur_per_kwh": 0.2716,
+            "difference_eur_per_kwh": 0.0,
+            "match": true
+          },
+          {
+            "month": "2026-03",
+            "ha_eur_per_kwh": 0.277,
+            "dsmr_eur_per_kwh": 0.2716,
+            "difference_eur_per_kwh": 0.0054,
+            "match": false
+          },
+          {
+            "month": "2026-04",
+            "ha_eur_per_kwh": 0.2702,
+            "dsmr_eur_per_kwh": 0.2716,
+            "difference_eur_per_kwh": -0.0014,
+            "match": false
+          },
+          {
+            "month": "2026-05",
+            "ha_eur_per_kwh": 0.2773,
+            "dsmr_eur_per_kwh": 0.2716,
+            "difference_eur_per_kwh": 0.0057,
+            "match": false
+          },
+          {
+            "month": "2026-06",
+            "ha_eur_per_kwh": 0.2894,
+            "dsmr_eur_per_kwh": 0.2716,
+            "difference_eur_per_kwh": 0.0178,
+            "match": false
+          },
+          {
+            "month": "2026-07",
+            "ha_eur_per_kwh": 0.2859,
+            "dsmr_eur_per_kwh": 0.2859,
+            "difference_eur_per_kwh": 0.0,
+            "match": true
+          },
+          {
+            "month": "2026-08",
+            "ha_eur_per_kwh": 0.297,
+            "dsmr_eur_per_kwh": 0.297,
+            "difference_eur_per_kwh": 0.0,
+            "match": true
+          },
+          {
+            "month": "2026-09",
+            "ha_eur_per_kwh": 0.3125,
+            "dsmr_eur_per_kwh": 0.3125,
+            "difference_eur_per_kwh": 0.0,
+            "match": true
+          },
+          {
+            "month": "2026-10",
+            "ha_eur_per_kwh": 0.2773,
+            "dsmr_eur_per_kwh": 0.3125,
+            "difference_eur_per_kwh": -0.0352,
+            "match": false
+          },
+          {
+            "month": "2026-11",
+            "status": "contract_coverage_not_unique"
+          },
+          {
+            "month": "2026-12",
+            "status": "contract_coverage_not_unique"
+          }
+        ]
+      }
+    }
+  },
+  "assessment": {
+    "contracts_cover_full_period": true,
+    "dsmr_daily_statistics_are_not_gap_free": true,
+    "dsmr_hour_and_peak_statistics_are_not_gap_free": true,
+    "fluvius_remains_primary_billing_energy_source": true,
+    "dsmr_contract_price_differences_remain_visible": true,
+    "historical_2026_price_authority": "Use Home Assistant monthly values for the 2026 historical baseline; DSMR is a cross-check where it differs",
+    "source_priority_owner_confirmed": true
+  }
+}

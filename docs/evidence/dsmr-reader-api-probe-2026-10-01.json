@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "classification": "VERIFIED_READ_ONLY_API_PROBE",
+  "probe_date": "2026-10-01",
+  "source": "DSMR Reader v2 electricity consumption API",
+  "endpoint_stored": false,
+  "api_key_stored": false,
+  "http_status": 200,
+  "total_record_count": 144254,
+  "page_record_count": 25,
+  "pagination_available": true,
+  "oldest_observed_timestamp": "2020-12-19T12:33:00+01:00",
+  "newest_observed_timestamp": "2026-10-01T06:46:00+02:00",
+  "record_fields": [
+    "currently_delivered",
+    "currently_returned",
+    "delivered_1",
+    "delivered_2",
+    "id",
+    "phase_currently_delivered_l1",
+    "phase_currently_delivered_l2",
+    "phase_currently_delivered_l3",
+    "phase_currently_returned_l1",
+    "phase_currently_returned_l2",
+    "phase_currently_returned_l3",
+    "phase_power_current_l1",
+    "phase_power_current_l2",
+    "phase_power_current_l3",
+    "phase_voltage_l1",
+    "phase_voltage_l2",
+    "phase_voltage_l3",
+    "read_at",
+    "returned_1",
+    "returned_2"
+  ],
+  "privacy": {
+    "measurement_values_included": false,
+    "api_key_included": false,
+    "private_network_address_included": false
+  }
+}
