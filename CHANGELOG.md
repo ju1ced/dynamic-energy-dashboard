@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Read `today` and `tomorrow` price attributes of the `BE electricity prices`
+  integration (`all_in` and `injection` rows without an end time). The
+  attribute option now accepts a comma-separated list, and row ends are inferred
+  from the next row. The existing `data` contract is unchanged.
+
 ## 0.3.0-alpha.7 — 2026-10-19
 
 - Keep Home Assistant quarter-price timelines available for their independent
