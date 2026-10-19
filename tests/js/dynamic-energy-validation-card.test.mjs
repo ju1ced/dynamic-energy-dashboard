@@ -201,6 +201,66 @@ test("a stale battery heartbeat cannot revive stale battery telemetry", () => {
   assert.equal(snapshot.status, "INSUFFICIENT_DATA");
 });
 
+function staleBatteryHass(extra = {}) {
+  const hass = validationHass();
+  hass.states["sensor.battery_power"].last_updated = "2026-10-15T08:00:00Z";
+  hass.states["sensor.battery_power"].last_changed = "2026-10-15T08:00:00Z";
+  Object.assign(hass.states, extra);
+  return hass;
+}
+
+const HEARTBEAT_CONFIG = Object.freeze({ ...CONFIG, battery_freshness_entity: "sensor.battery_status" });
+
+test("the heartbeat keeps the measured battery value and the real measurement age", () => {
+  const snapshot = buildValidationSnapshot(
+    staleBatteryHass({ "sensor.battery_status": state("Ok") }), HEARTBEAT_CONFIG, NOW,
+  );
+
+  assert.equal(snapshot.live.batteryKw, 2.7);
+  assert.ok(snapshot.live.batteryMeasurementAgeMinutes > 60);
+});
+
+test("an unavailable, unknown or missing heartbeat cannot revive stale battery telemetry", () => {
+  for (const extra of [
+    { "sensor.battery_status": state("unavailable") },
+    { "sensor.battery_status": state("unknown") },
+    {},
+  ]) {
+    const snapshot = buildValidationSnapshot(staleBatteryHass(extra), HEARTBEAT_CONFIG, NOW);
+    assert.equal(snapshot.live.batteryQuality, "STALE");
+    assert.equal(snapshot.live.batteryFreshnessSource, null);
+  }
+});
+
+test("a heartbeat pointing at the stale battery entity cannot revive itself", () => {
+  const snapshot = buildValidationSnapshot(
+    staleBatteryHass(), { ...CONFIG, battery_freshness_entity: "sensor.battery_power" }, NOW,
+  );
+
+  assert.equal(snapshot.live.batteryQuality, "STALE");
+});
+
+test("a fresh heartbeat does not revive an unavailable or wrong-unit battery value", () => {
+  const unavailable = staleBatteryHass({
+    "sensor.battery_power": state("unavailable"),
+    "sensor.battery_status": state("Ok"),
+  });
+  const wrongUnit = staleBatteryHass({ "sensor.battery_status": state("Ok") });
+  wrongUnit.states["sensor.battery_power"] = {
+    ...state(2700, "V"),
+    last_updated: "2026-10-15T08:00:00Z",
+    last_changed: "2026-10-15T08:00:00Z",
+  };
+
+  const first = buildValidationSnapshot(unavailable, HEARTBEAT_CONFIG, NOW);
+  const second = buildValidationSnapshot(wrongUnit, HEARTBEAT_CONFIG, NOW);
+
+  assert.notEqual(first.live.batteryQuality, "GOOD");
+  assert.equal(first.live.batteryKw, null);
+  assert.equal(second.live.batteryQuality, "INVALID");
+  assert.equal(second.live.batteryKw, null);
+});
+
 test("future-dated cached telemetry cannot replace newer live telemetry", () => {
   const nowMs = Date.now();
   const live = {

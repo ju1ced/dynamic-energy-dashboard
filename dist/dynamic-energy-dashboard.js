@@ -720,6 +720,7 @@ function readPower(
       ...originalReading,
       quality: "GOOD",
       ageMinutes: heartbeat.ageMinutes,
+      measurementAgeMinutes: originalReading.ageMinutes,
       freshnessSource: "HEARTBEAT",
     }
     : { ...originalReading, freshnessSource: null };
@@ -1692,6 +1693,7 @@ export function buildValidationSnapshot(hass, suppliedConfig = {}, now = new Dat
       batteryKw: battery.value,
       batteryQuality: battery.quality,
       batteryFreshnessSource: battery.freshnessSource,
+      batteryMeasurementAgeMinutes: battery.measurementAgeMinutes ?? battery.ageMinutes ?? null,
       evKw: ev.value,
       evQuality: ev.quality,
       houseKw,

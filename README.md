@@ -19,6 +19,11 @@ Alpha `0.3.0-alpha.11` retains the alpha.7 quarter-price and telemetry fixes and
 adds an optional battery heartbeat for integrations whose unchanged numeric
 battery sensor is not re-reported. The heartbeat proves only that the configured
 source is current; it never supplies or changes the measured battery value.
+The heartbeat entity's state is not interpreted: any state other than
+`unavailable` or `unknown` that Home Assistant updated recently counts as fresh,
+including values such as `Fault` or `offline`. Choose a sensor that becomes
+`unavailable` when the battery source is down, and do not point it at a status
+sensor that keeps reporting while the battery reading is unreliable.
 
 The validation card refreshes only its configured live telemetry through
 read-only Home Assistant entity `GET` requests once per minute. Plans, prices and
