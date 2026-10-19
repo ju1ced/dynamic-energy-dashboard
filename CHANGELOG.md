@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0-alpha.8 — 2026-10-19
+
+- Add an optional battery heartbeat entity for the read-only validation card.
+- Accept an unchanged numeric battery value as current only while the separately
+  configured heartbeat from the same source remains fresh.
+- Poll the heartbeat with the existing once-per-minute read-only telemetry GETs.
+- Keep stale, missing, unavailable and invalid battery values fail-closed; a
+  heartbeat never substitutes a measurement or changes its numeric value.
+- Preserve `execution_allowed: false` and all physical-write prohibitions.
+
 ## 0.3.0-alpha.7 — 2026-10-19
 
 - Keep Home Assistant quarter-price timelines available for their independent

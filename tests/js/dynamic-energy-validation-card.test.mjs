@@ -126,12 +126,14 @@ test("validation telemetry refresh uses read-only entity GETs for unchanged meas
   }, {
     grid_power_entity: "sensor.grid",
     battery_power_entity: "sensor.battery",
+    battery_freshness_entity: "sensor.battery_status",
     ev_power_entity: "sensor.ev",
   });
 
   assert.deepEqual(calls, [
     ["GET", "states/sensor.grid"],
     ["GET", "states/sensor.battery"],
+    ["GET", "states/sensor.battery_status"],
     ["GET", "states/sensor.ev"],
   ]);
   assert.equal(refreshed["sensor.battery"].last_reported, "2026-10-16T08:04:50Z");
@@ -159,6 +161,44 @@ test("validation card caches refreshed telemetry returned by Home Assistant", as
   await card._refreshTelemetry(true);
 
   assert.equal(card._telemetryStates["sensor.grid"].last_reported, "2026-10-16T08:04:55Z");
+});
+
+test("a fresh configured battery heartbeat validates an unchanged numeric battery state", () => {
+  const hass = validationHass();
+  hass.states["sensor.battery_power"].last_updated = "2026-10-15T08:00:00Z";
+  hass.states["sensor.battery_power"].last_changed = "2026-10-15T08:00:00Z";
+  hass.states["sensor.battery_status"] = state("Ok");
+
+  const snapshot = buildValidationSnapshot(hass, {
+    ...CONFIG,
+    battery_freshness_entity: "sensor.battery_status",
+  }, NOW);
+  const html = renderValidationCard(CONFIG, snapshot);
+
+  assert.equal(snapshot.live.batteryQuality, "GOOD");
+  assert.equal(snapshot.live.batteryFreshnessSource, "HEARTBEAT");
+  assert.notEqual(snapshot.status, "INSUFFICIENT_DATA");
+  assert.match(html, /actueel via heartbeat/);
+});
+
+test("a stale battery heartbeat cannot revive stale battery telemetry", () => {
+  const hass = validationHass();
+  hass.states["sensor.battery_power"].last_updated = "2026-10-15T08:00:00Z";
+  hass.states["sensor.battery_power"].last_changed = "2026-10-15T08:00:00Z";
+  hass.states["sensor.battery_status"] = {
+    ...state("Ok"),
+    last_updated: "2026-10-15T08:00:00Z",
+    last_changed: "2026-10-15T08:00:00Z",
+  };
+
+  const snapshot = buildValidationSnapshot(hass, {
+    ...CONFIG,
+    battery_freshness_entity: "sensor.battery_status",
+  }, NOW);
+
+  assert.equal(snapshot.live.batteryQuality, "STALE");
+  assert.equal(snapshot.live.batteryFreshnessSource, null);
+  assert.equal(snapshot.status, "INSUFFICIENT_DATA");
 });
 
 test("future-dated cached telemetry cannot replace newer live telemetry", () => {
@@ -358,6 +398,7 @@ test("validation card exposes a bounded read-only visual editor schema", () => {
     "grid_import_positive",
     "battery_power_entity",
     "battery_charge_positive",
+    "battery_freshness_entity",
     "ev_power_entity",
     "house_power_entity",
     "pv_power_entity",
