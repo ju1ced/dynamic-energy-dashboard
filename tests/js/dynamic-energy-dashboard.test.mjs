@@ -3,10 +3,12 @@ import assert from "node:assert/strict";
 
 import {
   buildSnapshot,
+  DynamicEnergyShadowCard,
   getCurrentPlanInterval,
   getEntityPriceIntervals,
   getUpcomingPriceIntervals,
   readEntity,
+  renderDailyPriceGraph,
   renderPriceAggregates,
   renderPriceTimeline,
   toKilowatts,
@@ -26,6 +28,65 @@ function hostilePrimitive() {
     toString() { throw new Error("hostile string"); },
   };
 }
+
+test("telemetry freshness prefers Home Assistant last_reported for unchanged measurements", () => {
+  const reading = readEntity({ states: {
+    "sensor.battery": {
+      ...state(0, "W", "2026-10-19T00:49:22Z"),
+      last_reported: "2026-10-19T08:44:00Z",
+    },
+  } }, "sensor.battery", new Date("2026-10-19T08:44:15Z"), 10, true);
+
+  assert.equal(reading.quality, "GOOD");
+  assert.equal(reading.ageMinutes, 0.25);
+});
+
+test("telemetry freshness falls back when last_reported is invalid or future dated", () => {
+  for (const lastReported of ["not-a-date", "2026-10-19T09:30:00Z"]) {
+    const reading = readEntity({ states: {
+      "sensor.battery": {
+        ...state(0, "W", "2026-10-19T08:43:00Z"),
+        last_reported: lastReported,
+      },
+    } }, "sensor.battery", new Date("2026-10-19T08:44:15Z"), 10, true);
+
+    assert.equal(reading.quality, "GOOD");
+    assert.equal(reading.ageMinutes, 1.25);
+  }
+});
+
+test("shadow card ignores Home Assistant updates unrelated to its configured entities", () => {
+  const card = new DynamicEnergyShadowCard();
+  let renderCount = 0;
+  card._render = () => { renderCount += 1; };
+  card.setConfig({
+    grid_power_entity: "sensor.grid",
+    pv_power_entity: "sensor.pv",
+    battery_power_entity: "sensor.battery",
+    battery_soc_entity: "sensor.soc",
+    plan_entity: "sensor.plan",
+  });
+  const relevantStates = {
+    "sensor.grid": state(1200, "W"),
+    "sensor.pv": state(800, "W"),
+    "sensor.battery": state(0, "W"),
+    "sensor.soc": state(58, "%"),
+    "sensor.plan": state("planned", null),
+  };
+
+  card.hass = { states: { ...relevantStates, "sensor.unrelated": state(1, "") } };
+  card.hass = { states: { ...relevantStates, "sensor.unrelated": state(2, "") } };
+
+  assert.equal(renderCount, 2);
+
+  card.hass = {
+    states: {
+      ...relevantStates,
+      "sensor.grid": state(1400, "W"),
+    },
+  };
+  assert.equal(renderCount, 3);
+});
 
 test("power values are normalized to kW", () => {
   assert.equal(toKilowatts(state(2500, "W")), 2.5);
@@ -176,6 +237,23 @@ test("Ecopower Dynamic data attributes provide future import and injection price
   assert.equal(prices[1].exportEurPerKwh, 0.02);
 });
 
+test("daily price data retains elapsed quarters for the full-day graph", () => {
+  const now = new Date("2026-10-07T10:20:00Z");
+  const importState = state(0.08, "EUR/kWh", "2026-10-07T10:19:00Z", {
+    data: [
+      { start_time: "2026-10-07T10:00:00Z", end_time: "2026-10-07T10:15:00Z", price_per_kwh: 0.12 },
+      { start_time: "2026-10-07T10:15:00Z", end_time: "2026-10-07T10:30:00Z", price_per_kwh: 0.08 },
+    ],
+  });
+
+  const futureOnly = getEntityPriceIntervals(importState, null, "data", now);
+  const completeDay = getEntityPriceIntervals(importState, null, "data", now, true);
+
+  assert.equal(futureOnly.length, 1);
+  assert.equal(completeDay.length, 2);
+  assert.equal(completeDay[0].importEurPerKwh, 0.12);
+});
+
 test("EPEX and Ecopower identical duplicate rows are collapsed", () => {
   const now = new Date("2026-10-12T08:00:00+02:00");
   const importRow = {
@@ -271,6 +349,38 @@ test("stale price entities do not publish a future timeline", () => {
   assert.equal(snapshot.prices.source, null);
 });
 
+test("quarter prices remain available between ten and twenty minutes after a price update", () => {
+  const now = new Date("2026-10-19T06:44:15Z");
+  const liveUpdated = "2026-10-19T06:44:00Z";
+  const priceUpdated = "2026-10-19T06:30:00Z";
+  const snapshot = buildSnapshot({ states: {
+    "sensor.grid": state(4574, "W", liveUpdated),
+    "sensor.pv": state(0, "W", liveUpdated),
+    "sensor.battery": state(0, "W", liveUpdated),
+    "sensor.soc": state(0, "%", liveUpdated),
+    "sensor.plan": state("PLANNED", null, liveUpdated, { schedule: [] }),
+    "sensor.import": state(0.4316, "EUR/kWh", priceUpdated, {
+      data: [{
+        start_time: "2026-10-19T08:30:00+02:00",
+        end_time: "2026-10-19T08:45:00+02:00",
+        price_per_kwh: 0.4316,
+      }],
+    }),
+  } }, {
+    grid_power_entity: "sensor.grid",
+    pv_power_entity: "sensor.pv",
+    battery_power_entity: "sensor.battery",
+    battery_soc_entity: "sensor.soc",
+    plan_entity: "sensor.plan",
+    import_price_entity: "sensor.import",
+    stale_after_minutes: 10,
+  }, now);
+
+  assert.equal(snapshot.prices.source, "Home Assistant price entities");
+  assert.equal(snapshot.prices.intervals.length, 1);
+  assert.equal(snapshot.live.importPriceEurPerKwh, 0.4316);
+});
+
 test("plan price timeline supplies the current price when no price entity is configured", () => {
   const now = new Date("2026-10-02T10:20:00Z");
   const updated = "2026-10-02T10:19:30Z";
@@ -339,6 +449,86 @@ test("price timeline renders quarter prices reference and planned actions", () =
   assert.match(html, /€0,310/);
   assert.match(html, /€0,277/);
   assert.match(html, /Laden vanaf net/);
+  assert.match(html, /data-price-scroll-by="-1"/);
+  assert.match(html, /data-price-scroll-by="1"/);
+  assert.match(html, /aria-label="Eerdere kwartierprijzen"/);
+});
+
+test("daily price graph groups quarter prices by local day without horizontal scrolling", () => {
+  const intervals = Array.from({ length: 100 }, (_, index) => {
+    const start = new Date(Date.parse("2026-10-24T22:00:00Z") + index * 900000);
+    return {
+      startUtc: start.toISOString(),
+      endUtc: new Date(start.getTime() + 900000).toISOString(),
+      importEurPerKwh: 0.08 + index * 0.001,
+      exportEurPerKwh: 0.03,
+      marketEurPerMwh: null,
+    };
+  });
+
+  const html = renderDailyPriceGraph(intervals, 0.277);
+
+  assert.match(html, /Kwartierprijzen per dag/);
+  assert.match(html, /data-quarter-count="100"/);
+  assert.match(html, /<svg/);
+  assert.match(html, /price-reference-line/);
+  assert.match(html, /€0,080–€0,179\/kWh/);
+  assert.match(html, /data-axis-hour="6" style="left:28\.00%"/);
+  assert.doesNotMatch(html, /price-scroll/);
+  assert.equal((html.match(/class="price-bar /g) || []).length, 100);
+});
+
+test("daily price graph positions local-time markers correctly on a 92-quarter DST day", () => {
+  const intervals = Array.from({ length: 92 }, (_, index) => {
+    const start = new Date(Date.parse("2027-03-27T23:00:00Z") + index * 900000);
+    return {
+      startUtc: start.toISOString(),
+      endUtc: new Date(start.getTime() + 900000).toISOString(),
+      importEurPerKwh: 0.1,
+    };
+  });
+
+  const html = renderDailyPriceGraph(intervals, 0.277);
+
+  assert.match(html, /data-quarter-count="92"/);
+  assert.match(html, /data-axis-hour="6" style="left:21\.74%"/);
+  assert.match(html, /data-axis-hour="12" style="left:47\.83%"/);
+  assert.match(html, /data-axis-hour="18" style="left:73\.91%"/);
+});
+
+test("daily price graph renders an ordinary 96-quarter day", () => {
+  const intervals = Array.from({ length: 96 }, (_, index) => {
+    const start = new Date(Date.parse("2026-10-14T22:00:00Z") + index * 900000);
+    return {
+      startUtc: start.toISOString(),
+      endUtc: new Date(start.getTime() + 900000).toISOString(),
+      importEurPerKwh: 0.1,
+    };
+  });
+
+  const html = renderDailyPriceGraph(intervals, 0.277);
+
+  assert.match(html, /data-quarter-count="96"/);
+  assert.match(html, /data-axis-hour="6" style="left:25\.00%"/);
+  assert.match(html, /data-axis-hour="12" style="left:50\.00%"/);
+  assert.match(html, /data-axis-hour="18" style="left:75\.00%"/);
+});
+
+test("daily price graph bounds long feeds to the three latest days", () => {
+  const intervals = Array.from({ length: 96 * 5 }, (_, index) => {
+    const start = new Date(Date.parse("2026-10-10T22:00:00Z") + index * 900000);
+    return {
+      startUtc: start.toISOString(),
+      endUtc: new Date(start.getTime() + 900000).toISOString(),
+      importEurPerKwh: 0.1 + index * 0.0001,
+    };
+  });
+
+  const html = renderDailyPriceGraph(intervals, 0.277);
+
+  assert.equal((html.match(/class="price-day-chart"/g) || []).length, 3);
+  assert.doesNotMatch(html, /data-day="2026-10-11"/);
+  assert.match(html, /data-day="2026-10-15"/);
 });
 
 test("price aggregates render day week and month comparisons", () => {
@@ -536,6 +726,37 @@ test("a stale shadow plan cannot suppress a fresh integration timeline", () => {
   assert.equal(snapshot.prices.source, "Home Assistant price entities");
   assert.equal(snapshot.prices.intervals[0].importEurPerKwh, 0.12);
   assert.equal(snapshot.live.importPriceEurPerKwh, 0.12);
+});
+
+test("a recently re-reported old plan remains stale and cannot restore an action", () => {
+  const now = new Date("2026-10-19T08:45:00Z");
+  const plan = state("planned", null, "2026-10-16T08:45:00Z", {
+    schedule: [{
+      start: "2026-10-19T08:45:00Z",
+      end: "2026-10-19T09:00:00Z",
+      action: "CHARGE_FROM_GRID",
+      reason: "LOW_PRICE",
+      battery_power_kw: 3,
+    }],
+  });
+  plan.last_reported = "2026-10-19T08:44:55Z";
+  const snapshot = buildSnapshot({ states: {
+    "sensor.grid": state(1, "kW", "2026-10-19T08:44:30Z"),
+    "sensor.pv": state(0, "kW", "2026-10-19T08:44:30Z"),
+    "sensor.battery": state(0, "kW", "2026-10-19T08:44:30Z"),
+    "sensor.soc": state(50, "%", "2026-10-19T08:44:30Z"),
+    "sensor.plan": plan,
+  } }, {
+    grid_power_entity: "sensor.grid",
+    pv_power_entity: "sensor.pv",
+    battery_power_entity: "sensor.battery",
+    battery_soc_entity: "sensor.soc",
+    plan_entity: "sensor.plan",
+    plan_stale_after_hours: 30,
+  }, now);
+
+  assert.equal(snapshot.plan.quality, "STALE");
+  assert.equal(snapshot.plan.action ?? null, null);
 });
 
 test("stale configured current price entities are never displayed", () => {

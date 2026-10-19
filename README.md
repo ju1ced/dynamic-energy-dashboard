@@ -1,8 +1,30 @@
 # Dynamic Energy Shadow Dashboard
 
-Read-only Lovelace monitor for live Home Assistant energy values and a proposed
-Day-Ahead battery shadow plan. The card never calls Home Assistant actions,
-changes helper state or writes to SMA, Smappee, a battery or an EV charger.
+Home Assistant Lovelace package with three deliberately separate cards:
+
+- `dynamic-energy-shadow-card`: the stable read-only monitor for live energy
+  values and a proposed Day-Ahead battery shadow plan;
+- `dynamic-energy-control-config-card`: an alpha configuration surface limited
+  to namespaced, hard-blocked Home Assistant automations;
+- `dynamic-energy-validation-card`: an actuator-read-only comparison of the
+  current shadow plan, measured behavior, shared net headroom and optional daily
+  evidence summary.
+
+The monitoring card never calls Home Assistant actions. The alpha control card
+can create or switch only its own automations between `OFF` and
+`ARMED_BLOCKED`. It cannot select `LIVE`, and generated automations stop before
+any SMA, Smappee, battery or EV-charger action.
+
+Alpha `0.3.0-alpha.7` keeps quarter prices visible across the complete configured
+price-freshness window and uses Home Assistant's `last_reported` timestamp for
+unchanged measurements. The third `Validatie` view therefore keeps actively
+reported zero battery/PV values and derived house power available without
+weakening the read-only or fail-closed boundary.
+
+The validation card refreshes only its configured live telemetry through
+read-only Home Assistant entity `GET` requests once per minute. Plans, prices and
+daily summaries continue to use content-change timestamps, so an unchanged
+re-report cannot make stale decision data current again.
 
 ![Dynamic Energy Shadow Dashboard preview](images/dynamic-energy-shadow-card.png)
 
@@ -14,10 +36,69 @@ changes helper state or writes to SMA, Smappee, a battery or an EV charger.
 - current shadow-plan action, reason and planned-versus-actual deviation;
 - upcoming quarter-hour market and tariff prices, compared with
   the indicative `€0.277/kWh` reference and aligned with planned actions;
+- previous/next navigation that keeps its position across Home Assistant state
+  refreshes;
+- a responsive full-day quarter-price graph, including elapsed intervals and
+  daylight-saving days with 92 or 100 quarters, bounded to the three latest
+  local price days;
 - visible missing, unavailable and stale-data states;
 - visual editor for entity mapping and thresholds;
 - responsive light/dark Home Assistant styling;
 - no runtime dependencies.
+
+Alpha `0.3.0-alpha.6` also adds:
+
+- render suppression for Home Assistant updates unrelated to the shadow card's
+  configured entities;
+- preservation of price-strip position and navigation focus when a relevant
+  update does require a render;
+- a separately deployed third `Validatie` dashboard view using only read-only
+  telemetry, plan and price inputs.
+
+Alpha `0.3.0-alpha.4` also adds:
+
+- a separate visual editor for battery/EV dry-run settings;
+- explicit confirmation before Home Assistant configuration changes;
+- ownership checks for the `dynamic_energy_battery_v1` and
+  `dynamic_energy_ev_v1` automation IDs;
+- a deterministic canonical configuration snapshot that detects changes made
+  after the card generated an automation;
+- fail-closed conflict handling when an automation is foreign, modified or
+  mapped to multiple entities;
+- only `OFF` and `ARMED_BLOCKED`, with `execution_allowed: false` embedded in
+  every managed automation;
+- a data-dense control overview with current, cheapest and highest upcoming
+  prices, current shadow action and live battery/grid/EV context;
+- independent read-only price-entity freshness, so current and upcoming
+  Ecopower prices remain visible when the shadow plan is stale;
+- a separate `PRICE_READY_PLAN_BLOCKED` state that keeps price context visible
+  without implying that a stale plan may be executed;
+- explicit controller ownership and a separate setup guide for SMA battery and
+  Smappee EV configuration;
+- an explicit Smappee dynamic-tariff status that defaults to `NOT_VERIFIED` and
+  never treats Smappee Smart mode as proof that dynamic tariffs are active;
+- visible warnings when the shared dashboard limit and the Smappee capacity
+  threshold differ;
+- reliable quarter-price navigation and a daily graph that does not require
+  horizontal scrolling.
+
+Alpha `0.3.0-alpha.5` adds:
+
+- current-quarter expected-versus-observed battery behavior without claiming a
+  vendor-internal cause;
+- measured EV charging, PV and heat-pump context, plus measured house power or
+  a clearly labelled balance derived from net, PV and battery power;
+- shared headroom based on the stricter dashboard or Smappee capacity limit;
+- warnings for simultaneous battery/EV charging and any effective shared-limit
+  exceedance;
+- current price-zone context selected with current-quarter coverage priority;
+- a bounded optional daily summary for coverage, cheap-window energy, peak,
+  matching/deviation counts and actual-versus-shadow cost;
+- fail-closed pilot statuses and no physical device or vendor writes.
+
+The current operational conclusion, remaining validation gaps and recommended
+order of further actions are documented in
+[`docs/DYNAMIC_TARIFF_CONTROL_CONCLUSION.md`](docs/DYNAMIC_TARIFF_CONTROL_CONCLUSION.md).
 
 ## Install with HACS
 
@@ -31,6 +112,13 @@ artifact. No publication is performed automatically by this repository.
 5. Select repository type `Dashboard`.
 6. Install `Dynamic Energy Shadow Dashboard`.
 7. Refresh the browser when HACS requests it.
+
+The alpha control card requires Home Assistant `2024.10.0` or newer because its
+generated automations use the current plural automation syntax.
+
+For the alpha cards, explicitly select the `0.3.0-alpha.7` prerelease in
+HACS. Do not replace a stable read-only installation with the alpha unless the
+Home Assistant configuration-write boundary below is understood.
 
 ## Configure through the GUI
 
@@ -81,6 +169,209 @@ read-only inputs and do not create battery, inverter or charger controls.
 
 The GUI supports sign conventions because integrations differ: grid import can
 be positive or negative, and battery charging can be positive or negative.
+
+## Alpha control configuration card
+
+Add this card separately from the read-only monitor:
+
+```yaml
+type: custom:dynamic-energy-control-config-card
+title: Dynamic Energy configuratie
+name_prefix: Dynamic Energy
+plan_entity: sensor.dynamic_energy_shadow_plan
+interval_minutes: 15
+peak_limit_kw: 7
+battery_enabled: true
+battery_reserve_soc_percent: 10
+ev_enabled: true
+ev_target_soc_percent: 80
+ev_departure_time: "07:00:00"
+battery_soc_entity: sensor.battery_soc
+grid_power_entity: sensor.grid_power
+grid_import_positive: true
+ev_power_entity: sensor.ev_power
+import_price_entity: sensor.ecopower_dynamische_tarieven_market_price_consumption_price
+export_price_entity: sensor.ecopower_dynamische_tarieven_market_price_injection_price
+integration_price_attribute: data
+price_stale_after_minutes: 20
+data_stale_after_minutes: 10
+plan_stale_after_hours: 30
+sma_controller: Sunny Home Manager 2.0
+sma_optimization_goal: Verify current SMA UI (official workflow: Efficient)
+sma_tariff_type: Dynamisch · Day-Ahead · BE · EPEX Spot
+sma_forecast_charging: OFF
+sma_grid_charge_soc_percent: 0
+sma_feed_in_eur_per_kwh: 0.02
+smappee_mode: smart
+smappee_grid_connection: Driefasig – Delta · 2 × 40 A
+smappee_capacity_threshold_kw: 5.5
+smappee_max_current_ampere: 32
+smappee_offline_fallback_ampere: 8
+smappee_dynamic_tariff_status: NOT_VERIFIED
+```
+
+The observed Dutch SMA value above remains an installation profile, not proof
+that it is equivalent to the officially documented `Efficient` workflow.
+Confirm the current firmware label before activating forecast charging.
+
+## Alpha validation card
+
+Add the actuator-read-only validation card on a separate `Validatie` view:
+
+```yaml
+type: custom:dynamic-energy-validation-card
+title: Gedragsvalidatie
+plan_entity: sensor.dynamic_energy_shadow_plan
+grid_power_entity: sensor.grid_power
+grid_import_positive: true
+battery_power_entity: sensor.battery_power
+battery_charge_positive: true
+ev_power_entity: sensor.ev_power
+house_power_entity: sensor.house_power
+pv_power_entity: sensor.pv_power
+heat_pump_power_entity: sensor.heat_pump_power
+validation_summary_entity: ""
+import_price_entity: sensor.ecopower_dynamische_tarieven_market_price_consumption_price
+export_price_entity: sensor.ecopower_dynamische_tarieven_market_price_injection_price
+integration_price_attribute: data
+price_stale_after_minutes: 20
+peak_limit_kw: 7
+smappee_capacity_threshold_kw: 5.5
+activity_threshold_kw: 0.2
+data_stale_after_minutes: 10
+plan_stale_after_hours: 30
+summary_stale_after_hours: 36
+pilot_status: NOT_STARTED
+```
+
+The release does not create or populate a historical summary entity. Leave
+`validation_summary_entity` empty until a separately validated read-only data
+pipeline provides one. When configured, it must expose these validated
+attributes; absent or invalid values remain unavailable and are never replaced
+with zero:
+
+- `local_date`;
+- `coverage_percent`;
+- `battery_charge_cheap_kwh`;
+- `battery_discharge_expensive_kwh`;
+- `ev_charge_cheap_kwh`;
+- `ev_cheap_share_percent`;
+- `max_grid_import_kw`;
+- `collision_intervals`;
+- `matched_intervals`;
+- `deviation_intervals`;
+- `actual_cost_eur`;
+- `shadow_cost_eur`.
+
+The card accepts only calendar-valid dates, finite bounded values, integer
+quarter counts up to 100 and internally consistent evidence counts. Energy is
+bounded to 500 kWh per metric, maximum grid import to 100 kW and daily costs to
+the range -1000 through 1000 EUR. Match and deviation counts may not exceed the
+reported coverage, and collision counts may not exceed evaluated intervals.
+
+When `house_power_entity` is empty or unavailable while net, PV and battery
+measurements are current, house power is displayed as a derived energy balance.
+It remains explicitly labelled as derived and is not vendor readback.
+
+Supported pilot states are `NOT_STARTED`, `PROTECTION_BASELINE_PENDING`,
+`SMA_ONLY_PILOT`, `SMAPPEE_ONLY_PILOT`, `COMBINED_OBSERVATION`,
+`EVIDENCE_INSUFFICIENT`, `READY_FOR_REVIEW` and `BLOCKED`. An unknown state is
+displayed as `BLOCKED`. Pilot state is presentation context only and never
+enables execution.
+
+The control configuration card has three confirmed actions:
+
+1. create or update only its namespaced blocked automations;
+2. enable verified automations as `ARMED_BLOCKED`;
+3. disable existing verified managed automations as `OFF`.
+
+Before every write, the card verifies ownership. Creation and updates also ask
+Home Assistant to validate the trigger, condition and stop action. Enable and
+disable actions instead re-read and verify the exact sealed configuration. The
+generated action is only a safety stop. It contains no inverter, battery,
+charger, MQTT or other actuator service call. Existing automations without the
+management marker, with a changed stop action or with ambiguous entity mappings
+are rejected.
+
+The embedded snapshot is an exact consistency seal, not cryptographic
+authentication. Normal Home Assistant or manual edits invalidate the seal; an
+external tool that deliberately replaces both the automation and its canonical
+snapshot is outside this ownership check. A changed automation must normally be
+recreated through the card before it can be enabled again.
+
+This alpha does perform bounded Home Assistant configuration writes when the
+user explicitly confirms a button action. Those writes create/update or toggle
+only the two managed automation IDs above. Installing the alpha alone performs
+no write, and the read-only shadow card remains observation-only.
+
+### SMA batterijconfiguratie
+
+The control panel presents the intended installation profile; it does not apply
+these values. Keep **one active controller per actuator**. With SMA as battery
+owner, Home Assistant remains an observer and blocked dry-run surface.
+
+Recommended staged profile for a Sunny Home Manager 2.0 installation:
+
+1. Confirm which label in the installed firmware corresponds to SMA's officially
+   documented `Efficient` objective. Do not assume that the observed Dutch label
+   `Economisch` is equivalent without checking the current vendor interface.
+2. Select a dynamic Day-Ahead tariff for region `BE` with the supported EPEX
+   Spot source and confirm that quarter-hour prices are visible.
+3. Keep the dynamic grid-charging SOC setting at `0%` where required by the
+   SMA forecast-charging workflow.
+4. Treat a fixed feed-in value such as `€0.02/kWh` only as a conservative SMA
+   planning proxy; calculate the real supplier formula outside SMA.
+5. Leave forecast-based charging `OFF` until its schedule has been compared
+   with the shadow plan over representative days in a controlled pilot.
+6. Keep peak shaving off unless it receives a separate shared-limit and
+   controller-ownership validation.
+7. Do not enable competing Home Assistant or Modbus battery setpoints while SMA
+   is the active controller.
+
+Primary SMA references:
+
+- [Planning forecast-based battery charging](https://manuals.sma.de/HM-20-ennexOS/en-US/12563269899.html)
+- [Configuring electricity tariffs](https://manuals.sma.de/HM-20-ennexOS/en-US/16129800843.html)
+- [Sunny Home Manager product information](https://www.sma.de/en/products/energy-management/sunny-home-manager)
+
+### Smappee EV-configuratie
+
+Keep Smappee as the EV and cloud-based overload-protection owner. The dashboard
+can explain price windows, but it must not become a second charger scheduler.
+
+Recommended staged profile:
+
+1. Use `Smart` mode when cloud-based overload protection and capacity control
+   are the priority. Select `Solar` only deliberately for PV-surplus charging.
+2. Verify that the configured grid topology and current rating exactly match
+   the physical installation; these are safety inputs, not price preferences.
+3. Keep the charger current at or below the validated installation and device
+   maximum.
+4. Treat `Maximum current` as the charger overload-protection input. Treat the
+   optional `Maximum grid capacity` separately as a cap on total building/grid
+   consumption; the dashboard only compares its configured shared limit with
+   this value and does not enforce either setting.
+5. Keep offline charging disabled until the fallback current and physical
+   installation have been validated. If offline operation is later enabled,
+   treat it as degraded operation because automatic overload protection is not
+   guaranteed there.
+6. Use only one session scheduler: Kia, Smappee or a future approved external
+   controller, never several at the same time.
+7. Treat Smappee dynamic-tariff displays as planning context unless all supplier
+   surcharges and charges have been reconciled separately.
+8. Leave `smappee_dynamic_tariff_status` at `NOT_VERIFIED` unless a separate,
+   readable and trustworthy status source proves the setting. `Smart` charging
+   mode alone does not prove that dynamic tariffs are active.
+
+Primary Smappee references:
+
+- [Charging modes and schedules](https://support.smappee.com/hc/en-gb/articles/4900468508692)
+- [Smart Charging](https://support.smappee.com/hc/en-gb/articles/4406735969940)
+- [EV Wall Home](https://support.smappee.com/hc/en-gb/articles/4402413229844-EV-Wall-Home)
+- [Offline charging behavior](https://support.smappee.com/hc/en-gb/articles/54047739821460-Does-my-charger-keep-charging-when-it-is-offline)
+
+The card performs no SMA- or Smappee-setting change. Device configuration must
+still be applied and verified in the vendor interface by the owner or installer.
 
 ## Plan entity contract
 
@@ -144,6 +435,7 @@ integration_price_attribute: data
 price_reference_eur_per_kwh: 0.277
 peak_limit_kw: 7
 stale_after_minutes: 10
+price_stale_after_minutes: 20
 grid_import_positive: true
 battery_charge_positive: true
 ```
@@ -157,3 +449,6 @@ npm run check:hacs
 ```
 
 The HACS artifact is `dist/dynamic-energy-dashboard.js`.
+
+Release validation for the alpha is documented in
+`docs/releases/v0.3.0-alpha.7-checklist.md`.

@@ -32,16 +32,19 @@
     <div class="fixture-meta"><strong>HACS Lovelace browser fixture</strong><span id="fixture-mode">live-plan</span></div>
     <dynamic-energy-shadow-card id="card"></dynamic-energy-shadow-card>
     <dynamic-energy-control-config-card id="control-card" style="display:block;margin-top:18px"></dynamic-energy-control-config-card>
+    <dynamic-energy-validation-card id="validation-card" style="display:block;margin-top:18px"></dynamic-energy-validation-card>
     <section id="editor-contract"><h2>Visual editor schema</h2><div id="editor-fields"></div></section>
   </main>
   <script type="module">
     import {
       DynamicEnergyControlConfigCard,
       DynamicEnergyShadowCard,
+      DynamicEnergyValidationCard,
     } from "/dist/dynamic-energy-dashboard.js";
 
     const card = document.getElementById("card");
     const controlCard = document.getElementById("control-card");
+    const validationCard = document.getElementById("validation-card");
     const baseConfig = {
       title: "Live shadow-sturing",
       grid_power_entity: "sensor.grid_power",
@@ -51,10 +54,12 @@
       house_power_entity: "sensor.house_power",
       ev_power_entity: "sensor.ev_power",
       heat_pump_power_entity: "sensor.heat_pump_power",
+      import_price_entity: "sensor.import_price",
       export_price_entity: "sensor.export_price",
       plan_entity: "sensor.shadow_plan",
       plan_attribute: "schedule",
       price_attribute: "prices",
+      integration_price_attribute: "data",
       peak_limit_kw: 7,
       stale_after_minutes: 10,
       plan_stale_after_hours: 30,
@@ -70,10 +75,21 @@
       attributes: { unit_of_measurement: unit, ...attributes },
     });
 
-    function liveStates(stale = false) {
+    function liveStates(stale = false, planStale = stale) {
       const now = new Date();
       const updated = new Date(now.getTime() - (stale ? 45 : 1) * 60000).toISOString();
+      const planUpdated = new Date(now.getTime() - (planStale ? 31 * 60 : 1) * 60000).toISOString();
       const start = new Date(Math.floor(now.getTime() / 900000) * 900000);
+      const dayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+      const integrationPrices = Array.from({ length: 192 }, (_, index) => ({
+        start_time: new Date(dayStart.getTime() + index * 900000).toISOString(),
+        end_time: new Date(dayStart.getTime() + (index + 1) * 900000).toISOString(),
+        price_per_kwh: 0.16 + Math.sin(index / 7) * 0.11 + (index % 29 === 0 ? -0.04 : 0),
+      }));
+      const exportPrices = integrationPrices.map((row) => ({
+        ...row,
+        price_per_kwh: row.price_per_kwh - 0.09,
+      }));
       const prices = Array.from({ length: 32 }, (_, index) => ({
         start_utc: new Date(start.getTime() + index * 900000).toISOString(),
         duration_hours: 0.25,
@@ -89,8 +105,15 @@
         "sensor.house_power": makeState(5500, "W", updated, { friendly_name: "Huisvermogen" }),
         "sensor.ev_power": makeState(2200, "W", updated, { friendly_name: "EV-laden" }),
         "sensor.heat_pump_power": makeState(900, "W", updated, { friendly_name: "Warmtepomp" }),
-        "sensor.export_price": makeState(0.041, "EUR/kWh", updated, { friendly_name: "Injectieprijs" }),
-        "sensor.shadow_plan": makeState("planned", null, updated, {
+        "sensor.import_price": makeState(0.21, "EUR/kWh", updated, {
+          friendly_name: "Afnameprijs",
+          data: integrationPrices,
+        }),
+        "sensor.export_price": makeState(0.041, "EUR/kWh", updated, {
+          friendly_name: "Injectieprijs",
+          data: exportPrices,
+        }),
+        "sensor.shadow_plan": makeState("planned", null, planUpdated, {
           mode: "READ_ONLY_SHADOW",
           price_source: "ENTSO-E Transparency Platform Web API",
           price_tariff_version: "ECOPOWER_DBS_2026-08-01",
@@ -111,6 +134,20 @@
             charge_kwh: 0.25,
             discharge_kwh: 0,
           }],
+        }),
+        "sensor.validation_summary": makeState(now.toISOString().slice(0, 10), null, updated, {
+          local_date: now.toISOString().slice(0, 10),
+          coverage_percent: 97.5,
+          battery_charge_cheap_kwh: 4.2,
+          battery_discharge_expensive_kwh: 2.1,
+          ev_charge_cheap_kwh: 7.4,
+          ev_cheap_share_percent: 82,
+          max_grid_import_kw: 6.2,
+          collision_intervals: 1,
+          matched_intervals: 67,
+          deviation_intervals: 4,
+          actual_cost_eur: 5.84,
+          shadow_cost_eur: 5.31,
         }),
       };
     }
@@ -136,14 +173,69 @@
       name_prefix: "Dynamic Energy",
       plan_entity: "sensor.shadow_plan",
       peak_limit_kw: 7,
+      battery_soc_entity: "sensor.battery_soc",
+      grid_power_entity: "sensor.grid_power",
+      grid_import_positive: true,
+      ev_power_entity: "sensor.ev_power",
+      import_price_entity: "sensor.import_price",
+      export_price_entity: "sensor.export_price",
+      integration_price_attribute: "data",
+      price_stale_after_minutes: 20,
+      plan_stale_after_hours: 30,
+      sma_controller: "Sunny Home Manager 2.0",
+      sma_optimization_goal: "Economisch",
+      sma_tariff_type: "Dynamisch · Day-Ahead · BE · EPEX Spot",
+      sma_forecast_charging: "OFF",
+      sma_grid_charge_soc_percent: 0,
+      sma_feed_in_eur_per_kwh: 0.02,
+      smappee_mode: "smart",
+      smappee_grid_connection: "Driefasig – Delta · 2 × 40 A",
+      smappee_capacity_threshold_kw: 5.5,
+      smappee_max_current_ampere: 32,
+      smappee_offline_fallback_ampere: 8,
+      smappee_dynamic_tariff_status: "NOT_VERIFIED",
     });
-    controlCard.hass = {
-      states: {},
+    const controlHass = (planStale = false) => ({
+      states: liveStates(false, planStale),
       callWS: async () => undefined,
-      callApi: async () => undefined,
+      callApi: async () => {
+        const error = new Error("not found");
+        error.status = 404;
+        throw error;
+      },
       callService: async () => undefined,
+    });
+    controlCard.hass = controlHass(false);
+    window.setControlFixtureMode = (mode) => {
+      controlCard.hass = controlHass(mode === "stale-plan");
     };
     window.fixtureControlEditorFieldCount = DynamicEnergyControlConfigCard.getConfigForm().schema.length;
+    validationCard.setConfig({
+      title: "Gedragsvalidatie",
+      plan_entity: "sensor.shadow_plan",
+      grid_power_entity: "sensor.grid_power",
+      grid_import_positive: true,
+      battery_power_entity: "sensor.battery_power",
+      battery_charge_positive: true,
+      ev_power_entity: "sensor.ev_power",
+      house_power_entity: "sensor.house_power",
+      pv_power_entity: "sensor.pv_power",
+      heat_pump_power_entity: "sensor.heat_pump_power",
+      validation_summary_entity: "sensor.validation_summary",
+      import_price_entity: "sensor.import_price",
+      export_price_entity: "sensor.export_price",
+      integration_price_attribute: "data",
+      price_stale_after_minutes: 20,
+      peak_limit_kw: 7,
+      smappee_capacity_threshold_kw: 5.5,
+      activity_threshold_kw: 0.2,
+      data_stale_after_minutes: 10,
+      plan_stale_after_hours: 30,
+      summary_stale_after_hours: 36,
+      pilot_status: "COMBINED_OBSERVATION",
+    });
+    validationCard.hass = { states: liveStates(false, false) };
+    window.fixtureValidationEditorFieldCount = DynamicEnergyValidationCard.getConfigForm().schema.length;
     window.setFixtureMode("live-plan");
   </script>
 </body>
