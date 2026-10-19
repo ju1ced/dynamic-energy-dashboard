@@ -1116,3 +1116,92 @@ test("reverse aggregate input still renders the latest validated periods", () =>
   assert.match(html, /2026-10/);
   assert.doesNotMatch(html, /€0,990|€0,980|€0,970/);
 });
+
+test("BE electricity prices today/tomorrow attributes provide import and injection prices", () => {
+  const now = new Date("2026-10-19T00:20:00+02:00");
+  const importState = state(0.3385, "EUR/kWh", "2026-10-19T00:19:00+02:00", {
+    today: [
+      { start: "2026-10-19T23:30:00+02:00", all_in: 0.358203 },
+      { start: "2026-10-19T23:45:00+02:00", all_in: 0.339088 },
+      { start: "2026-10-19T00:00:00+02:00", all_in: 0.340039 },
+      { start: "2026-10-19T00:15:00+02:00", all_in: 0.338504 },
+    ],
+    tomorrow: [
+      { start: "2026-10-20T00:00:00+02:00", all_in: 0.33 },
+      { start: "2026-10-20T00:15:00+02:00", all_in: 0.32 },
+    ],
+  });
+  const exportState = state(0.17, "EUR/kWh", "2026-10-19T00:19:00+02:00", {
+    today: [
+      { start: "2026-10-19T00:00:00+02:00", injection: 0.170122 },
+      { start: "2026-10-19T00:15:00+02:00", injection: 0.16 },
+    ],
+    tomorrow: [],
+  });
+
+  const prices = getEntityPriceIntervals(importState, exportState, "today,tomorrow", now, true);
+
+  assert.equal(prices.length, 6);
+  assert.equal(prices[0].startUtc, "2026-10-18T22:00:00.000Z");
+  assert.equal(prices[0].durationHours, 0.25);
+  assert.equal(prices[0].importEurPerKwh, 0.340039);
+  assert.equal(prices[0].exportEurPerKwh, 0.170122);
+  assert.equal(prices[1].exportEurPerKwh, 0.16);
+  assert.equal(prices[2].exportEurPerKwh, null);
+  // The last row repeats the previous slot length; the day boundary is contiguous.
+  assert.equal(prices[5].durationHours, 0.25);
+  assert.equal(prices[5].endUtc, "2026-10-19T22:30:00.000Z");
+});
+
+test("hourly rows without an end are inferred as one hour", () => {
+  const importState = state(0.31, "EUR/kWh", "2026-10-19T10:00:00+02:00", {
+    today: [
+      { start: "2026-10-19T10:00:00+02:00", all_in: 0.31 },
+      { start: "2026-10-19T11:00:00+02:00", all_in: 0.31 },
+    ],
+  });
+
+  const prices = getEntityPriceIntervals(
+    importState, null, "today,tomorrow", new Date("2026-10-19T10:05:00+02:00"),
+  );
+
+  assert.deepEqual(prices.map((row) => row.durationHours), [1, 1]);
+});
+
+test("rows without an end are rejected when no slot length can be inferred", () => {
+  const importState = state(0.31, "EUR/kWh", "2026-10-19T10:00:00+02:00", {
+    today: [{ start: "2026-10-19T10:00:00+02:00", all_in: 0.31 }],
+  });
+
+  assert.deepEqual(
+    getEntityPriceIntervals(importState, null, "today", new Date("2026-10-19T10:05:00+02:00")),
+    [],
+  );
+});
+
+test("a malformed or conflicting price row discards the whole attribute", () => {
+  const now = new Date("2026-10-19T10:05:00+02:00");
+  const malformed = state(0.31, "EUR/kWh", "2026-10-19T10:00:00+02:00", {
+    today: [
+      { start: "2026-10-19T10:00:00+02:00", all_in: 0.31 },
+      { start: "2026-10-19T10:15:00+02:00", all_in: "n/a" },
+    ],
+  });
+  const conflicting = state(0.31, "EUR/kWh", "2026-10-19T10:00:00+02:00", {
+    today: [
+      { start: "2026-10-19T10:00:00+02:00", all_in: 0.31 },
+      { start: "2026-10-19T10:00:00+02:00", all_in: 0.32 },
+    ],
+  });
+
+  assert.deepEqual(getEntityPriceIntervals(malformed, null, "today", now), []);
+  assert.deepEqual(getEntityPriceIntervals(conflicting, null, "today", now), []);
+});
+
+test("a missing attribute keeps returning no intervals", () => {
+  const importState = state(0.31, "EUR/kWh", "2026-10-19T10:00:00+02:00", {});
+  assert.deepEqual(
+    getEntityPriceIntervals(importState, null, "today,tomorrow", new Date("2026-10-19T10:05:00+02:00")),
+    [],
+  );
+});

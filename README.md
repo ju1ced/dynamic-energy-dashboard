@@ -151,6 +151,21 @@ entities whose `data` attribute contains `start_time`, `end_time` and
 `EPEX Spot Data` and `Ecopower Dynamic Prices`. Identical duplicate intervals
 from these integrations are collapsed; conflicting duplicates remain rejected.
 
+The card also reads the `BE electricity prices` integration
+(`be_electricity_prices`, HACS). Its `Huidige prijs` and `Injectieprijs`
+sensors expose `today` and `tomorrow` attributes with rows such as
+`{start, all_in}` (import, incl. network and taxes) and `{start, injection}`.
+These rows have no end time, so each interval ends where the next one starts
+and the last one repeats the previous length (15 minutes for the dynamic
+contract, 1 hour for Groene Burgerstroom). Set the attribute option to a
+comma-separated list:
+
+```yaml
+import_price_entity: sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_huidige_prijs
+export_price_entity: sensor.ecopower_ecopower_dynamische_burgerstroom_flanders_injectieprijs
+integration_price_attribute: today,tomorrow
+```
+
 Recommended setup when those integrations are already available:
 
 1. Install and configure `EPEX Spot Data` for Belgium through HACS.
