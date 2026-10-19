@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0-alpha.9 — 2026-10-19
 
 - Read `today` and `tomorrow` price attributes of the `BE electricity prices`
   integration (`all_in` and `injection` rows without an end time). The
